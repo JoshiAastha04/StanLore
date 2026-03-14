@@ -267,7 +267,7 @@ export default function LandingPage({ onEnter, onBrowse }) {
                         <div className="logo-mark logo-mark--sm">S</div>
                         <span className="logo-wordmark logo-wordmark--sm">Stanlore</span>
                     </div>
-                    <span className="landing__footer-tagline">Built for ARMY, by ARMY</span>
+                    <span className="landing__footer-tagline">Collection, Lore & Combacks - All in One Place</span>
                     <span className="landing__footer-copy">© {new Date().getFullYear()}</span>
                 </footer>
 
