@@ -7,8 +7,9 @@ import HomePage     from "./pages/Home/HomePage";
 import ProfilePage  from "./pages/Profile/ProfilePage";
 import LorePage     from "./pages/Lore/LorePage";
 import UpdatesPage  from "./pages/Updates/UpdatesPage";
+import StylePage    from "./pages/Fashion/StylePage";
 import "./styles/globals.css";
-import './styles/Mobile.css'
+import "./styles/Mobile.css";
 
 function Router() {
     const { isLoggedIn, loading, signOut } = useAuth();
@@ -16,8 +17,9 @@ function Router() {
     const [profileUser, setProfileUser] = useState(null);
     const [activeGroup, setActiveGroup] = useState(null);
     const [guestMode, setGuestMode]     = useState(false);
+    const [catalogOnLoad, setCatalogOnLoad] = useState(false);
 
-    // Fix #4 — auto-redirect after sign-in without refresh
+    // Auto-redirect after sign-in — no manual refresh needed
     useEffect(() => {
         if (isLoggedIn && (page === "auth" || page === "landing")) {
             setPage("grpselect");
@@ -37,7 +39,7 @@ function Router() {
         );
     }
 
-    // Auth page
+    // Auth
     if (page === "auth") {
         return <AuthPage onBack={() => setPage(guestMode ? "grpselect" : "landing")} />;
     }
@@ -51,11 +53,17 @@ function Router() {
                     setProfileUser(null);
                     setPage(isLoggedIn ? "home" : "grpselect");
                 }}
+                onCatalog={() => {
+                    // Go home first, then the catalog tab opens via state
+                    setProfileUser(null);
+                    setPage("home");
+                    setCatalogOnLoad(true);   // signal HomePage to open catalog tab
+                }}
             />
         );
     }
 
-    // Lore — guests can read, but prompts sign-up to interact
+    // Lore
     if (page === "lore") {
         return (
             <LorePage
@@ -66,7 +74,7 @@ function Router() {
         );
     }
 
-    // Updates — same guest rules
+    // Updates
     if (page === "updates") {
         return (
             <UpdatesPage
@@ -77,37 +85,47 @@ function Router() {
         );
     }
 
-    // Home (logged-in only)
+    // Style / Fashion
+    if (page === "style") {
+        return (
+            <StylePage
+                isGuest={!isLoggedIn}
+                onBack={() => setPage(isLoggedIn ? "home" : "grpselect")}
+                onSignIn={() => setPage("auth")}
+            />
+        );
+    }
+
+    // Home (logged-in)
     if (page === "home" && isLoggedIn) {
         return (
             <HomePage
                 activeGroup={activeGroup}
-                onProfile={(username) => { setProfileUser(username); setPage("profile"); }}
+                initialTab={catalogOnLoad ? "catalog" : "collection"}
+                onProfile={(username) => { setProfileUser(username); setPage("profile"); setCatalogOnLoad(false); }}
                 onLore={() => setPage("lore")}
                 onUpdates={() => setPage("updates")}
+                onStyle={() => setPage("style")}
                 onGroupSwitch={() => setPage("grpselect")}
                 onSignOut={async () => {
                     await signOut();
                     setProfileUser(null);
                     setActiveGroup(null);
                     setGuestMode(false);
+                    setCatalogOnLoad(false);
                     setPage("landing");
                 }}
             />
         );
     }
 
-    // GrpSelect — shown to both logged-in users AND guests browsing
+    // GrpSelect — shown to logged-in users AND guests
     if (page === "grpselect" || guestMode || isLoggedIn) {
         return (
             <GrpSelect
                 isGuest={!isLoggedIn}
                 onEnter={(group) => {
-                    // Fix #5 — guests see the page but must sign up to enter
-                    if (!isLoggedIn) {
-                        setPage("auth");
-                        return;
-                    }
+                    if (!isLoggedIn) { setPage("auth"); return; }
                     setActiveGroup(group);
                     setPage("home");
                 }}
@@ -123,11 +141,11 @@ function Router() {
         );
     }
 
-    // Landing — for brand-new visitors
+    // Landing
     return (
         <LandingPage
             onEnter={() => setPage("auth")}
-            onBrowse={() => {       // Fix #5 — "Browse the app" → GrpSelect without auth
+            onBrowse={() => {
                 setGuestMode(true);
                 setPage("grpselect");
             }}

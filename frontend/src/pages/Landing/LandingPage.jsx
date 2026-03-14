@@ -103,7 +103,7 @@ export default function LandingPage({ onEnter, onBrowse }) {
             {introPhase !== "done" && (
                 <div className={`intro${introPhase === "fading" ? " intro--fading" : ""}`}>
                     <div className="intro__bloom">S</div>
-                    <div className="intro__hello">Hello, ARMY</div>
+                    <div className="intro__hello">Hello, Stannies</div>
                 </div>
             )}
 
@@ -165,7 +165,7 @@ export default function LandingPage({ onEnter, onBrowse }) {
                 {/* ── HERO ── */}
                 <section className="landing__hero">
                     <div className="landing__hero-eyebrow">
-                        <span className="eyebrow">For ARMY collectors</span>
+                        <span className="eyebrow">For K-pop Collectors</span>
                     </div>
 
                     <h1 className="landing__hero-title">
@@ -174,7 +174,7 @@ export default function LandingPage({ onEnter, onBrowse }) {
                     </h1>
 
                     <p className="landing__hero-sub">
-                        The digital binder built for the way ARMY actually collects.
+                        The digital binder built for the way Stannies actually collects.
                         Track every photocard you own, want, and have to trade — all in one place.
                     </p>
 
@@ -199,29 +199,29 @@ export default function LandingPage({ onEnter, onBrowse }) {
                             </div>
                         )}
 
-                        {/* Fix #5 — "Browse the app" goes to GrpSelect without auth */}
+                        {/* Browse the app goes to GrpSelect without auth */}
                         <button className="btn btn-ghost" onClick={onBrowse}>
                             Browse the app →
                         </button>
                     </div>
                 </section>
 
-                {/* ── STATS BAR ── */}
+                {/* ── STats bar ── */}
                 <div className="landing__stats">
-                    <StatPill value="7"  label="Members" />
-                    <StatPill value="5+" label="Eras" />
+                    <StatPill value="10+"  label="Groups" />
+                    <StatPill value="50+" label="Eras" />
                     <StatPill value="∞"  label="Cards" last />
                 </div>
 
-                {/* ── BINDER PREVIEW ── */}
+                {/* ── Binder preview ── */}
                 <div className="landing__binder-section">
                     <BinderPreview />
                 </div>
 
-                {/* ── FEATURES ── Fix #3: added real content so links scroll here */}
+                {/*  added real content so links scroll here */}
                 <section id="landing-features" className="landing__features">
                     <div className="landing__features-heading">
-                        <h2>Built for the way <em>stans actually collect</em></h2>
+                        <h2>Built for the way <em>Stans actually collect</em></h2>
                     </div>
                     <div className="landing__features-grid">
                         <FeatureCard icon="✦" title="Digital binder"
@@ -248,7 +248,7 @@ export default function LandingPage({ onEnter, onBrowse }) {
                 {/* ── CTA ── */}
                 <section id="landing-cta" className="landing__cta">
                     <p className="landing__cta-headline">I purple your collection.</p>
-                    <p className="landing__cta-sub">Join ARMY collectors who are done with spreadsheets.</p>
+                    <p className="landing__cta-sub">Join collectors building their Digital Binder.</p>
                     <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
                         <button className="btn btn-primary" onClick={onEnter}
                                 style={{ padding: "13px 32px", fontSize: 15 }}>
