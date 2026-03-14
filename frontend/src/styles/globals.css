@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+
+/* ─── Reset ───────────────────────────────────────────────── */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+#root {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+/* ─── Design tokens ───────────────────────────────────────── */
+:root {
+
+    /* Purple scale */
+    --purple-deep:   #1a1830;
+    --purple-dark:   #26215C;
+    --purple-mid:    #534AB7;
+    --purple-main:   #7F77DD;
+    --purple-light:  #AFA9EC;
+    --purple-pale:   #CECBF6;
+    --purple-mist:   #EEEDFE;
+
+    /* Coral accent */
+    --coral:         #F0997B;
+    --coral-light:   #F5C4B3;
+    --coral-mist:    #FAECE7;
+    --coral-dark:    #4A1B0C;
+
+    /* Neutrals */
+    --parchment:     #F1EFE8;
+    --gray-light:    #D3D1C7;
+    --gray-mid:      #888780;
+    --near-black:    #2C2C2A;
+
+    /* Semantic bg */
+    --bg-deep:       #1a1830;
+    --bg-card:       rgba(38, 33, 92, 0.5);
+    --bg-card-hover: rgba(38, 33, 92, 0.7);
+    --bg-sidebar:    rgba(16, 13, 38, 0.95);
+    --bg-overlay:    rgba(10, 8, 30, 0.8);
+
+    /* Borders */
+    --border-subtle:  rgba(175, 169, 236, 0.12);
+    --border-soft:    rgba(175, 169, 236, 0.2);
+    --border-medium:  rgba(175, 169, 236, 0.35);
+    --border-strong:  rgba(175, 169, 236, 0.5);
+
+    /* Text */
+    --text-primary:   #F1EFE8;
+    --text-secondary: #CECBF6;
+    --text-muted:     #7F77DD;
+    --text-faint:     #534AB7;
+    --text-coral:     #F0997B;
+    --text-success:   #9FE1CB;
+
+    /* Typography */
+    --font-sans:    'DM Sans', sans-serif;
+    --font-serif:   'Cormorant Garamond', serif;
+    --font-mono:    'JetBrains Mono', monospace;
+
+    /* Spacing */
+    --space-xs:   4px;
+    --space-sm:   8px;
+    --space-md:   16px;
+    --space-lg:   24px;
+    --space-xl:   32px;
+    --space-2xl:  48px;
+    --space-3xl:  64px;
+
+    /* Radius */
+    --radius-sm:  8px;
+    --radius-md:  12px;
+    --radius-lg:  16px;
+    --radius-xl:  20px;
+    --radius-pill: 999px;
+
+    /* Sidebar */
+    --sidebar-width: 220px;
+
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-med:  0.25s ease;
+}
+
+/* ─── Animations ──────────────────────────────────────────── */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes bloom {
+    0%   { transform: scale(0.15) rotate(-10deg); opacity: 0; }
+    35%  { transform: scale(1.1) rotate(2deg); opacity: 1; }
+    60%  { transform: scale(0.95); opacity: 1; }
+    78%  { transform: scale(1.5); opacity: 1; }
+    100% { transform: scale(22); opacity: 0; }
+}
+
+@keyframes helloArmy {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes floatA {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50%       { transform: translateY(-20px) rotate(3deg); }
+}
+
+@keyframes floatB {
+    0%, 100% { transform: translateY(0) rotate(6deg); }
+    50%       { transform: translateY(-16px) rotate(-2deg); }
+}
+
+@keyframes floatC {
+    0%, 100% { transform: translateY(0) rotate(2deg); }
+    50%       { transform: translateY(-24px) rotate(-5deg); }
+}
+
+/* ─── Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(127, 119, 221, 0.3); border-radius: 2px; }
+
+/* ─── Selection ───────────────────────────────────────────── */
+::selection { background: rgba(127, 119, 221, 0.4); }

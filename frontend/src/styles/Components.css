@@ -1,0 +1,317 @@
+/* ─── Binder frame (used in landing preview + home) ──────── */
+.binder-frame {
+    background: rgba(38, 33, 92, 0.55);
+    border: 0.5px solid rgba(175, 169, 236, 0.2);
+    border-radius: 20px;
+    overflow: hidden;
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+.binder-header {
+    background: rgba(83, 74, 183, 0.3);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 0.5px solid rgba(175, 169, 236, 0.15);
+}
+
+.binder-header__info { flex: 1; }
+.binder-header__name { font-size: 14px; font-weight: 500; color: var(--purple-pale); }
+.binder-header__era  { font-size: 11px; color: var(--text-muted); }
+.binder-header__count { font-size: 11px; color: var(--purple-light); }
+
+.binder-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 16px;
+}
+
+.binder-tile {
+    border-radius: 9px;
+    aspect-ratio: 2/3;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 6px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.binder-tile:hover { transform: translateY(-4px); }
+
+.binder-tile--owned     { background: rgba(175, 169, 236, 0.3); }
+.binder-tile--wishlist  { background: rgba(240, 153, 123, 0.28); }
+.binder-tile--duplicate { background: rgba(83, 74, 183, 0.45); }
+.binder-tile--missing   { background: rgba(255, 255, 255, 0.05); }
+
+.binder-tile__ver {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--purple-pale);
+    margin-bottom: 3px;
+}
+
+.binder-footer {
+    padding: 10px 20px;
+    border-top: 0.5px solid rgba(175, 169, 236, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(38, 33, 92, 0.4);
+}
+
+.binder-footer__label { font-size: 11px; color: var(--text-muted); }
+.binder-footer__pct   { font-size: 11px; color: var(--purple-light); font-weight: 500; }
+
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: var(--radius-pill);
+    padding: 10px 24px;
+    cursor: pointer;
+    border: none;
+    transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+    background: var(--purple-main);
+    color: var(--bg-deep);
+}
+.btn-primary:hover { background: var(--purple-pale); }
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+    border: 0.5px solid var(--border-soft);
+}
+.btn-ghost:hover {
+    border-color: var(--border-medium);
+    color: var(--text-primary);
+}
+
+.btn-sm {
+    font-size: 12px;
+    padding: 6px 14px;
+}
+
+.btn-danger {
+    background: transparent;
+    color: #E24B4A;
+    border: 0.5px solid rgba(226, 75, 74, 0.3);
+}
+.btn-danger:hover { background: rgba(226, 75, 74, 0.1); }
+
+/* ─── Badges / pills ──────────────────────────────────────── */
+.badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    letter-spacing: 0.03em;
+}
+
+.badge-owned     { background: var(--purple-main);  color: var(--purple-mist); }
+.badge-wishlist  { background: var(--coral);         color: var(--coral-dark); }
+.badge-duplicate { background: var(--purple-mid);    color: var(--purple-mist); }
+.badge-missing   { background: rgba(175,169,236,0.12); color: rgba(175,169,236,0.5); }
+
+/* ─── Cards ───────────────────────────────────────────────── */
+.card {
+    background: var(--bg-card);
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    transition: border-color var(--transition-fast);
+}
+.card:hover { border-color: var(--border-medium); }
+
+.card-surface {
+    background: rgba(26, 24, 48, 0.7);
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    transition: border-color var(--transition-fast);
+}
+.card-surface:hover { border-color: var(--border-soft); }
+
+/* ─── Stat cards ──────────────────────────────────────────── */
+.stat-card {
+    background: var(--bg-card);
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
+    flex: 1;
+}
+
+.stat-card__label {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.stat-card__value {
+    font-family: var(--font-serif);
+    font-size: 34px;
+    font-weight: 300;
+    color: var(--text-secondary);
+}
+
+/* ─── Progress bar ────────────────────────────────────────── */
+.progress-track {
+    width: 100%;
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(175, 169, 236, 0.12);
+}
+
+.progress-fill {
+    height: 3px;
+    border-radius: 2px;
+    background: var(--purple-main);
+    transition: width 0.6s ease;
+}
+
+.progress-fill--complete { background: var(--text-success); }
+
+/* ─── Avatar ──────────────────────────────────────────────── */
+.avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--purple-mid);
+    color: var(--purple-mist);
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.avatar--sm  { width: 28px; height: 28px; font-size: 10px; }
+.avatar--md  { width: 34px; height: 34px; font-size: 13px; }
+.avatar--lg  { width: 44px; height: 44px; font-size: 16px; }
+
+/* ─── Logo mark ───────────────────────────────────────────── */
+.logo-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--purple-mid);
+    color: var(--purple-mist);
+    font-family: var(--font-serif);
+    border-radius: 9px;
+    flex-shrink: 0;
+}
+.logo-mark--sm  { width: 28px; height: 28px; font-size: 15px; border-radius: 7px; }
+.logo-mark--md  { width: 34px; height: 34px; font-size: 19px; border-radius: 9px; }
+.logo-mark--lg  { width: 44px; height: 44px; font-size: 24px; border-radius: 12px; }
+
+.logo-wordmark {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    color: var(--purple-pale);
+    letter-spacing: 0.02em;
+}
+.logo-wordmark--sm { font-size: 17px; }
+.logo-wordmark--md { font-size: 21px; }
+.logo-wordmark--lg { font-size: 26px; }
+
+/* ─── Section label ───────────────────────────────────────── */
+.section-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--space-sm);
+}
+
+/* ─── Input ───────────────────────────────────────────────── */
+.input {
+    background: rgba(26, 24, 48, 0.8);
+    border: 0.5px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    padding: 9px 14px;
+    font-size: 13px;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    outline: none;
+    transition: border-color var(--transition-fast);
+    width: 100%;
+}
+.input:focus { border-color: var(--border-medium); }
+.input::placeholder { color: var(--text-faint); }
+
+/* ─── Modal overlay ───────────────────────────────────────── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-overlay);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal {
+    background: #1e1a38;
+    border: 0.5px solid var(--border-soft);
+    border-radius: var(--radius-xl);
+    padding: var(--space-lg) var(--space-xl);
+    animation: fadeUp 0.25s ease;
+}
+
+/* ─── Eyebrow tag ─────────────────────────────────────────── */
+.eyebrow {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border: 0.5px solid rgba(127, 119, 221, 0.4);
+    border-radius: var(--radius-pill);
+    padding: 5px 16px;
+}
+
+/* ─── Ambient orbs (decorative) ───────────────────────────── */
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+}
+.orb--1 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(127,119,221,0.12) 0%, transparent 70%);
+    top: -150px; right: -100px;
+}
+.orb--2 {
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(83,74,183,0.1) 0%, transparent 70%);
+    bottom: 0; left: -80px;
+}
+.orb--3 {
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(240,153,123,0.08) 0%, transparent 70%);
+    top: 40%; right: 5%;
+}
+
+/* ─── Floating cards (decorative) ────────────────────────── */
+.float-card {
+    position: absolute;
+    border-radius: 10px;
+    pointer-events: none;
+}
+.float-card--a { animation: floatA 6s ease-in-out infinite; }
+.float-card--b { animation: floatB 7.5s ease-in-out infinite 1.2s; }
+.float-card--c { animation: floatC 8.5s ease-in-out infinite 2.5s; }

@@ -1,0 +1,416 @@
+/* ─── App shell ───────────────────────────────────────────── */
+.home {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    min-height: 100vh;
+    font-family: var(--font-sans);
+}
+
+/* ─── Sidebar ─────────────────────────────────────────────── */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    background: var(--bg-sidebar);
+    border-right: 0.5px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    z-index: 50;
+}
+
+.sidebar__logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 36px;
+    padding-left: 4px;
+}
+
+.sidebar__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sidebar__nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    border: 0.5px solid transparent;
+    color: var(--text-faint);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    text-align: left;
+    width: 100%;
+    transition: all var(--transition-fast);
+}
+.sidebar__nav-item:hover {
+    color: var(--text-secondary);
+    background: rgba(127, 119, 221, 0.08);
+}
+.sidebar__nav-item--active {
+    background: rgba(127, 119, 221, 0.18);
+    border-color: rgba(127, 119, 221, 0.3);
+    color: var(--text-secondary);
+}
+
+.sidebar__nav-icon { font-size: 15px; }
+
+.sidebar__spacer { flex: 1; }
+
+.sidebar__user {
+    border-top: 0.5px solid var(--border-subtle);
+    padding-top: 16px;
+}
+
+.sidebar__user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.sidebar__user-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.sidebar__user-tag {
+    font-size: 10px;
+    color: var(--text-faint);
+}
+
+.sidebar__signout {
+    width: 100%;
+    padding: 7px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    border: 0.5px solid var(--border-subtle);
+    color: var(--text-faint);
+    font-size: 11px;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+.sidebar__signout:hover {
+    color: var(--text-muted);
+    border-color: var(--border-soft);
+}
+
+/* ─── Main content ────────────────────────────────────────── */
+.home__main {
+    margin-left: var(--sidebar-width);
+    padding: 32px 36px;
+    min-height: 100vh;
+}
+
+/* ─── Page header ─────────────────────────────────────────── */
+.home__header {
+    margin-bottom: 32px;
+    animation: fadeUp 0.5s ease forwards;
+}
+
+.home__title {
+    font-family: var(--font-serif);
+    font-size: 34px;
+    font-weight: 300;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.home__subtitle {
+    font-size: 13px;
+    color: var(--text-faint);
+}
+
+/* ─── Stats row ───────────────────────────────────────────── */
+.home__stats {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+    animation: fadeUp 0.5s ease forwards 0.1s;
+    opacity: 0;
+}
+
+/* ─── Member filter ───────────────────────────────────────── */
+.home__filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+    animation: fadeUp 0.5s ease forwards 0.2s;
+    opacity: 0;
+}
+
+.filter-btn {
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    border: 0.5px solid var(--border-soft);
+    color: var(--text-muted);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    transition: all var(--transition-fast);
+}
+.filter-btn:hover {
+    border-color: var(--border-medium);
+    color: var(--text-secondary);
+}
+.filter-btn--active {
+    background: var(--purple-main);
+    border-color: transparent;
+    color: var(--bg-deep);
+    font-weight: 500;
+}
+
+/* ─── Era grid ────────────────────────────────────────────── */
+.home__era-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+    animation: fadeUp 0.6s ease forwards 0.3s;
+    opacity: 0;
+}
+
+/* ─── Era card ────────────────────────────────────────────── */
+.era-card {
+    background: rgba(26, 24, 48, 0.7);
+    border: 0.5px solid var(--border-subtle);
+    border-radius: 18px;
+    overflow: hidden;
+    transition: border-color var(--transition-fast);
+}
+.era-card:hover { border-color: var(--border-soft); }
+
+.era-card__header {
+    background: rgba(83, 74, 183, 0.2);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 0.5px solid var(--border-subtle);
+}
+
+.era-card__member-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.era-card__era-name {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.era-card__count {
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-left: auto;
+}
+.era-card__count--complete { color: var(--text-success); font-weight: 500; }
+
+.era-card__grid {
+    display: grid;
+    gap: 8px;
+    padding: 14px;
+}
+
+.era-card__footer {
+    padding: 10px 16px;
+    border-top: 0.5px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.era-card__footer-label {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.era-card__pct {
+    font-size: 11px;
+    color: var(--text-muted);
+    min-width: 30px;
+    text-align: right;
+}
+
+/* ─── Photocard tile ──────────────────────────────────────── */
+.pc-tile {
+    border-radius: 10px;
+    aspect-ratio: 2/3;
+    display: flex;
+    align-items: flex-end;
+    padding: 7px;
+    cursor: pointer;
+    border: 0.5px solid transparent;
+    transition: transform 0.2s, border-color 0.2s;
+}
+.pc-tile:hover {
+    transform: translateY(-5px) scale(1.02);
+    border-color: var(--border-soft);
+}
+
+.pc-tile--owned     { background: rgba(175, 169, 236, 0.28); }
+.pc-tile--wishlist  { background: rgba(240, 153, 123, 0.25); }
+.pc-tile--duplicate { background: rgba(83, 74, 183, 0.4); }
+.pc-tile--missing   { background: rgba(255, 255, 255, 0.04); }
+
+.pc-tile__ver {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--purple-pale);
+    margin-bottom: 3px;
+}
+
+/* ─── Wishlist tab ────────────────────────────────────────── */
+.wishlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    animation: fadeUp 0.5s ease forwards;
+    opacity: 0;
+}
+
+.wishlist-card {
+    background: rgba(240, 153, 123, 0.12);
+    border: 0.5px solid rgba(240, 153, 123, 0.25);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    transition: border-color var(--transition-fast);
+}
+.wishlist-card:hover { border-color: rgba(240, 153, 123, 0.5); }
+
+.wishlist-card__member {
+    font-size: 12px;
+    color: var(--text-coral);
+    margin-bottom: 4px;
+}
+.wishlist-card__era {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+}
+.wishlist-card__ver {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ─── Trades tab ──────────────────────────────────────────── */
+.trades-compose {
+    background: var(--bg-card);
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.trades-compose__title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.trades-compose__row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.trades-compose__field { flex: 1; min-width: 180px; }
+
+.trades-compose__arrow {
+    font-size: 18px;
+    color: var(--text-faint);
+    padding-bottom: 10px;
+}
+
+.trade-listing {
+    background: rgba(26, 24, 48, 0.6);
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: border-color var(--transition-fast);
+}
+.trade-listing:hover { border-color: var(--border-soft); }
+
+.trade-listing__user { font-size: 12px; color: var(--text-faint); margin-bottom: 4px; }
+.trade-listing__cards { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.trade-listing__have { font-size: 13px; color: var(--text-secondary); }
+.trade-listing__arrow { font-size: 14px; color: var(--text-faint); }
+.trade-listing__want { font-size: 13px; color: var(--text-coral); }
+.trade-listing__meta { display: flex; gap: 8px; align-items: center; margin-left: auto; }
+.trade-listing__time { font-size: 11px; color: var(--text-faint); }
+
+/* ─── Card modal ──────────────────────────────────────────── */
+.card-modal {
+    background: #1e1a38;
+    border: 0.5px solid var(--border-soft);
+    border-radius: var(--radius-xl);
+    padding: 28px;
+    width: 280px;
+    text-align: center;
+    animation: fadeUp 0.25s ease;
+}
+
+.card-modal__preview {
+    width: 100px;
+    height: 150px;
+    border-radius: 12px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0.5px solid var(--border-soft);
+}
+
+.card-modal__title {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.card-modal__statuses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.card-modal__status-btn {
+    padding: 5px 12px;
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    transition: all var(--transition-fast);
+}
+
+/* ─── Empty state ─────────────────────────────────────────── */
+.empty-state {
+    text-align: center;
+    padding: 60px 0;
+    font-family: var(--font-serif);
+    font-size: 20px;
+    font-style: italic;
+    color: var(--text-faint);
+    line-height: 1.6;
+}

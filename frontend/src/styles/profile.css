@@ -1,0 +1,210 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.profile-page {
+    min-height: 100vh;
+    background: #1a1830;
+    color: #F1EFE8;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.profile-nav {
+    display: flex; align-items: center; gap: 12px;
+    padding: 20px 48px;
+    border-bottom: 0.5px solid rgba(175,169,236,0.12);
+}
+
+.profile-nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer; text-decoration: none;
+}
+
+.profile-nav-mark {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: #534AB7;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; color: #EEEDFE;
+}
+
+.profile-nav-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; color: #CECBF6;
+}
+
+.profile-hero {
+    padding: 48px 48px 32px;
+    max-width: 860px; margin: 0 auto;
+    display: flex; align-items: flex-start; gap: 28px;
+}
+
+.profile-avatar {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, #534AB7, #7F77DD);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px; color: #EEEDFE;
+    flex-shrink: 0;
+    border: 2px solid rgba(175,169,236,0.3);
+}
+
+.profile-info { flex: 1; }
+
+.profile-display-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px; font-weight: 300;
+    color: #F1EFE8; margin-bottom: 4px;
+}
+
+.profile-username {
+    font-size: 14px; color: #534AB7; margin-bottom: 10px;
+}
+
+.profile-bio {
+    font-size: 14px; color: #7F77DD;
+    line-height: 1.6; max-width: 400px;
+}
+
+.profile-share-btn {
+    background: transparent;
+    border: 0.5px solid rgba(175,169,236,0.25);
+    border-radius: 20px; padding: 7px 16px;
+    font-size: 12px; color: #7F77DD;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s; margin-top: 14px;
+    display: inline-block;
+}
+.profile-share-btn:hover { border-color: rgba(175,169,236,0.5); color: #CECBF6; }
+.profile-share-btn.copied { color: #9FE1CB; border-color: rgba(95,220,180,0.4); }
+
+.profile-stats {
+    display: flex; gap: 0;
+    max-width: 860px; margin: 0 auto 40px;
+    padding: 0 48px;
+}
+
+.profile-stat {
+    flex: 1; text-align: center;
+    padding: 16px;
+    border: 0.5px solid rgba(175,169,236,0.12);
+    border-right: none;
+    background: rgba(38,33,92,0.3);
+}
+.profile-stat:first-child { border-radius: 12px 0 0 12px; }
+.profile-stat:last-child  { border-radius: 0 12px 12px 0; border-right: 0.5px solid rgba(175,169,236,0.12); }
+
+.profile-stat-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px; font-weight: 300;
+    color: #CECBF6; margin-bottom: 4px;
+}
+.profile-stat-label { font-size: 11px; color: #534AB7; text-transform: uppercase; letter-spacing: 0.08em; }
+
+.profile-content {
+    max-width: 860px; margin: 0 auto;
+    padding: 0 48px 60px;
+}
+
+.profile-section-title {
+    font-size: 11px; font-weight: 500;
+    color: #534AB7; text-transform: uppercase;
+    letter-spacing: 0.1em; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px;
+}
+.profile-section-title::after {
+    content: ''; flex: 1; height: 0.5px;
+    background: rgba(175,169,236,0.12);
+}
+
+.activity-list { margin-bottom: 40px; }
+
+.activity-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0;
+    border-bottom: 0.5px solid rgba(175,169,236,0.08);
+}
+.activity-item:last-child { border-bottom: none; }
+
+.activity-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0;
+}
+.activity-dot--owned     { background: #7F77DD; }
+.activity-dot--wishlist  { background: #F0997B; }
+.activity-dot--duplicate { background: #534AB7; }
+
+.activity-text { font-size: 13px; color: #AFA9EC; flex: 1; line-height: 1.5; }
+.activity-text strong { color: #CECBF6; font-weight: 500; }
+.activity-time { font-size: 11px; color: #534AB7; }
+
+.binder-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 14px;
+}
+
+.binder-era {
+    background: rgba(26,24,48,0.7);
+    border: 0.5px solid rgba(175,169,236,0.12);
+    border-radius: 14px; overflow: hidden;
+}
+
+.binder-era-header {
+    background: rgba(83,74,183,0.2);
+    padding: 10px 14px;
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 0.5px solid rgba(175,169,236,0.1);
+}
+
+.binder-era-avatar {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #534AB7;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 500; color: #EEEDFE;
+}
+
+.binder-era-member { font-size: 13px; font-weight: 500; color: #CECBF6; flex: 1; }
+.binder-era-name   { font-size: 11px; color: #7F77DD; }
+.binder-era-count  { font-size: 11px; color: #AFA9EC; }
+
+.binder-era-cards {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 6px; padding: 10px;
+}
+
+.binder-era-tile {
+    border-radius: 7px; aspect-ratio: 2/3;
+    display: flex; flex-direction: column;
+    justify-content: flex-end; padding: 5px;
+}
+.binder-era-tile--owned     { background: rgba(175,169,236,0.28); }
+.binder-era-tile--wishlist  { background: rgba(240,153,123,0.25); }
+.binder-era-tile--duplicate { background: rgba(83,74,183,0.4); }
+
+.binder-era-tile-ver {
+    font-size: 8px; font-weight: 500;
+    color: #CECBF6; margin-bottom: 2px;
+}
+
+.binder-era-prog {
+    padding: 8px 14px;
+    border-top: 0.5px solid rgba(175,169,236,0.1);
+    display: flex; align-items: center; gap: 10px;
+}
+
+.prog-track { flex: 1; height: 3px; border-radius: 2px; background: rgba(175,169,236,0.12); }
+.prog-fill  { height: 3px; border-radius: 2px; background: #7F77DD; }
+
+.profile-empty {
+    text-align: center; padding: 60px 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px; font-style: italic; color: #534AB7;
+}
+
+.profile-not-found {
+    min-height: 100vh; background: #1a1830;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+    color: #534AB7; gap: 12px;
+}
