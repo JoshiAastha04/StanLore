@@ -1,0 +1,202 @@
+/* ─── Lore page ───────────────────────────────────────────── */
+.lore-page {
+    min-height: 100vh;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* ─── Nav — Fix #2 back button ───────────────────────────── */
+.lore__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 48px;
+    border-bottom: 0.5px solid var(--border-subtle);
+    position: relative;
+    z-index: 10;
+    animation: fadeUp 0.5s ease forwards;
+}
+
+/* Back button */
+.lore__back {
+    background: none;
+    border: none;
+    color: var(--text-faint);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    cursor: pointer;
+    transition: color var(--transition-fast);
+    padding: 0;
+    min-width: 60px;
+}
+.lore__back:hover { color: var(--text-muted); }
+
+.lore__nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 60px;
+    justify-content: flex-end;
+}
+
+/* ─── Guest banner ────────────────────────────────────────── */
+.lore__guest-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 10px 24px;
+    background: rgba(240,153,123,0.08);
+    border-bottom: 0.5px solid rgba(240,153,123,0.18);
+    font-size: 13px;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+.lore__guest-cta {
+    background: none; border: none;
+    color: var(--coral); font-family: var(--font-sans);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    text-decoration: underline; text-underline-offset: 3px;
+    transition: color var(--transition-fast);
+}
+.lore__guest-cta:hover { color: var(--coral-light); }
+
+/* ─── Main ────────────────────────────────────────────────── */
+.lore__main {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 36px 48px 80px;
+    position: relative;
+    z-index: 5;
+}
+
+/* ─── Page header ─────────────────────────────────────────── */
+.lore__page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 32px;
+    animation: fadeUp 0.5s ease forwards;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+.lore__title {
+    font-family: var(--font-serif);
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 300;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 8px;
+}
+.lore__sub { font-size: 13px; color: var(--text-faint); }
+.lore__new-btn { flex-shrink: 0; }
+
+/* ─── Layout ──────────────────────────────────────────────── */
+.lore__layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 28px;
+    animation: fadeUp 0.5s ease forwards 0.1s;
+    opacity: 0;
+}
+
+/* ─── Filters ─────────────────────────────────────────────── */
+.lore__filter-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+.lore__cat-count {
+    background: rgba(175,169,236,0.1);
+    padding: 1px 6px;
+    border-radius: var(--radius-pill);
+    font-size: 10px;
+    margin-left: 4px;
+}
+.lore__sort--active {
+    border-color: var(--border-medium);
+    color: var(--text-secondary);
+}
+
+/* ─── Threads ─────────────────────────────────────────────── */
+.lore__threads { display: flex; flex-direction: column; gap: 10px; }
+
+.lore__thread {
+    background: rgba(26, 24, 48, 0.65);
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: border-color var(--transition-fast);
+}
+.lore__thread:hover { border-color: var(--border-soft); }
+.lore__thread--hot      { background: rgba(38, 33, 92, 0.4); border-color: rgba(127,119,221,0.2); }
+.lore__thread--expanded { border-color: var(--border-medium); }
+.lore__thread-hotline   { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--purple-main), var(--purple-light)); }
+
+.lore__thread-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.lore__hot-label  { font-size: 10px; color: var(--coral); letter-spacing: 0.06em; }
+.lore__thread-title { font-size: 14px; font-weight: 500; color: var(--text-secondary); line-height: 1.45; margin-bottom: 7px; }
+.lore__thread-body  { font-size: 12px; color: var(--text-faint); line-height: 1.6; margin-bottom: 12px; }
+
+.lore__thread-img-placeholder {
+    background: rgba(175,169,236,0.06);
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 14px; font-size: 12px; color: var(--text-faint);
+    margin-bottom: 12px; text-align: center;
+}
+
+.lore__thread-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.lore__thread-tag  { font-size: 10px; color: var(--text-faint); padding: 2px 8px; background: rgba(175,169,236,0.06); border-radius: var(--radius-pill); }
+
+.lore__thread-footer { display: flex; justify-content: space-between; align-items: center; }
+.lore__thread-stats  { display: flex; gap: 4px; }
+.lore__stat-btn {
+    padding: 4px 10px; border-radius: var(--radius-sm); font-size: 11px;
+    color: var(--text-faint); background: rgba(175,169,236,0.05);
+    border: none; cursor: pointer; font-family: var(--font-sans);
+    transition: color var(--transition-fast);
+}
+
+/* ─── Comments ────────────────────────────────────────────── */
+.lore__comments { margin-top: 18px; }
+.lore__comments-divider { height: 0.5px; background: var(--border-subtle); margin-bottom: 16px; }
+.lore__comment { display: flex; gap: 10px; margin-bottom: 12px; }
+.lore__reply-row { display: flex; gap: 8px; margin-top: 12px; }
+
+/* ─── Sidebar ─────────────────────────────────────────────── */
+.lore__sidebar { display: flex; flex-direction: column; gap: 16px; }
+.lore__side-card { padding: var(--space-lg); }
+
+.lore__trend-item { display: flex; align-items: center; gap: 12px; padding: 7px 0; border-bottom: 0.5px solid var(--border-subtle); }
+.lore__trend-item:last-child { border-bottom: none; }
+.lore__trend-rank { font-family: var(--font-serif); font-size: 16px; font-weight: 300; color: var(--text-faint); width: 16px; }
+.lore__trend-tag  { font-size: 12px; color: var(--purple-light); cursor: pointer; }
+.lore__trend-tag:hover { color: var(--purple-pale); }
+
+.lore__fashion-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 0.5px solid var(--border-subtle); font-size: 12px; color: var(--text-muted); }
+.lore__fashion-item:last-child { border-bottom: none; }
+
+/* ─── Mobile  Fix #6 ──────────────────────────────────────── */
+@media (max-width: 960px) {
+    .lore__layout    { grid-template-columns: 1fr; }
+    .lore__sidebar   { display: none; }
+    .lore__main      { padding: 24px 20px 60px; }
+    .lore__nav       { padding: 14px 20px; }
+}
+@media (max-width: 600px) {
+    .lore__filter-row { flex-direction: column; align-items: flex-start; }
+    .lore__title      { font-size: 28px; }
+}

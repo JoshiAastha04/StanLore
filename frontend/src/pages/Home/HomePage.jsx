@@ -1,9 +1,9 @@
 import { useState } from "react";
-import "../../styles/Home.css";
+import "../Home/Home.css";
 import "../../styles/Components.css";
 import "../../styles/globals.css";
 
-// ─── Mock data (replace with Supabase queries later) ──────────────────────────
+// ─── Mock data ────────────────────────────────────────────────────────────────
 const MEMBERS = ["All", "RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "Jungkook"];
 
 const ERAS = [
@@ -53,11 +53,18 @@ const ERAS = [
     },
 ];
 
-const NAV_ITEMS = [
+// ─── Nav items: inner binder tabs ─────────────────────────────────────────────
+const BINDER_TABS = [
     { id: "collection", icon: "◫", label: "My binder" },
-    { id: "wishlist",   icon: "◎", label: "Wishlist" },
-    { id: "trades",     icon: "⇄", label: "Trades" },
-    { id: "catalog",    icon: "✦", label: "Catalog" },
+    { id: "wishlist",   icon: "◎", label: "Wishlist"  },
+    { id: "trades",     icon: "⇄", label: "Trades"    },
+    { id: "catalog",    icon: "✦", label: "Catalog"   },
+];
+
+// ─── Nav items: global pages ──────────────────────────────────────────────────
+const GLOBAL_TABS = [
+    { id: "updates", icon: "◈", label: "Updates"    },
+    { id: "lore",    icon: "◉", label: "Lore Space" },
 ];
 
 const BADGE_CLASS = {
@@ -102,21 +109,20 @@ function PcTile({ card, onClick }) {
 
 // ─── Era card ─────────────────────────────────────────────────────────────────
 function EraCard({ era, onCardClick }) {
-    const completion  = pct(era.owned, era.total);
-    const isComplete  = completion === 100;
-    const initials    = MEMBER_INITIALS[era.member] || era.member.slice(0, 2).toUpperCase();
-    const cols        = Math.min(era.cards.length, 4);
+    const completion = pct(era.owned, era.total);
+    const isComplete = completion === 100;
+    const initials   = MEMBER_INITIALS[era.member] || era.member.slice(0, 2).toUpperCase();
+    const cols       = Math.min(era.cards.length, 4);
 
     return (
         <div className="era-card">
-
             <div className="era-card__header">
                 <div className="avatar avatar--sm">{initials}</div>
                 <div>
                     <div className="era-card__member-name">{era.member}</div>
                     <div className="era-card__era-name">{era.era} Era</div>
                 </div>
-                <div className={`era-card__count ${isComplete ? "era-card__count--complete" : ""}`}>
+                <div className={`era-card__count${isComplete ? " era-card__count--complete" : ""}`}>
                     {isComplete ? "✦ complete" : `${era.owned} / ${era.total}`}
                 </div>
             </div>
@@ -131,13 +137,12 @@ function EraCard({ era, onCardClick }) {
                 <span className="era-card__footer-label">{era.era} Era</span>
                 <div className="progress-track">
                     <div
-                        className={`progress-fill ${isComplete ? "progress-fill--complete" : ""}`}
+                        className={`progress-fill${isComplete ? " progress-fill--complete" : ""}`}
                         style={{ width: `${completion}%` }}
                     />
                 </div>
                 <span className="era-card__pct">{completion}%</span>
             </div>
-
         </div>
     );
 }
@@ -150,43 +155,46 @@ function CardModal({ card, onClose }) {
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="card-modal" onClick={e => e.stopPropagation()}>
-
                 <div className={`card-modal__preview pc-tile--${card.status}`}>
-          <span style={{
-              fontFamily: "var(--font-serif)",
-              fontSize: 22,
-              color: "var(--purple-pale)",
-              fontStyle: "italic",
-          }}>{card.ver}</span>
+                    <span style={{
+                        fontFamily: "var(--font-serif)",
+                        fontSize: 22,
+                        color: "var(--purple-pale)",
+                        fontStyle: "italic",
+                    }}>{card.ver}</span>
                 </div>
-
                 <div className="card-modal__title">{card.ver}</div>
-
                 <div className="card-modal__statuses">
                     {statuses.map(st => (
                         <button
                             key={st}
-                            className={`card-modal__status-btn badge ${BADGE_CLASS[st]} ${card.status === st ? "card-modal__status-btn--active" : ""}`}
-                            style={{
-                                opacity: card.status === st ? 1 : 0.45,
-                                cursor: "pointer",
-                                border: "none",
-                            }}
+                            className={`card-modal__status-btn badge ${BADGE_CLASS[st]}`}
+                            style={{ opacity: card.status === st ? 1 : 0.45, cursor: "pointer", border: "none" }}
                         >{st}</button>
                     ))}
                 </div>
-
-                <button className="btn btn-ghost btn-sm" onClick={onClose}>
-                    Close
-                </button>
-
+                <button className="btn btn-ghost btn-sm" onClick={onClose}>Close</button>
             </div>
         </div>
     );
 }
 
+// ─── Group pill (sidebar) ─────────────────────────────────────────────────────
+function GroupPill({ group, onSwitch }) {
+    return (
+        <button className="sidebar__group-pill" onClick={onSwitch} title="Switch group">
+            <div className="sidebar__group-dot" />
+            <div>
+                <div className="sidebar__group-name">{group?.name ?? "BTS"}</div>
+                <div className="sidebar__group-era">{group?.era ?? "MOTS: 7"}</div>
+            </div>
+            <span className="sidebar__group-switch">↗</span>
+        </button>
+    );
+}
+
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
-function Sidebar({ activeTab, onTabChange, onSignOut }) {
+function Sidebar({ activeTab, onTabChange, onSignOut, onProfile, onLore, onUpdates, onGroupSwitch, activeGroup }) {
     return (
         <aside className="sidebar">
 
@@ -195,11 +203,18 @@ function Sidebar({ activeTab, onTabChange, onSignOut }) {
                 <span className="logo-wordmark logo-wordmark--sm">Stanlore</span>
             </div>
 
+            {/* Active group pill */}
+            <GroupPill group={activeGroup} onSwitch={onGroupSwitch} />
+
+            {/* Divider label */}
+            <div className="sidebar__section-label">Binder</div>
+
+            {/* Binder nav */}
             <nav className="sidebar__nav">
-                {NAV_ITEMS.map(item => (
+                {BINDER_TABS.map(item => (
                     <button
                         key={item.id}
-                        className={`sidebar__nav-item ${activeTab === item.id ? "sidebar__nav-item--active" : ""}`}
+                        className={`sidebar__nav-item${activeTab === item.id ? " sidebar__nav-item--active" : ""}`}
                         onClick={() => onTabChange(item.id)}
                     >
                         <span className="sidebar__nav-icon">{item.icon}</span>
@@ -208,19 +223,46 @@ function Sidebar({ activeTab, onTabChange, onSignOut }) {
                 ))}
             </nav>
 
+            {/* Divider label */}
+            <div className="sidebar__section-label" style={{ marginTop: 20 }}>Community</div>
+
+            {/* Global page nav */}
+            <nav className="sidebar__nav">
+                {GLOBAL_TABS.map(item => (
+                    <button
+                        key={item.id}
+                        className={`sidebar__nav-item${activeTab === item.id ? " sidebar__nav-item--active" : ""}`}
+                        onClick={() => {
+                            if (item.id === "lore")    { onLore?.();    return; }
+                            if (item.id === "updates") { onUpdates?.(); return; }
+                            onTabChange(item.id);
+                        }}
+                    >
+                        <span className="sidebar__nav-icon">{item.icon}</span>
+                        {item.label}
+                        {item.id === "updates" && (
+                            <span className="sidebar__nav-badge">7</span>
+                        )}
+                    </button>
+                ))}
+            </nav>
+
             <div className="sidebar__spacer" />
 
+            {/* User footer */}
             <div className="sidebar__user">
-                <div className="sidebar__user-row">
-                    <div className="avatar avatar--sm" style={{ background: "rgba(127,119,221,0.3)" }}>✦</div>
-                    <div>
+                <button
+                    className="sidebar__user-row sidebar__user-row--btn"
+                    onClick={() => onProfile?.("army_collector")}
+                >
+                    <div className="avatar avatar--sm" style={{ background: "rgba(127,119,221,0.3)" }}>K</div>
+                    <div style={{ flex: 1 }}>
                         <div className="sidebar__user-name">@army_collector</div>
                         <div className="sidebar__user-tag">Early access</div>
                     </div>
-                </div>
-                <button className="sidebar__signout" onClick={onSignOut}>
-                    Sign out
+                    <span style={{ fontSize: 10, color: "var(--text-faint)" }}>→</span>
                 </button>
+                <button className="sidebar__signout" onClick={onSignOut}>Sign out</button>
             </div>
 
         </aside>
@@ -232,35 +274,32 @@ function CollectionTab({ eras }) {
     const [activeMember, setActiveMember] = useState("All");
     const [selectedCard, setSelectedCard] = useState(null);
 
-    const filtered     = activeMember === "All" ? eras : eras.filter(e => e.member === activeMember);
-    const totalOwned   = eras.reduce((s, e) => s + e.owned, 0);
-    const totalCards   = eras.reduce((s, e) => s + e.total, 0);
-    const totalWish    = eras.reduce((s, e) => s + e.cards.filter(c => c.status === "wishlist").length, 0);
-    const totalDupes   = eras.reduce((s, e) => s + e.cards.filter(c => c.status === "duplicate").length, 0);
-    const totalPct     = Math.round((totalOwned / totalCards) * 100);
+    const filtered   = activeMember === "All" ? eras : eras.filter(e => e.member === activeMember);
+    const totalOwned = eras.reduce((s, e) => s + e.owned, 0);
+    const totalCards = eras.reduce((s, e) => s + e.total, 0);
+    const totalWish  = eras.reduce((s, e) => s + e.cards.filter(c => c.status === "wishlist").length, 0);
+    const totalDupes = eras.reduce((s, e) => s + e.cards.filter(c => c.status === "duplicate").length, 0);
+    const totalPct   = Math.round((totalOwned / totalCards) * 100);
 
     return (
         <>
-            {/* Stats */}
             <div className="home__stats">
-                <StatCard value={totalOwned}    label="Owned" />
-                <StatCard value={totalWish}     label="Wishlist"  accentColor="var(--coral)" />
-                <StatCard value={totalDupes}    label="Dupes"     accentColor="var(--purple-light)" />
-                <StatCard value={`${totalPct}%`} label="Complete" accentColor="var(--text-success)" />
+                <StatCard value={totalOwned}     label="Owned" />
+                <StatCard value={totalWish}      label="Wishlist"  accentColor="var(--coral)" />
+                <StatCard value={totalDupes}     label="Dupes"     accentColor="var(--purple-light)" />
+                <StatCard value={`${totalPct}%`} label="Complete"  accentColor="var(--text-success)" />
             </div>
 
-            {/* Member filter */}
             <div className="home__filters">
                 {MEMBERS.map(m => (
                     <button
                         key={m}
-                        className={`filter-btn ${activeMember === m ? "filter-btn--active" : ""}`}
+                        className={`filter-btn${activeMember === m ? " filter-btn--active" : ""}`}
                         onClick={() => setActiveMember(m)}
                     >{m}</button>
                 ))}
             </div>
 
-            {/* Era grid */}
             {filtered.length > 0 ? (
                 <div className="home__era-grid">
                     {filtered.map(era => (
@@ -288,7 +327,12 @@ function WishlistTab({ eras }) {
     );
 
     if (items.length === 0) {
-        return <div className="empty-state">Your wishlist is empty.<br /><span style={{ fontSize: 15 }}>Start exploring the catalog.</span></div>;
+        return (
+            <div className="empty-state">
+                Your wishlist is empty.<br />
+                <span style={{ fontSize: 15 }}>Start exploring the catalog.</span>
+            </div>
+        );
     }
 
     return (
@@ -317,7 +361,6 @@ const EXAMPLE_TRADES = [
 function TradesTab() {
     return (
         <>
-            {/* Compose */}
             <div className="trades-compose">
                 <div className="trades-compose__title">Post a trade listing</div>
                 <div className="trades-compose__row">
@@ -336,7 +379,6 @@ function TradesTab() {
                 </div>
             </div>
 
-            {/* Listings */}
             {EXAMPLE_TRADES.map((l, i) => (
                 <div key={i} className="trade-listing">
                     <div className="avatar avatar--sm" style={{ background: "rgba(127,119,221,0.2)", color: "var(--text-muted)" }}>✦</div>
@@ -368,18 +410,18 @@ function CatalogTab() {
     );
 }
 
-// ─── Page titles ──────────────────────────────────────────────────────────────
+// ─── Page meta ────────────────────────────────────────────────────────────────
 const PAGE_META = {
-    collection: { title: "My binder",   sub: "Your photocard collection, every era." },
-    wishlist:   { title: "Wishlist",    sub: "Cards you're hunting." },
-    trades:     { title: "Trade board", sub: "Have dupes? Find what you want." },
-    catalog:    { title: "Catalog",     sub: "Browse all photocards." },
+    collection: { title: "My binder",    sub: "Your photocard collection, every era."  },
+    wishlist:   { title: "Wishlist",     sub: "Cards you're hunting."                  },
+    trades:     { title: "Trade board",  sub: "Have dupes? Find what you want."        },
+    catalog:    { title: "Catalog",      sub: "Browse all photocards."                 },
 };
 
 // ─── Home page ────────────────────────────────────────────────────────────────
-export default function HomePage({ onSignOut }) {
+export default function HomePage({ onSignOut, onProfile, onLore, onUpdates, onGroupSwitch, activeGroup }) {
     const [activeTab, setActiveTab] = useState("collection");
-    const { title, sub } = PAGE_META[activeTab];
+    const meta = PAGE_META[activeTab] ?? PAGE_META.collection;
 
     return (
         <div className="home">
@@ -388,13 +430,34 @@ export default function HomePage({ onSignOut }) {
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
                 onSignOut={onSignOut}
+                onProfile={onProfile}
+                onLore={onLore}
+                onUpdates={onUpdates}
+                onGroupSwitch={onGroupSwitch}
+                activeGroup={activeGroup}
             />
 
             <main className="home__main">
 
+                {/* Group context bar */}
+                <div className="home__group-bar">
+                    <div className="home__group-pill">
+                        <div className="home__group-dot" />
+                        <span className="home__group-label">{activeGroup?.name ?? "BTS"}</span>
+                        <span className="home__group-era">{activeGroup?.era ?? "MOTS: 7"}</span>
+                    </div>
+                    <button
+                        className="btn btn-ghost btn-sm"
+                        onClick={onGroupSwitch}
+                        style={{ fontSize: 11, padding: "4px 12px" }}
+                    >
+                        Switch group ↗
+                    </button>
+                </div>
+
                 <div className="home__header">
-                    <h1 className="home__title">{title}</h1>
-                    <p className="home__subtitle">{sub}</p>
+                    <h1 className="home__title">{meta.title}</h1>
+                    <p className="home__subtitle">{meta.sub}</p>
                 </div>
 
                 {activeTab === "collection" && <CollectionTab eras={ERAS} />}

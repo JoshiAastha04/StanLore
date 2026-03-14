@@ -1,0 +1,144 @@
+/* ─────────────────────────────────────────────────────────────
+   Mobile.css  —  Import this ONCE in main.jsx after globals.css
+   Global mobile responsive overrides for all app pages — Fix #6
+   ───────────────────────────────────────────────────────────── */
+
+/* ─── Home / Sidebar ──────────────────────────────────────── */
+@media (max-width: 768px) {
+
+    /* Sidebar becomes a bottom tab bar on mobile */
+    .sidebar {
+        position: fixed;
+        left: 0; right: 0;
+        top: auto;
+        bottom: 0;
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        padding: 0;
+        border-right: none;
+        border-top: 0.5px solid var(--border-subtle);
+        z-index: 60;
+        background: var(--bg-sidebar);
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .sidebar__logo        { display: none; }
+    .sidebar__group-pill  { display: none; }
+    .sidebar__section-label { display: none; }
+    .sidebar__spacer      { display: none; }
+    .sidebar__user        { display: none; }
+
+    .sidebar__nav {
+        flex-direction: row;
+        gap: 0;
+        width: 100%;
+        padding: 0;
+    }
+
+    .sidebar__nav-item {
+        flex: 1;
+        flex-direction: column;
+        gap: 3px;
+        padding: 10px 6px 8px;
+        border-radius: 0;
+        font-size: 10px;
+        text-align: center;
+        border: none;
+        min-width: 56px;
+    }
+    .sidebar__nav-item--active {
+        border-top: 2px solid var(--purple-main);
+        background: rgba(127,119,221,0.1);
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        border-radius: 0;
+    }
+
+    .sidebar__nav-icon {
+        font-size: 18px;
+        display: block;
+    }
+
+    .sidebar__nav-badge {
+        position: absolute;
+        top: 6px;
+        right: calc(50% - 18px);
+        margin: 0;
+    }
+
+    .sidebar__nav-item { position: relative; }
+
+    /* Main content clears tab bar */
+    .home__main {
+        margin-left: 0;
+        padding: 20px 16px 90px; /* bottom padding clears tab bar */
+    }
+
+    .home__group-bar { display: none; } /* shown in header instead */
+
+    .home__title    { font-size: 26px; }
+    .home__stats    { gap: 8px; }
+    .stat-card      { padding: 12px 14px; }
+    .stat-card__value { font-size: 26px; }
+
+    .home__era-grid { grid-template-columns: 1fr; }
+
+    .home__filters  { gap: 4px; }
+    .filter-btn     { font-size: 11px; padding: 5px 10px; }
+
+    /* Card modal full-screen on mobile */
+    .modal-overlay  { align-items: flex-end; }
+    .card-modal     { width: 100%; border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding-bottom: 32px; }
+
+    /* Trades layout */
+    .trades-compose__row { flex-direction: column; }
+    .trades-compose__arrow { transform: rotate(90deg); align-self: center; }
+
+    /* Wishlist */
+    .wishlist-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+    .home__main { padding: 16px 12px 88px; }
+    .wishlist-grid { grid-template-columns: 1fr; }
+}
+
+/* ─── Auth page mobile ────────────────────────────────────── */
+@media (max-width: 768px) {
+    .auth-page  { grid-template-columns: 1fr; }
+    .auth-left  { display: none; }
+    .auth-right { padding: 32px 20px; min-height: 100vh; }
+    .auth-form-wrap { max-width: 100%; }
+}
+
+/* ─── Profile page mobile ─────────────────────────────────── */
+@media (max-width: 768px) {
+    .profile-v2__main { padding: 20px 16px 60px; }
+    .profile-v2__nav  { padding: 14px 16px; }
+    .profile-v2__hero {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 20px;
+    }
+    .profile-v2__global-stats {
+        width: 100%;
+        justify-content: space-between;
+        padding: 14px 16px;
+    }
+    .profile-v2__gstat  { min-width: auto; }
+    .profile-v2__tabs   { width: 100%; overflow-x: auto; }
+    .profile-v2__overview { grid-template-columns: 1fr; }
+    .profile-v2__fandom-row { flex-wrap: wrap; gap: 10px; }
+    .profile-v2__fandom-nums { gap: 12px; }
+}
+
+/* ─── Global touch targets ────────────────────────────────── */
+@media (max-width: 768px) {
+    button, .btn { min-height: 40px; }
+    .btn-sm { min-height: 34px; }
+    .filter-btn { min-height: 34px; }
+}

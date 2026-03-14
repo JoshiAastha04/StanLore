@@ -1,0 +1,165 @@
+/* ─── Style / Fashion page ────────────────────────────────── */
+.style-page {
+    min-height: 100vh;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* ─── Nav ─────────────────────────────────────────────────── */
+.style__nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 48px;
+    border-bottom: 0.5px solid var(--border-subtle);
+    position: relative; z-index: 10;
+    animation: fadeUp 0.5s ease forwards;
+}
+.style__back {
+    background: none; border: none; color: var(--text-faint);
+    font-family: var(--font-sans); font-size: 13px; cursor: pointer;
+    transition: color var(--transition-fast); padding: 0; min-width: 60px;
+}
+.style__back:hover { color: var(--text-muted); }
+.style__nav-right { display: flex; align-items: center; gap: 12px; min-width: 60px; justify-content: flex-end; }
+
+/* ─── Guest banner ────────────────────────────────────────── */
+.style__guest-banner {
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+    padding: 10px 24px;
+    background: rgba(240,153,123,0.08);
+    border-bottom: 0.5px solid rgba(240,153,123,0.18);
+    font-size: 13px; color: var(--text-muted);
+    flex-wrap: wrap; text-align: center; position: relative; z-index: 10;
+}
+.style__guest-cta {
+    background: none; border: none; color: var(--coral);
+    font-family: var(--font-sans); font-size: 13px; font-weight: 500;
+    cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+}
+
+/* ─── Main ────────────────────────────────────────────────── */
+.style__main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 36px 48px 80px;
+    position: relative; z-index: 5;
+}
+
+/* ─── Page header ─────────────────────────────────────────── */
+.style__page-header {
+    margin-bottom: 28px;
+    animation: fadeUp 0.5s ease forwards;
+}
+.style__title {
+    font-family: var(--font-serif);
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 300; color: var(--text-primary);
+    line-height: 1; margin-bottom: 8px;
+}
+.style__sub { font-size: 13px; color: var(--text-faint); }
+
+/* ─── Filters ─────────────────────────────────────────────── */
+.style__filters {
+    display: flex; flex-direction: column; gap: 14px;
+    margin-bottom: 28px;
+    padding: var(--space-lg);
+    background: var(--bg-card);
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    animation: fadeUp 0.5s ease forwards 0.1s;
+    opacity: 0;
+}
+.style__filter-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* ─── Grid ────────────────────────────────────────────────── */
+.style__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+    animation: fadeUp 0.5s ease forwards 0.2s;
+    opacity: 0;
+}
+
+/* ─── Look card ───────────────────────────────────────────── */
+.style__look-card {
+    background: rgba(26, 24, 48, 0.65);
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    position: relative; overflow: hidden;
+    transition: border-color var(--transition-fast);
+}
+.style__look-card:hover    { border-color: var(--border-soft); }
+.style__look-card--hot     { border-color: rgba(240,153,123,0.2); background: rgba(38,28,26,0.5); }
+.style__look-card--expanded{ border-color: var(--border-medium); }
+.style__look-hotline       { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--coral), var(--coral-light)); }
+
+/* ─── Look card internals ─────────────────────────────────── */
+.style__look-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 12px;
+}
+.style__hot-badge  { font-size: 10px; color: var(--coral); letter-spacing: 0.06em; }
+.style__save-btn   { background: none; border: none; cursor: pointer; font-size: 16px; padding: 0; line-height: 1; }
+
+.style__look-img {
+    width: 100%; height: 160px;
+    background: rgba(175,169,236,0.05);
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    margin-bottom: 14px; cursor: pointer;
+    transition: border-color var(--transition-fast);
+}
+.style__look-img:hover { border-color: var(--border-soft); }
+
+.style__look-headline {
+    font-size: 13px; font-weight: 500;
+    color: var(--text-secondary); line-height: 1.45;
+    margin-bottom: 10px; cursor: pointer;
+}
+
+.style__tag { font-size: 10px; color: var(--text-faint); padding: 2px 8px; background: rgba(175,169,236,0.06); border-radius: var(--radius-pill); }
+
+.style__look-footer { display: flex; justify-content: space-between; align-items: center; }
+
+/* ─── Items section ───────────────────────────────────────── */
+.style__items { margin-top: 16px; }
+.style__items-divider { height: 0.5px; background: var(--border-subtle); margin-bottom: 16px; }
+
+.style__item {
+    padding: 12px;
+    background: rgba(175,169,236,0.04);
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+}
+.style__item-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+
+/* ─── Dupes ───────────────────────────────────────────────── */
+.style__dupes {
+    background: rgba(95,220,180,0.05);
+    border: 0.5px solid rgba(95,220,180,0.15);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+}
+.style__dupe-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 5px 0;
+    border-bottom: 0.5px solid rgba(95,220,180,0.08);
+}
+.style__dupe-row:last-child { border-bottom: none; }
+
+/* ─── Mobile ──────────────────────────────────────────────── */
+@media (max-width: 960px) {
+    .style__main { padding: 24px 20px 60px; }
+    .style__nav  { padding: 14px 20px; }
+}
+@media (max-width: 600px) {
+    .style__grid { grid-template-columns: 1fr; }
+    .style__filter-group { gap: 8px; }
+    .style__title { font-size: 28px; }
+}

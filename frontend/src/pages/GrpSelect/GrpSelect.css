@@ -1,0 +1,383 @@
+/* ─── GrpSelect page ──────────────────────────────────────── */
+.grpselect {
+    min-height: 100vh;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* ─── Nav ─────────────────────────────────────────────────── */
+.grpselect__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 48px;
+    border-bottom: 0.5px solid var(--border-subtle);
+    position: relative;
+    z-index: 10;
+    animation: fadeUp 0.5s ease forwards;
+}
+
+.grpselect__logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.grpselect__nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.grpselect__nav-link {
+    font-size: 13px;
+    color: var(--text-faint);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    letter-spacing: 0.02em;
+    transition: color var(--transition-fast);
+    padding: 0;
+}
+.grpselect__nav-link:hover { color: var(--text-muted); }
+
+/* ─── Guest banner ────────────────────────────────────────── */
+.grpselect__guest-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 10px 24px;
+    background: rgba(240,153,123,0.1);
+    border-bottom: 0.5px solid rgba(240,153,123,0.2);
+    font-size: 13px;
+    color: var(--text-muted);
+    position: relative;
+    z-index: 10;
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+.grpselect__guest-cta {
+    background: none;
+    border: none;
+    color: var(--coral);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: color var(--transition-fast);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.grpselect__guest-cta:hover { color: var(--coral-light); }
+
+/* ─── Header ──────────────────────────────────────────────── */
+.grpselect__header {
+    text-align: center;
+    padding: 48px 24px 36px;
+    position: relative;
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.grpselect__header--visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.grpselect__title {
+    font-family: var(--font-serif);
+    font-size: clamp(32px, 5vw, 60px);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+}
+.grpselect__title em {
+    font-style: italic;
+    color: var(--purple-light);
+}
+.grpselect__sub {
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text-faint);
+}
+
+/* ─── Grid ────────────────────────────────────────────────── */
+.grpselect__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding: 0 48px;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+}
+
+/* ─── Card base ───────────────────────────────────────────── */
+.grpselect__card {
+    background: rgba(38, 33, 92, 0.45);
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    height: 256px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+            border-color var(--transition-med),
+            transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+            opacity var(--transition-med),
+            box-shadow var(--transition-med);
+}
+
+.grpselect__card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-xl);
+    opacity: 0;
+    transition: opacity var(--transition-med);
+    pointer-events: none;
+}
+
+.grpselect__card--visible {
+    animation: fadeUp 0.5s ease forwards;
+}
+
+/* ─── Fix #1: BTS card — warm gold/cream accent ──────────── */
+.grpselect__card--bts {
+    background: rgba(60, 48, 20, 0.55);
+    border-color: rgba(212, 180, 100, 0.2);
+}
+.grpselect__card--bts::before {
+    background: radial-gradient(circle at 50% 0%, rgba(212,180,100,0.1) 0%, transparent 65%);
+}
+.grpselect__card--bts.grpselect__card--hovered {
+    border-color: rgba(212,180,100,0.45);
+    box-shadow: 0 18px 48px rgba(180,150,60,0.25);
+}
+.grpselect__card--bts.grpselect__card--hovered::before { opacity: 1; }
+.grpselect__card--bts .grpselect__group-name { color: #F5E6B8; }
+.grpselect__card--bts .grpselect__hangul     { color: rgba(212,180,100,0.55); }
+.grpselect__card--bts .grpselect__era        { color: rgba(212,180,100,0.7); }
+.grpselect__card--bts .grpselect__stat-val   { color: #F5E6B8; }
+.grpselect__card--bts .grpselect__badge--live {
+    background: rgba(212,180,100,0.15);
+    border-color: rgba(212,180,100,0.4);
+    color: #E8C96A;
+}
+.grpselect__card--bts .grpselect__cta {
+    background: rgba(212,180,100,0.85);
+    color: #2A1E00;
+}
+.grpselect__card--bts.grpselect__card--hovered .grpselect__dot { background: #E8C96A; }
+
+/* ─── Fix #1: Coming soon cards — use coral accent ───────── */
+.grpselect__card--soon {
+    background: rgba(38, 28, 26, 0.5);
+    border-color: rgba(240, 153, 123, 0.1);
+}
+.grpselect__card--soon::before {
+    background: radial-gradient(circle at 50% 0%, rgba(240,153,123,0.06) 0%, transparent 65%);
+}
+
+/* ─── Generic hover (non-BTS active cards) ───────────────── */
+.grpselect__card--hovered:not(.grpselect__card--bts) {
+    border-color: var(--border-medium);
+    transform: translateY(-6px) scale(1.025);
+    box-shadow: 0 18px 48px rgba(83,74,183,0.28);
+}
+.grpselect__card--hovered:not(.grpselect__card--bts)::before {
+    background: radial-gradient(circle at 50% 0%, rgba(127,119,221,0.14) 0%, transparent 65%);
+    opacity: 1;
+}
+
+.grpselect__card--bts.grpselect__card--hovered {
+    transform: translateY(-6px) scale(1.025);
+}
+
+.grpselect__card--dimmed   { opacity: 0.4; }
+.grpselect__card--entering { border-color: var(--border-strong); }
+.grpselect__card--inactive { cursor: default; }
+.grpselect__card--add {
+    background: rgba(26, 24, 48, 0.4);
+    border-style: dashed;
+    cursor: default;
+}
+
+/* ─── Badge ───────────────────────────────────────────────── */
+.grpselect__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    width: fit-content;
+}
+/* Live badge — purple */
+.grpselect__badge--live {
+    background: rgba(127,119,221,0.15);
+    border: 0.5px solid rgba(127,119,221,0.4);
+    color: var(--purple-light);
+}
+/* Fix #1: Coming soon — coral */
+.grpselect__badge--soon {
+    background: rgba(240,153,123,0.12);
+    border: 0.5px solid rgba(240,153,123,0.3);
+    color: var(--coral);
+}
+
+/* ─── Card body ───────────────────────────────────────────── */
+.grpselect__card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.grpselect__hangul {
+    font-size: 11px;
+    color: var(--text-faint);
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+}
+.grpselect__group-name {
+    font-family: var(--font-serif);
+    font-size: 34px;
+    font-weight: 300;
+    color: var(--text-primary);
+    letter-spacing: 0.01em;
+    line-height: 1;
+    margin-bottom: 6px;
+}
+.grpselect__era {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+/* ─── Stats ───────────────────────────────────────────────── */
+.grpselect__stats {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity var(--transition-med), transform var(--transition-med);
+}
+.grpselect__card--hovered .grpselect__stats {
+    opacity: 1;
+    transform: translateY(0);
+}
+.grpselect__stat       { display: flex; flex-direction: column; }
+.grpselect__stat-val   { font-family: var(--font-serif); font-size: 20px; font-weight: 300; color: var(--purple-pale); line-height: 1; }
+.grpselect__stat-lbl   { font-size: 9px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.1em; }
+.grpselect__stat-divider { width: 0.5px; height: 20px; background: var(--border-subtle); }
+
+/* ─── Member dots ─────────────────────────────────────────── */
+.grpselect__dots { display: flex; gap: 5px; align-items: center; }
+.grpselect__dot  {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--border-soft);
+    transition: background var(--transition-fast);
+}
+.grpselect__card--hovered:not(.grpselect__card--bts) .grpselect__dot { background: var(--purple-light); }
+.grpselect__dot-more { font-size: 10px; color: var(--text-faint); }
+
+/* ─── CTA pill ────────────────────────────────────────────── */
+.grpselect__cta {
+    position: absolute;
+    bottom: 22px; right: 22px;
+    font-size: 11px; font-weight: 500;
+    color: var(--bg-deep);
+    background: var(--purple-main);
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    letter-spacing: 0.04em;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity var(--transition-med), transform var(--transition-med);
+}
+.grpselect__card--hovered .grpselect__cta {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ─── Add card ────────────────────────────────────────────── */
+.grpselect__add-inner {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    height: 100%; gap: 8px; text-align: center;
+}
+.grpselect__add-icon {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 0.5px dashed var(--border-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; color: var(--text-faint); margin-bottom: 4px;
+}
+.grpselect__add-label { font-size: 13px; color: var(--text-faint); font-weight: 500; }
+.grpselect__add-sub   { font-size: 11px; color: rgba(83,74,183,0.5); }
+
+/* ─── Hint ────────────────────────────────────────────────── */
+.grpselect__hint {
+    text-align: center; font-size: 12px; color: var(--text-faint);
+    padding: 24px 0 48px; letter-spacing: 0.04em;
+    position: relative; z-index: 10;
+    opacity: 0; animation: fadeUp 0.6s ease forwards 0.8s;
+}
+
+/* ─── Enter overlay ───────────────────────────────────────── */
+.grpselect__enter-overlay {
+    position: fixed; inset: 0; background: var(--bg-overlay);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200; animation: fadeIn 0.35s ease;
+}
+.grpselect__enter-text {
+    font-family: var(--font-serif); font-size: 24px; font-weight: 300;
+    font-style: italic; color: var(--purple-pale); letter-spacing: 0.1em;
+    display: flex; align-items: center; gap: 14px;
+    animation: fadeUp 0.4s ease; text-align: center; padding: 0 24px;
+}
+.grpselect__enter-mark {
+    color: var(--purple-main); font-style: normal;
+    animation: floatA 1.2s ease-in-out infinite; display: inline-block;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MOBILE RESPONSIVE  Fix #6
+   ───────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .grpselect__grid { grid-template-columns: repeat(2, 1fr); padding: 0 24px; }
+    .grpselect__nav  { padding: 16px 24px; }
+    .grpselect__nav-right { gap: 12px; }
+    .grpselect__nav-link  { display: none; } /* hide text links on small screens */
+}
+
+@media (max-width: 600px) {
+    .grpselect__grid { grid-template-columns: 1fr 1fr; padding: 0 16px; gap: 10px; }
+    .grpselect__card { height: 210px; padding: 18px 16px; }
+    .grpselect__group-name { font-size: 26px; }
+    .grpselect__title { font-size: 28px; }
+    .grpselect__header { padding: 32px 16px 24px; }
+    .grpselect__guest-banner { font-size: 12px; gap: 8px; }
+}
+
+@media (max-width: 400px) {
+    .grpselect__grid { grid-template-columns: 1fr; padding: 0 16px; }
+    .grpselect__card { height: 180px; }
+}

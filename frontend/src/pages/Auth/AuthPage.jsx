@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import "../../styles/auth.css";
+import "./auth.css";
 
 // ─── Preview cards for left panel ────────────────────────────────────────────
 const PREVIEW_CARDS = [
