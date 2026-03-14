@@ -176,16 +176,6 @@ export default function StylePage({ onBack, onSignIn, isGuest }) {
         const occasionOk = activeOccasion === "All" || l.occasion === activeOccasion;
         return memberOk && occasionOk;
     });
-
-    function toggleSave(id) {
-        if (isGuest) { onSignIn?.(); return; }
-        setSaved(prev => {
-            const next = new Set(prev);
-            next.has(id) ? next.delete(id) : next.add(id);
-            return next;
-        });
-    }
-
     function toggleSave(id) {
         if (isGuest) { onSignIn?.(); return; }
         setSavedLooks(prev => {

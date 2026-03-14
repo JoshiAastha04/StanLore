@@ -84,7 +84,7 @@ function SignInForm({ onSwitch }) {
 
     return (
         <div className="auth-form-wrap">
-            <div className="auth-title">Welcome back, <em>ARMY</em></div>
+            <div className="auth-title">Welcome back, <em>Stannies</em></div>
             <div className="auth-sub">Sign in to your collection</div>
 
             {error && <div className="auth-alert auth-alert--error">{error}</div>}

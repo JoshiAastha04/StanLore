@@ -1,144 +1,266 @@
-/* ─────────────────────────────────────────────────────────────
-   Mobile.css  —  Import this ONCE in main.jsx after globals.css
-   Global mobile responsive overrides for all app pages — Fix #6
-   ───────────────────────────────────────────────────────────── */
+/* ─── Desktop: hide mobile-only components ───────────────── */
+.mobile-topbar     { display: none; }
+.mobile-bottom-nav { display: none; }
 
-/* ─── Home / Sidebar ──────────────────────────────────────── */
+/* ─── Desktop: profile button in sidebar toprow ──────────── */
+.sidebar__toprow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.sidebar__profile-btn {
+    background: none; border: none; cursor: pointer; padding: 2px;
+    border-radius: 50%;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.sidebar__profile-btn:hover { transform: scale(1.08); }
+
+.sidebar__profile-avatar {
+    background: linear-gradient(135deg, var(--purple-mid), var(--purple-main)) !important;
+    border: 1.5px solid rgba(175,169,236,0.3);
+    color: #fff !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+}
+
+/* Fix: sidebar logo no longer has its own margin-bottom */
+.sidebar__logo { margin-bottom: 0 !important; }
+
+/* ─────────────────────────────────────────────────────────────
+   MOBILE  ≤768px
+   ───────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
 
-    /* Sidebar becomes a bottom tab bar on mobile */
-    .sidebar {
+    /* Hide desktop sidebar entirely */
+    .sidebar { display: none !important; }
+
+    /* ── Mobile top bar ── */
+    .mobile-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         position: fixed;
-        left: 0; right: 0;
-        top: auto;
-        bottom: 0;
-        width: 100%;
-        height: auto;
-        flex-direction: row;
-        padding: 0;
-        border-right: none;
+        top: 0; left: 0; right: 0;
+        height: 52px;
+        background: var(--bg-sidebar);
+        border-bottom: 0.5px solid var(--border-subtle);
+        padding: 0 16px;
+        z-index: 60;
+        gap: 8px;
+    }
+
+    .mobile-topbar__group {
+        display: flex; align-items: center; gap: 6px;
+        background: none; border: none; cursor: pointer;
+        font-family: var(--font-sans); padding: 0;
+        min-width: 0; flex: 1;
+    }
+
+    .mobile-topbar__dot {
+        width: 7px; height: 7px; border-radius: 50%;
+        background: var(--purple-main);
+        box-shadow: 0 0 5px rgba(127,119,221,0.6);
+        flex-shrink: 0;
+    }
+
+    .mobile-topbar__group-name {
+        font-family: var(--font-serif);
+        font-size: 15px; font-weight: 300;
+        color: var(--text-secondary);
+        white-space: nowrap; overflow: hidden;
+        text-overflow: ellipsis; max-width: 80px;
+    }
+
+    .mobile-topbar__era {
+        font-size: 9px; color: var(--text-faint);
+        text-transform: uppercase; letter-spacing: 0.06em;
+        background: rgba(127,119,221,0.1);
+        border: 0.5px solid rgba(127,119,221,0.2);
+        border-radius: var(--radius-pill);
+        padding: 2px 6px; white-space: nowrap; flex-shrink: 0;
+    }
+
+    /* Fix #1: profile avatar — always top-right, always tappable */
+    .mobile-topbar__profile {
+        background: none; border: none; cursor: pointer;
+        padding: 4px; flex-shrink: 0;
+    }
+
+    .mobile-topbar__avatar {
+        width: 32px; height: 32px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--purple-mid), var(--purple-main));
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; font-weight: 600; color: #fff;
+        border: 1.5px solid rgba(175,169,236,0.3);
+    }
+
+    /* ── Mobile bottom nav ── */
+    /* Fix #2: 7 evenly-spaced tabs — Style between Updates & Lore, no gap */
+    .mobile-bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        height: 58px;
+        background: var(--bg-sidebar);
         border-top: 0.5px solid var(--border-subtle);
         z-index: 60;
-        background: var(--bg-sidebar);
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .mobile-bottom-nav::-webkit-scrollbar { display: none; }
+
+    .mobile-bottom-nav__item {
+        flex: 1; min-width: 48px;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 2px; padding: 5px 2px 7px;
+        background: none; border: none; cursor: pointer;
+        font-family: var(--font-sans);
+        position: relative;
+        border-top: 2px solid transparent;
+        transition: all var(--transition-fast);
     }
 
-    .sidebar__logo        { display: none; }
-    .sidebar__group-pill  { display: none; }
-    .sidebar__section-label { display: none; }
-    .sidebar__spacer      { display: none; }
-    .sidebar__user        { display: none; }
-
-    .sidebar__nav {
-        flex-direction: row;
-        gap: 0;
-        width: 100%;
-        padding: 0;
+    .mobile-bottom-nav__item--active {
+        border-top-color: var(--purple-main);
+        background: rgba(127,119,221,0.08);
     }
 
-    .sidebar__nav-item {
-        flex: 1;
-        flex-direction: column;
-        gap: 3px;
-        padding: 10px 6px 8px;
-        border-radius: 0;
-        font-size: 10px;
-        text-align: center;
-        border: none;
-        min-width: 56px;
-    }
-    .sidebar__nav-item--active {
-        border-top: 2px solid var(--purple-main);
-        background: rgba(127,119,221,0.1);
-        border-left: none;
-        border-right: none;
-        border-bottom: none;
-        border-radius: 0;
+    .mobile-bottom-nav__icon  { font-size: 16px; display: block; line-height: 1; }
+    .mobile-bottom-nav__label { font-size: 9px; color: var(--text-faint); white-space: nowrap; }
+    .mobile-bottom-nav__item--active .mobile-bottom-nav__label { color: var(--purple-light); }
+
+    .mobile-bottom-nav__badge {
+        position: absolute; top: 3px;
+        right: calc(50% - 16px);
+        background: var(--purple-main); color: var(--bg-deep);
+        font-size: 8px; font-weight: 700;
+        padding: 1px 4px; border-radius: var(--radius-pill);
+        min-width: 14px; text-align: center; line-height: 1.5;
     }
 
-    .sidebar__nav-icon {
-        font-size: 18px;
-        display: block;
-    }
-
-    .sidebar__nav-badge {
-        position: absolute;
-        top: 6px;
-        right: calc(50% - 18px);
-        margin: 0;
-    }
-
-    .sidebar__nav-item { position: relative; }
-
-    /* Main content clears tab bar */
+    /* ── Main content clears both bars ── */
     .home__main {
-        margin-left: 0;
-        padding: 20px 16px 90px; /* bottom padding clears tab bar */
+        margin-left: 0 !important;
+        padding: 68px 14px 72px !important;
     }
 
-    .home__group-bar { display: none; } /* shown in header instead */
+    /* Hide desktop group context bar on mobile */
+    .home__group-bar { display: none; }
 
-    .home__title    { font-size: 26px; }
-    .home__stats    { gap: 8px; }
-    .stat-card      { padding: 12px 14px; }
-    .stat-card__value { font-size: 26px; }
+    /* ── Content ── */
+    .home__title      { font-size: 24px; }
+    .home__stats      { gap: 6px; flex-wrap: wrap; }
+    .stat-card        { padding: 12px 12px; flex: 1; min-width: 76px; }
+    .stat-card__value { font-size: 22px; }
+    .stat-card__label { font-size: 9px; }
+    .home__era-grid   { grid-template-columns: 1fr; }
+    .home__filters    { gap: 4px; }
+    .filter-btn       { font-size: 11px; padding: 5px 9px; min-height: 34px; }
 
-    .home__era-grid { grid-template-columns: 1fr; }
+    /* Card modal bottom sheet */
+    .modal-overlay { align-items: flex-end; }
+    .card-modal    { width: 100%; border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding-bottom: 32px; }
 
-    .home__filters  { gap: 4px; }
-    .filter-btn     { font-size: 11px; padding: 5px 10px; }
-
-    /* Card modal full-screen on mobile */
-    .modal-overlay  { align-items: flex-end; }
-    .card-modal     { width: 100%; border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding-bottom: 32px; }
-
-    /* Trades layout */
-    .trades-compose__row { flex-direction: column; }
+    /* Trades */
+    .trades-compose__row   { flex-direction: column; }
     .trades-compose__arrow { transform: rotate(90deg); align-self: center; }
 
     /* Wishlist */
     .wishlist-grid { grid-template-columns: repeat(2, 1fr); }
+
+    /* Touch targets */
+    button, .btn { min-height: 40px; }
+    .btn-sm      { min-height: 34px; }
 }
 
 @media (max-width: 480px) {
-    .home__main { padding: 16px 12px 88px; }
+    .home__main    { padding: 64px 12px 70px !important; }
     .wishlist-grid { grid-template-columns: 1fr; }
+    .home__stats   { gap: 4px; }
+    .stat-card     { min-width: 60px; }
 }
 
-/* ─── Auth page mobile ────────────────────────────────────── */
+/* ─── Auth ────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-    .auth-page  { grid-template-columns: 1fr; }
-    .auth-left  { display: none; }
-    .auth-right { padding: 32px 20px; min-height: 100vh; }
+    .auth-page      { grid-template-columns: 1fr; }
+    .auth-left      { display: none; }
+    .auth-right     { padding: 32px 20px; min-height: 100vh; }
     .auth-form-wrap { max-width: 100%; }
 }
 
-/* ─── Profile page mobile ─────────────────────────────────── */
+/* ─── Profile ─────────────────────────────────────────────── */
 @media (max-width: 768px) {
-    .profile-v2__main { padding: 20px 16px 60px; }
-    .profile-v2__nav  { padding: 14px 16px; }
-    .profile-v2__hero {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 20px;
-        padding: 20px;
-    }
-    .profile-v2__global-stats {
-        width: 100%;
-        justify-content: space-between;
-        padding: 14px 16px;
-    }
-    .profile-v2__gstat  { min-width: auto; }
-    .profile-v2__tabs   { width: 100%; overflow-x: auto; }
-    .profile-v2__overview { grid-template-columns: 1fr; }
-    .profile-v2__fandom-row { flex-wrap: wrap; gap: 10px; }
-    .profile-v2__fandom-nums { gap: 12px; }
+    .profile-v2__main         { padding: 20px 16px 60px; }
+    .profile-v2__nav          { padding: 14px 16px; }
+    .profile-v2__hero         { flex-direction: column; align-items: flex-start; gap: 20px; padding: 20px; }
+    .profile-v2__global-stats { width: 100%; justify-content: space-between; padding: 14px 16px; }
+    .profile-v2__gstat        { min-width: auto; }
+    .profile-v2__tabs         { width: 100%; overflow-x: auto; }
+    .profile-v2__overview     { grid-template-columns: 1fr; }
+    .profile-v2__fandom-row   { flex-wrap: wrap; gap: 10px; }
+    .profile-v2__fandom-nums  { gap: 12px; }
 }
 
-/* ─── Global touch targets ────────────────────────────────── */
+/* ─── GrpSelect ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .grpselect__grid     { grid-template-columns: repeat(2, 1fr); padding: 0 24px; }
+    .grpselect__nav      { padding: 16px 24px; }
+    .grpselect__nav-link { display: none; }
+}
+@media (max-width: 600px) {
+    .grpselect__grid       { grid-template-columns: 1fr 1fr; padding: 0 14px; gap: 10px; }
+    .grpselect__card       { height: 200px; padding: 16px 14px; }
+    .grpselect__group-name { font-size: 24px; }
+    .grpselect__title      { font-size: 26px; }
+    .grpselect__header     { padding: 28px 16px 20px; }
+}
+@media (max-width: 400px) {
+    .grpselect__grid { grid-template-columns: 1fr; }
+    .grpselect__card { height: 180px; }
+}
+
+/* ─── Lore / Updates / Style ──────────────────────────────── */
+@media (max-width: 960px) {
+    .lore__layout    { grid-template-columns: 1fr; }
+    .updates__layout { grid-template-columns: 1fr; }
+    .lore__sidebar, .updates__sidebar { display: none; }
+    .lore__main, .updates__main, .style__main { padding: 24px 18px 60px; }
+    .lore__nav, .updates__nav, .style__nav    { padding: 14px 18px; }
+}
+@media (max-width: 600px) {
+    .lore__title, .updates__title, .style__title { font-size: 26px; }
+    .lore__filter-row  { flex-direction: column; align-items: flex-start; }
+    .updates__filter-row { gap: 4px; }
+    .style__grid       { grid-template-columns: 1fr; }
+    .style__filter-group { gap: 6px; }
+}
+
+/* ─── Landing ─────────────────────────────────────────────── */
 @media (max-width: 768px) {
-    button, .btn { min-height: 40px; }
-    .btn-sm { min-height: 34px; }
-    .filter-btn { min-height: 34px; }
+    .landing__nav-links--desktop { display: none; }
+    .landing__hamburger          { display: flex; }
+    .landing__nav                { padding: 14px 20px; }
+    .landing__hero               { padding: 20px 20px 32px; }
+    .landing__waitlist-form      { flex-direction: column; align-items: stretch; }
+    .landing__waitlist-input     { width: 100%; }
+    .landing__stats              { max-width: 100%; margin: 0 20px 40px; }
+    .landing__binder-section     { padding: 0 20px 40px; }
+    .landing__features           { padding: 0 20px 52px; }
+    .landing__features-grid      { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .landing__features-heading h2{ font-size: 26px; }
+    .landing__cta                { margin: 0 20px 52px; padding: 28px 20px; }
+    .landing__cta-headline       { font-size: 24px; }
+    .landing__footer             { padding: 18px 20px; flex-wrap: wrap; gap: 10px; }
+    .landing__footer-tagline     { display: none; }
+}
+@media (max-width: 480px) {
+    .landing__features-grid { grid-template-columns: 1fr; }
+    .landing__hero-title    { font-size: 30px; }
+    .landing__stats         { flex-direction: column; }
+    .landing__stat-pill     { border-right: none; border-bottom: 0.5px solid rgba(175,169,236,0.2); }
+    .landing__stat-pill--last { border-bottom: none; }
 }
