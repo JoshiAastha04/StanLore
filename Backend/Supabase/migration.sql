@@ -114,7 +114,7 @@ create policy "profiles_own_insert"   on profiles for insert with check (auth.ui
 create policy "profiles_own_update"   on profiles for update using (auth.uid() = id);
 create policy "profiles_own_delete"   on profiles for delete using (auth.uid() = id);
 
--- Collection: users only see and manage their own
+-- Lore: users only see and manage their own
 create policy "collection_own_select" on collection for select using (auth.uid() = user_id);
 create policy "collection_own_insert" on collection for insert with check (auth.uid() = user_id);
 create policy "collection_own_update" on collection for update using (auth.uid() = user_id);

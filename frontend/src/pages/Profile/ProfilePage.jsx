@@ -1,210 +1,292 @@
-import { usePublicCollection } from "../../hooks/usecollection.js";
-import "../../styles/profile.css";
+import { useState } from "react";
+import "../../styles/globals.css";
+import "../../styles/Components.css";
+import "../Profile/profile.css";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-function timeAgo(dateStr) {
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const mins  = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days  = Math.floor(diff / 86400000);
-    if (mins  < 60)  return `${mins}m ago`;
-    if (hours < 24)  return `${hours}h ago`;
-    return `${days}d ago`;
-}
+// ─── Mock data ────────────────────────────────────────────────────────────────
+const USER = {
+    username: "stanqueen",
+    displayName: "Kira",
+    bio: "collecting since 2019 ✦ bts + skz + svt girlie ✦ dm for trades",
+    initials: "K",
+    joinDate: "March 2019",
+    totalTrades: 34,
+    points: 2840,
+    groups: [
+        {
+            id: "bts", name: "BTS", hangul: "방탄소년단",
+            faveMembers: ["Jungkook", "V"],
+            cards: 87, wishlist: 12, trades: 18, wishlistPct: 65, era: "MOTS: 7",
+            recentCards: [
+                { name: "Jungkook", album: "Butter",  ver: "Cream",   status: "owned" },
+                { name: "V",        album: "BE",       ver: "Deluxe",  status: "owned" },
+                { name: "Jimin",    album: "Face",     ver: "Weverse", status: "for-trade" },
+                { name: "Jungkook", album: "Golden",   ver: "Solid",   status: "duplicate" },
+            ],
+        },
+        {
+            id: "stray-kids", name: "Stray Kids", hangul: "스트레이 키즈",
+            faveMembers: ["Felix", "Hyunjin"],
+            cards: 52, wishlist: 8, trades: 11, wishlistPct: 42, era: "Rock-Star",
+            recentCards: [
+                { name: "Felix",   album: "Oddinary", ver: "Scanning", status: "owned" },
+                { name: "Hyunjin", album: "5-Star",   ver: "Standard", status: "for-trade" },
+            ],
+        },
+        {
+            id: "seventeen", name: "SEVENTEEN", hangul: "세븐틴",
+            faveMembers: ["Wonwoo", "Mingyu"],
+            cards: 34, wishlist: 15, trades: 5, wishlistPct: 30, era: "SPILL THE FEELS",
+            recentCards: [
+                { name: "Wonwoo", album: "Sector 17", ver: "Kit",      status: "owned" },
+                { name: "Mingyu", album: "FML",       ver: "Standard", status: "wishlist" },
+            ],
+        },
+    ],
+};
 
-function getInitials(name = "") {
-    return name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
-}
+const STATUS_META = {
+    owned:      { label: "Owned",     cls: "badge-owned" },
+    duplicate:  { label: "Duplicate", cls: "badge-duplicate" },
+    "for-trade":{ label: "For Trade", cls: "badge-wishlist" },
+    wishlist:   { label: "Wishlist",  cls: "badge-missing" },
+};
 
-// ─── Profile page ─────────────────────────────────────────────────────────────
-export default function ProfilePage({ username, onHome }) {
-    const { data, loading, error } = usePublicCollection(username);
-
-    // ── Loading ──────────────────────────────────────────────────
-    if (loading) {
-        return (
-                <div className="profile-not-found">
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, color: "#CECBF6" }}>
-                        Loading...
-                    </div>
-                </div>
-        );
-    }
-
-    // ── Not found ────────────────────────────────────────────────
-    if (error || !data) {
-        return (
-                <div className="profile-not-found">
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#CECBF6" }}>
-                        Profile not found
-                    </div>
-                    <div style={{ fontSize: 14 }}>This collection might be private or doesn't exist.</div>
-                    <button
-                        onClick={onHome}
-                        style={{
-                            marginTop: 16, background: "#534AB7", color: "#EEEDFE",
-                            border: "none", borderRadius: 20, padding: "8px 20px",
-                            fontSize: 13, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
-                        }}
-                    >← Back to Stanlore</button>
-                </div>
-        );
-    }
-
-    const { profile, collection } = data;
-
-    // ── Stats ────────────────────────────────────────────────────
-    const owned     = collection.filter(c => c.status === "owned").length;
-    const wishlist  = collection.filter(c => c.status === "wishlist").length;
-    const dupes     = collection.filter(c => c.status === "duplicate").length;
-    const total     = collection.length;
-    const pct       = total > 0 ? Math.round((owned / total) * 100) : 0;
-
-    // ── Recent activity ──────────────────────────────────────────
-    const recent = [...collection]
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-        .slice(0, 8);
-
-    // ── Group by member + era for binder ────────────────────────
-    const byEra = collection.reduce((acc, item) => {
-        const member = item.photocards.members.name;
-        const era    = item.photocards.versions.albums.eras?.name ?? "Unknown";
-        const key    = `${member}__${era}`;
-        if (!acc[key]) acc[key] = { member, era, cards: [] };
-        acc[key].cards.push(item);
-        return acc;
-    }, {});
-
-    // ── Share ────────────────────────────────────────────────────
-    function handleShare() {
-        navigator.clipboard.writeText(window.location.href).then(() => {
-            const btn = document.getElementById("share-btn");
-            if (btn) { btn.textContent = "Link copied ✓"; btn.classList.add("copied"); }
-            setTimeout(() => {
-                if (btn) { btn.textContent = "Share collection ↗"; btn.classList.remove("copied"); }
-            }, 2000);
-        });
-    }
-
-    const initials = getInitials(profile.display_name || profile.username);
+// ─── Main page ────────────────────────────────────────────────────────────────
+export default function ProfilePage({ onHome }) {
+    const [activeTab, setActiveTab] = useState("overview");
+    const totalCards = USER.groups.reduce((s, g) => s + g.cards, 0);
+    const totalWish  = USER.groups.reduce((s, g) => s + g.wishlist, 0);
 
     return (
-            <div className="profile-page">
+        <div className="profile-v2">
+            <div className="orb orb--1" />
+            <div className="orb orb--2" />
 
-                {/* Nav */}
-                <nav className="profile-nav">
-                    <div className="profile-nav-logo" onClick={onHome} style={{ cursor: "pointer" }}>
-                        <div className="profile-nav-mark">S</div>
-                        <span className="profile-nav-name">Stanlore</span>
-                    </div>
-                </nav>
+            {/* Nav */}
+            <nav className="profile-v2__nav">
+                <button className="profile-v2__back" onClick={onHome}>← Home</button>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div className="logo-mark logo-mark--sm">S</div>
+                    <span className="logo-wordmark logo-wordmark--sm">Stanlore</span>
+                </div>
+                <div />
+            </nav>
 
-                {/* Hero */}
-                <div className="profile-hero">
-                    <div className="profile-avatar">
-                        {profile.avatar_url
-                            ? <img src={profile.avatar_url} alt={profile.username} style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
-                            : initials
-                        }
-                    </div>
-                    <div className="profile-info">
-                        <div className="profile-display-name">
-                            {profile.display_name || profile.username}
+            <main className="profile-v2__main">
+
+                {/* Hero card */}
+                <div className="profile-v2__hero card">
+                    <div className="profile-v2__hero-glow" />
+
+                    {/* Avatar */}
+                    <div className="profile-v2__avatar-wrap">
+                        <div className="avatar avatar--lg profile-v2__avatar"
+                             style={{ width: 72, height: 72, fontSize: 26 }}>
+                            {USER.initials}
                         </div>
-                        <div className="profile-username">@{profile.username}</div>
-                        {profile.bio && <div className="profile-bio">{profile.bio}</div>}
-                        <button id="share-btn" className="profile-share-btn" onClick={handleShare}>
-                            Share collection ↗
-                        </button>
+                        <div className="profile-v2__group-ring">
+                             {USER.groups.map((g) => (
+                                <div key={g.id} className="profile-v2__group-dot" title={g.name} />
+                            ))}
+                        </div>
                     </div>
-                </div>
 
-                {/* Stats */}
-                <div className="profile-stats">
-                    <div className="profile-stat">
-                        <div className="profile-stat-val">{owned}</div>
-                        <div className="profile-stat-label">Owned</div>
+                    {/* Info */}
+                    <div className="profile-v2__info">
+                        <div className="profile-v2__name-row">
+                            <span className="profile-v2__display-name">{USER.displayName}</span>
+                            <span className="profile-v2__username">@{USER.username}</span>
+                            <span className="badge badge-owned" style={{ fontSize: 10 }}>
+                                ✦ {USER.points.toLocaleString()} pts
+                            </span>
+                        </div>
+                        <p className="profile-v2__bio">{USER.bio}</p>
+                        <div className="profile-v2__meta">
+                            <span>Joined {USER.joinDate}</span>
+                            <span className="profile-v2__sep">·</span>
+                            <span>{USER.groups.length} fandoms</span>
+                            <span className="profile-v2__sep">·</span>
+                            <span>{USER.totalTrades} trades</span>
+                        </div>
                     </div>
-                    <div className="profile-stat">
-                        <div className="profile-stat-val" style={{ color: "#F0997B" }}>{wishlist}</div>
-                        <div className="profile-stat-label">Wishlist</div>
-                    </div>
-                    <div className="profile-stat">
-                        <div className="profile-stat-val" style={{ color: "#AFA9EC" }}>{dupes}</div>
-                        <div className="profile-stat-label">Dupes</div>
-                    </div>
-                    <div className="profile-stat">
-                        <div className="profile-stat-val" style={{ color: "#9FE1CB" }}>{pct}%</div>
-                        <div className="profile-stat-label">Complete</div>
-                    </div>
-                </div>
 
-                <div className="profile-content">
-
-                    {/* Recent activity */}
-                    {recent.length > 0 && (
-                        <>
-                            <div className="profile-section-title">Recent activity</div>
-                            <div className="activity-list">
-                                {recent.map((item, i) => (
-                                    <div key={i} className="activity-item">
-                                        <div className={`activity-dot activity-dot--${item.status}`} />
-                                        <div className="activity-text">
-                                            <strong>{item.photocards.members.name}</strong>
-                                            {" · "}{item.photocards.versions.albums.eras?.name} Era
-                                            {" · "}{item.photocards.versions.name}
-                                            {" "}
-                                            <span style={{ color: item.status === "owned" ? "#7F77DD" : item.status === "wishlist" ? "#F0997B" : "#AFA9EC" }}>
-                        marked as {item.status}
-                      </span>
-                                        </div>
-                                        <div className="activity-time">{timeAgo(item.created_at)}</div>
-                                    </div>
-                                ))}
+                    {/* Global stats */}
+                    <div className="profile-v2__global-stats">
+                        {[
+                            { v: totalCards,         l: "Cards"   },
+                            { v: totalWish,          l: "Wishlist"},
+                            { v: USER.totalTrades,   l: "Trades"  },
+                            { v: USER.groups.length, l: "Fandoms" },
+                        ].map(({ v, l }) => (
+                            <div key={l} className="profile-v2__gstat">
+                                <div className="stat-card__value" style={{ fontSize: 28 }}>{v}</div>
+                                <div className="stat-card__label">{l}</div>
                             </div>
-                        </>
-                    )}
+                        ))}
+                    </div>
+                </div>
 
-                    {/* Binder */}
-                    <div className="profile-section-title">Collection binder</div>
-                    {Object.keys(byEra).length === 0 ? (
-                        <div className="profile-empty">
-                            No cards in this collection yet.
-                        </div>
-                    ) : (
-                        <div className="binder-grid">
-                            {Object.entries(byEra).map(([key, group]) => {
-                                const ownedInGroup = group.cards.filter(c => c.status === "owned").length;
-                                const pctGroup = Math.round((ownedInGroup / group.cards.length) * 100);
-                                const initials = group.member.split(" ").pop().slice(0, 2).toUpperCase();
-                                return (
-                                    <div key={key} className="binder-era">
-                                        <div className="binder-era-header">
-                                            <div className="binder-era-avatar">{initials}</div>
-                                            <div className="binder-era-member">{group.member}</div>
-                                            <div className="binder-era-name">{group.era}</div>
-                                            <div className="binder-era-count">{ownedInGroup}/{group.cards.length}</div>
-                                        </div>
-                                        <div className="binder-era-cards">
-                                            {group.cards.map((c, i) => (
-                                                <div key={i} className={`binder-era-tile binder-era-tile--${c.status}`}>
-                                                    <div className="binder-era-tile-ver">{c.photocards.versions.name}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <div className="binder-era-prog">
-                                            <div className="prog-track">
-                                                <div className="prog-fill" style={{ width: `${pctGroup}%` }} />
-                                            </div>
-                                            <span style={{ fontSize: 11, color: "#7F77DD" }}>{pctGroup}%</span>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    )}
+                {/* Tabs */}
+                <div className="profile-v2__tabs">
+                    {["overview", "collection", "wishlist", "trades"].map(tab => (
+                        <button
+                            key={tab}
+                            className={`profile-v2__tab${activeTab === tab ? " profile-v2__tab--active" : ""}`}
+                            onClick={() => setActiveTab(tab)}
+                        >
+                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                        </button>
+                    ))}
+                </div>
 
+                {activeTab === "overview"   && <OverviewTab />}
+                {activeTab === "collection" && <CollectionTab />}
+                {activeTab === "wishlist"   && <WishlistTab />}
+                {activeTab === "trades"     && <TradesTab />}
+
+            </main>
+        </div>
+    );
+}
+
+// ─── Overview ─────────────────────────────────────────────────────────────────
+function OverviewTab() {
+    const allRecent = USER.groups.flatMap(g =>
+        g.recentCards.map(c => ({ ...c, group: g }))
+    );
+
+    return (
+        <div className="profile-v2__overview">
+
+            <div>
+                <div className="section-label">My Fandoms</div>
+                <div className="profile-v2__fandom-list">
+                    {USER.groups.map(g => (
+                        <div key={g.id} className="card-surface profile-v2__fandom-card">
+                            <div className="profile-v2__fandom-row">
+                                <div style={{ flex: 1 }}>
+                                    <p className="profile-v2__fandom-hangul">{g.hangul}</p>
+                                    <p className="profile-v2__fandom-name">{g.name}</p>
+                                    <p className="profile-v2__fandom-era">{g.era}</p>
+                                </div>
+                                <div style={{ display: "flex", gap: 6 }}>
+                                    {g.faveMembers.map(m => (
+                                        <span key={m} className="badge badge-missing" style={{ fontSize: 10 }}>{m}</span>
+                                    ))}
+                                </div>
+                                <div className="profile-v2__fandom-nums">
+                                    {[
+                                        { v: g.cards, l: "cards" },
+                                        { v: g.trades, l: "trades" },
+                                        { v: `${g.wishlistPct}%`, l: "wish" },
+                                    ].map(({ v, l }) => (
+                                        <div key={l} style={{ textAlign: "center" }}>
+                                            <div className="profile-v2__fandom-num">{v}</div>
+                                            <div className="section-label" style={{ marginBottom: 0 }}>{l}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="progress-track" style={{ marginTop: 12 }}>
+                                <div className="progress-fill" style={{ width: `${g.wishlistPct}%` }} />
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
+
+            <div>
+                <div className="section-label">Recent Cards</div>
+                <div className="profile-v2__activity">
+                    {allRecent.slice(0, 6).map((item, i) => {
+                        const sm = STATUS_META[item.status] || STATUS_META.owned;
+                        return (
+                            <div key={i} className="profile-v2__activity-row">
+                                <div className="avatar avatar--sm" style={{ background: "rgba(127,119,221,0.2)" }}>✦</div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontSize: 13, color: "var(--text-secondary)", fontWeight: 500 }}>
+                                        {item.name} — {item.album}
+                                    </div>
+                                    <div style={{ fontSize: 11, color: "var(--text-faint)" }}>
+                                        {item.ver} ver. · {item.group.name}
+                                    </div>
+                                </div>
+                                <span className={`badge ${sm.cls}`}>{sm.label}</span>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
+        </div>
+    );
+}
+
+// ─── Collection ───────────────────────────────────────────────────────────────
+function CollectionTab() {
+    return (
+        <div className="profile-v2__collection">
+            {USER.groups.map(g => (
+                <div key={g.id} className="profile-v2__col-section">
+                    <div className="profile-v2__col-header">
+                        <span className="eyebrow">{g.name}</span>
+                        <span style={{ fontSize: 12, color: "var(--text-faint)" }}>{g.cards} cards</span>
+                    </div>
+                    <div className="binder-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))", padding: 0, marginTop: 12 }}>
+                        {g.recentCards.map((card, i) => {
+                            const sm = STATUS_META[card.status] || STATUS_META.owned;
+                            const tileCls = card.status === "for-trade" ? "wishlist"
+                                : card.status === "wishlist" ? "missing" : card.status;
+                            return (
+                                <div key={i} className={`binder-tile binder-tile--${tileCls}`}>
+                                    <div className="binder-tile__ver">{card.name}</div>
+                                    <span className={`badge ${sm.cls}`}>{sm.label}</span>
+                                </div>
+                            );
+                        })}
+                        <div className="binder-tile binder-tile--missing"
+                             style={{ border: "0.5px dashed var(--border-soft)", cursor: "pointer", alignItems: "center", justifyContent: "center", display: "flex" }}>
+                            <span style={{ fontSize: 20, color: "var(--text-faint)" }}>+</span>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+// ─── Wishlist ─────────────────────────────────────────────────────────────────
+function WishlistTab() {
+    return (
+        <div className="profile-v2__collection">
+            {USER.groups.map(g => (
+                <div key={g.id} className="profile-v2__col-section">
+                    <div className="profile-v2__col-header">
+                        <span className="eyebrow">{g.name}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                            <span style={{ fontSize: 12, color: "var(--text-faint)" }}>{g.wishlistPct}% complete</span>
+                            <div className="progress-track" style={{ width: 80 }}>
+                                <div className="progress-fill" style={{ width: `${g.wishlistPct}%` }} />
+                            </div>
+                        </div>
+                    </div>
+                    <p style={{ fontSize: 13, color: "var(--text-faint)", marginTop: 8 }}>
+                        {g.wishlist} cards on wishlist
+                    </p>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+// ─── Trades ───────────────────────────────────────────────────────────────────
+function TradesTab() {
+    return (
+        <div className="empty-state">
+            <div className="stat-card__value" style={{ fontSize: 52, marginBottom: 8 }}>{USER.totalTrades}</div>
+            trades completed<br />
+            <span style={{ fontSize: 15 }}>Trade history and active offers will appear here.</span>
+        </div>
     );
 }

@@ -356,3 +356,101 @@
     font-size: 12px;
     color: rgba(127, 119, 221, 0.4);
 }
+
+/* ─── Desktop nav links ───────────────────────────────────── */
+.landing__nav-links--desktop {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+/* ─── Hamburger button ────────────────────────────────────── */
+.landing__hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 36px; height: 36px;
+    background: transparent;
+    border: 0.5px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    padding: 8px;
+}
+.landing__hamburger span {
+    display: block;
+    width: 100%; height: 1.5px;
+    background: var(--text-muted);
+    border-radius: 1px;
+    transition: all var(--transition-fast);
+}
+
+/* ─── Mobile menu drawer ──────────────────────────────────── */
+.landing__mobile-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 24px 16px;
+    background: rgba(16, 13, 38, 0.98);
+    border-bottom: 0.5px solid var(--border-subtle);
+    position: relative;
+    z-index: 20;
+    animation: fadeUp 0.2s ease;
+}
+.landing__mobile-link {
+    background: none; border: none;
+    font-family: var(--font-sans); font-size: 15px;
+    color: var(--text-muted); cursor: pointer;
+    padding: 10px 0;
+    border-bottom: 0.5px solid var(--border-subtle);
+    text-align: left;
+    transition: color var(--transition-fast);
+}
+.landing__mobile-link:hover { color: var(--text-primary); }
+
+/* ─────────────────────────────────────────────────────────────
+   MOBILE BREAKPOINTS — Fix #6
+   ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+    /* Swap desktop nav for hamburger */
+    .landing__nav-links--desktop { display: none; }
+    .landing__hamburger { display: flex; }
+
+    .landing__nav { padding: 16px 20px; }
+
+    .landing__hero { padding: 24px 20px 36px; }
+    .landing__hero-title { font-size: clamp(36px, 9vw, 56px); }
+    .landing__hero-sub   { font-size: 15px; }
+
+    .landing__waitlist-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .landing__waitlist-input { width: 100%; }
+
+    .landing__stats {
+        max-width: 100%;
+        margin: 0 20px 48px;
+    }
+
+    .landing__binder-section { padding: 0 20px 48px; }
+
+    .landing__features { padding: 0 20px 60px; }
+    .landing__features-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .landing__features-heading h2 { font-size: 28px; }
+
+    .landing__cta { margin: 0 20px 60px; padding: 32px 24px; }
+    .landing__cta-headline { font-size: 26px; }
+
+    .landing__footer { padding: 20px 20px; flex-wrap: wrap; gap: 12px; }
+    .landing__footer-tagline { display: none; }
+}
+
+@media (max-width: 480px) {
+    .landing__features-grid { grid-template-columns: 1fr; }
+    .landing__hero-title     { font-size: 32px; }
+    .landing__stats          { flex-direction: column; border-radius: var(--radius-md); }
+    .landing__stat-pill      { border-right: none; border-bottom: 0.5px solid rgba(175,169,236,0.2); }
+    .landing__stat-pill--last { border-bottom: none; }
+}
