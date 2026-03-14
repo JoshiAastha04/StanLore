@@ -1,5 +1,5 @@
-import { usePublicCollection } from "../../hooks/useCollection";
-import "../../styles/profile.css"
+import { usePublicCollection } from "../../hooks/usecollection.js";
+import "../../styles/profile.css";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function timeAgo(dateStr) {
