@@ -59,46 +59,74 @@ The long-term vision is to expand into a broader fandom collection platform that
 ## Tech Stack
 
 ### Frontend
+
 - React
 - Vite
 - JavaScript
 - CSS
 
 ### Backend / Database
+
 - Supabase
 - PostgreSQL
 - Row Level Security (RLS)
 
+## Why I built this
+
+Stanlore was built from the perspective of a fan who wanted something better than spreadsheets and scattered screenshots.
+
+The goal is to create a product that feels both useful and meaningful to collectors, something aesthetic, structured, and actually designed around fandom behavior instead of forcing fans into generic tools.
+
+## Local Setup
+
+Clone the repository and install dependencies:
+
+    npm install
+    npm run dev
+
+Then open the local development URL shown by Vite.
+
+## Status
+
+Stanlore is currently in active development.
+
+This version focuses on the core product foundation, including the landing page, authentication flow, collection-oriented UI, public profile structure, and Supabase integration. The next major milestone is connecting a real photocard catalog and full collection state to the database.
+
+## Vision
+
+Stanlore starts with BTS.
+
+The bigger vision is to build the platform collectors wish already existed.
+
 ## Project Structure
 
-```bash
-frontend/
-  src/
-    context/
-      AuthContext.jsx
-    hooks/
-      usecollection.js
-    lib/
-      supabase.js
-    pages/
-      Auth/
-        AuthPage.jsx
-      Home/
-        HomePage.jsx
-      Landing/
-        LandingPage.jsx
-      Profile/
-        ProfilePage.jsx
-    styles/
-      auth.css
-      Components.css
-      globals.css
-      Home.css
-      Landing.css
-      profile.css
-    App.jsx
-    main.jsx
+    frontend/
+      src/
+        context/
+          AuthContext.jsx
+        hooks/
+          usecollection.js
+        lib/
+          supabase.js
+        pages/
+          Auth/
+            AuthPage.jsx
+          Home/
+            HomePage.jsx
+          Landing/
+            LandingPage.jsx
+          Profile/
+            ProfilePage.jsx
+        styles/
+          auth.css
+          Components.css
+          globals.css
+          Home.css
+          Landing.css
+          profile.css
+        App.jsx
+        main.jsx
 
-Backend/
-  Supabase/
-    migration.sql
+    Backend/
+      Supabase/
+        migration.sql
