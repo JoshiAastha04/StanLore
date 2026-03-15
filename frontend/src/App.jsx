@@ -70,6 +70,11 @@ function Router() {
                 isGuest={!isLoggedIn}
                 onBack={() => setPage(isLoggedIn ? "home" : "grpselect")}
                 onSignIn={() => setPage("auth")}
+                onHome={() => setPage(isLoggedIn ? "home" : "grpselect")}
+                onCatalog={() => setPage("catalog")}
+                onUpdates={() => setPage("updates")}
+                onStyle={() => setPage("style")}
+                onLore={() => setPage("lore")}
             />
         );
     }
@@ -81,15 +86,27 @@ function Router() {
                 isGuest={!isLoggedIn}
                 onBack={() => setPage(isLoggedIn ? "home" : "grpselect")}
                 onSignIn={() => setPage("auth")}
+                onHome={() => setPage(isLoggedIn ? "home" : "grpselect")}
+                onCatalog={() => setPage("catalog")}
+                onUpdates={() => setPage("updates")}
+                onStyle={() => setPage("style")}
+                onLore={() => setPage("lore")}
             />
         );
     }
 
-    // Catalog
+    // Catalog — accessible to guests too, but add/wishlist require sign-in
     if (page === "catalog") {
         return (
             <CatalogPage
+                isGuest={!isLoggedIn}
                 onBack={() => setPage(isLoggedIn ? "home" : "grpselect")}
+                onSignIn={() => setPage("auth")}
+                onHome={() => setPage(isLoggedIn ? "home" : "grpselect")}
+                onCatalog={() => setPage("catalog")}
+                onUpdates={() => setPage("updates")}
+                onStyle={() => setPage("style")}
+                onLore={() => setPage("lore")}
             />
         );
     }
@@ -101,6 +118,11 @@ function Router() {
                 isGuest={!isLoggedIn}
                 onBack={() => setPage(isLoggedIn ? "home" : "grpselect")}
                 onSignIn={() => setPage("auth")}
+                onHome={() => setPage(isLoggedIn ? "home" : "grpselect")}
+                onCatalog={() => setPage("catalog")}
+                onUpdates={() => setPage("updates")}
+                onStyle={() => setPage("style")}
+                onLore={() => setPage("lore")}
             />
         );
     }
@@ -141,6 +163,7 @@ function Router() {
                 }}
                 onLore={() => setPage("lore")}
                 onUpdates={() => setPage("updates")}
+                onCatalog={() => setPage("catalog")}
                 onSignIn={() => setPage("auth")}
                 onSignOut={isLoggedIn ? async () => {
                     await signOut();

@@ -106,7 +106,7 @@ const TYPE_BADGE = {
     merch:     "badge-missing",
 };
 
-export default function UpdatesPage({ onBack, onSignIn, isGuest }) {
+export default function UpdatesPage({ onBack, onSignIn, isGuest, onHome, onCatalog, onUpdates, onStyle, onLore }) {
     const [activeFilter, setActiveFilter] = useState("all");
     const [saved, setSaved]               = useState(new Set([1, 2]));
 
@@ -124,180 +124,214 @@ export default function UpdatesPage({ onBack, onSignIn, isGuest }) {
     }
 
     return (
-        <div className="updates-page">
-            <div className="orb orb--1" />
-            <div className="orb orb--2" />
+        <>
+            <div className="updates-page">
+                <div className="orb orb--1" />
+                <div className="orb orb--2" />
 
-            <nav className="updates__nav">
-                <button className="updates__back" onClick={onBack}>← Back</button>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div className="logo-mark logo-mark--sm">S</div>
-                    <span className="logo-wordmark logo-wordmark--sm">Stanlore</span>
-                </div>
-                <div className="updates__nav-right">
-                    {isGuest && (
-                        <button className="btn btn-primary btn-sm" onClick={onSignIn}>Sign up</button>
-                    )}
-                </div>
-            </nav>
-
-            {isGuest && (
-                <div className="updates__guest-banner">
-                    <span>You're reading as a guest.</span>
-                    <button className="updates__guest-cta" onClick={onSignIn}>
-                        Sign up to save updates & react →
-                    </button>
-                </div>
-            )}
-
-            <main className="updates__main">
-
-                {/* ARIRANG hero banner */}
-                <div className="updates__album-hero">
-                    <div className="updates__album-hero-glow" />
-                    <div className="updates__album-meta">
-                        <span className="eyebrow">Out Now · March 20, 2026</span>
-                        <h2 className="updates__album-title">BTS — <em>ARIRANG</em></h2>
-                        <p className="updates__album-sub">
-                            14 tracks · Prod. Diplo &amp; Kevin Parker · First full-group album since 2022
-                        </p>
+                <nav className="updates__nav">
+                    <button className="updates__back" onClick={onBack}>← Back</button>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div className="logo-mark logo-mark--sm">S</div>
+                        <span className="logo-wordmark logo-wordmark--sm">Stanlore</span>
                     </div>
-                    <div className="updates__album-stats">
-                        <div className="updates__album-stat">
-                            <span className="updates__album-stat-val">14</span>
-                            <span className="updates__album-stat-lbl">Tracks</span>
-                        </div>
-                        <div className="updates__album-stat">
-                            <span className="updates__album-stat-val">4</span>
-                            <span className="updates__album-stat-lbl">Versions</span>
-                        </div>
-                        <div className="updates__album-stat">
-                            <span className="updates__album-stat-val">28</span>
-                            <span className="updates__album-stat-lbl">PCs / set</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="updates__page-header">
-                    <div>
-                        <div className="eyebrow" style={{ marginBottom: 12 }}>Fandom Radar</div>
-                        <h1 className="updates__title">Updates Feed</h1>
-                        <p className="updates__sub">Comebacks · teasers · photocard drops · tour dates</p>
-                    </div>
-                    <div className="updates__live-chip">
-                        <span className="updates__live-dot" />
-                        Live
-                    </div>
-                </div>
-
-                <div className="updates__layout">
-
-                    <div className="updates__feed-col">
-                        <div className="updates__filter-row">
-                            {TYPE_FILTERS.map(f => (
-                                <button
-                                    key={f.id}
-                                    className={`filter-btn${activeFilter === f.id ? " filter-btn--active" : ""}`}
-                                    onClick={() => setActiveFilter(f.id)}
-                                >
-                                    {f.label}
-                                </button>
-                            ))}
-                        </div>
-
-                        {activeFilter === "all" && (
-                            <div className="updates__pinned card">
-                                <span className="section-label" style={{ marginBottom: 0, flexShrink: 0 }}>📌 Pinned</span>
-                                <div style={{ flex: 1 }}>
-                                    <p style={{ fontSize: 14, fontWeight: 500, color: "var(--text-secondary)", marginBottom: 3 }}>
-                                        {UPDATES[0].title}
-                                    </p>
-                                    <p style={{ fontSize: 12, color: "var(--text-faint)" }}>{UPDATES[0].body}</p>
-                                </div>
-                                <span className="badge badge-owned">NEW</span>
-                            </div>
+                    <div className="updates__nav-right">
+                        {isGuest && (
+                            <button className="btn btn-primary btn-sm" onClick={onSignIn}>Sign up</button>
                         )}
+                    </div>
+                </nav>
 
-                        <div className="updates__feed">
-                            {filtered.map(update => (
-                                <UpdateCard
-                                    key={update.id}
-                                    update={update}
-                                    saved={saved.has(update.id)}
-                                    onSave={() => toggleSave(update.id)}
-                                    isGuest={isGuest}
-                                />
-                            ))}
+                {isGuest && (
+                    <div className="updates__guest-banner">
+                        <span>You're reading as a guest.</span>
+                        <button className="updates__guest-cta" onClick={onSignIn}>
+                            Sign up to save updates & react →
+                        </button>
+                    </div>
+                )}
+
+                <main className="updates__main">
+
+                    {/* ARIRANG hero banner */}
+                    <div className="updates__album-hero">
+                        <div className="updates__album-hero-glow" />
+                        <div className="updates__album-meta">
+                            <span className="eyebrow">Out Now · March 20, 2026</span>
+                            <h2 className="updates__album-title">BTS — <em>ARIRANG</em></h2>
+                            <p className="updates__album-sub">
+                                14 tracks · Prod. Diplo &amp; Kevin Parker · First full-group album since 2022
+                            </p>
+                        </div>
+                        <div className="updates__album-stats">
+                            <div className="updates__album-stat">
+                                <span className="updates__album-stat-val">14</span>
+                                <span className="updates__album-stat-lbl">Tracks</span>
+                            </div>
+                            <div className="updates__album-stat">
+                                <span className="updates__album-stat-val">4</span>
+                                <span className="updates__album-stat-lbl">Versions</span>
+                            </div>
+                            <div className="updates__album-stat">
+                                <span className="updates__album-stat-val">28</span>
+                                <span className="updates__album-stat-lbl">PCs / set</span>
+                            </div>
                         </div>
                     </div>
 
-                    <aside className="updates__sidebar">
-                        <div className="card updates__side-card">
-                            <div className="section-label" style={{ marginBottom: 14 }}>📅 Upcoming</div>
-                            {UPCOMING.map((d, i) => (
-                                <div key={i} className="updates__cal-item">
-                                    <div className="updates__cal-date">{d.date}</div>
-                                    <div>
-                                        <p className="updates__cal-event">{d.event}</p>
-                                        <span className={`badge ${TYPE_BADGE[d.type] || "badge-missing"}`} style={{ fontSize: 9 }}>{d.type}</span>
+                    <div className="updates__page-header">
+                        <div>
+                            <div className="eyebrow" style={{ marginBottom: 12 }}>Fandom Radar</div>
+                            <h1 className="updates__title">Updates Feed</h1>
+                            <p className="updates__sub">Comebacks · teasers · photocard drops · tour dates</p>
+                        </div>
+                        <div className="updates__live-chip">
+                            <span className="updates__live-dot" />
+                            Live
+                        </div>
+                    </div>
+
+                    <div className="updates__layout">
+
+                        <div className="updates__feed-col">
+                            <div className="updates__filter-row">
+                                {TYPE_FILTERS.map(f => (
+                                    <button
+                                        key={f.id}
+                                        className={`filter-btn${activeFilter === f.id ? " filter-btn--active" : ""}`}
+                                        onClick={() => setActiveFilter(f.id)}
+                                    >
+                                        {f.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {activeFilter === "all" && (
+                                <div className="updates__pinned card">
+                                    <span className="section-label" style={{ marginBottom: 0, flexShrink: 0 }}>📌 Pinned</span>
+                                    <div style={{ flex: 1 }}>
+                                        <p style={{ fontSize: 14, fontWeight: 500, color: "var(--text-secondary)", marginBottom: 3 }}>
+                                            {UPDATES[0].title}
+                                        </p>
+                                        <p style={{ fontSize: 12, color: "var(--text-faint)" }}>{UPDATES[0].body}</p>
                                     </div>
+                                    <span className="badge badge-owned">NEW</span>
                                 </div>
-                            ))}
+                            )}
+
+                            <div className="updates__feed">
+                                {filtered.map(update => (
+                                    <UpdateCard
+                                        key={update.id}
+                                        update={update}
+                                        saved={saved.has(update.id)}
+                                        onSave={() => toggleSave(update.id)}
+                                        isGuest={isGuest}
+                                    />
+                                ))}
+                            </div>
                         </div>
 
-                        <div className="card updates__side-card">
-                            <div className="section-label" style={{ marginBottom: 14 }}>Following</div>
-                            {[
-                                { name: "BTS",        updates: 8, active: true  },
-                                { name: "Stray Kids", updates: 2, active: false },
-                                { name: "SEVENTEEN",  updates: 0, active: false },
-                            ].map(g => (
-                                <div key={g.name} className="updates__follow-item">
-                                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                        <div className="updates__follow-dot" style={{ opacity: g.active ? 1 : 0.2 }} />
-                                        <span style={{ fontSize: 13, color: g.active ? "var(--text-secondary)" : "var(--text-faint)" }}>
+                        <aside className="updates__sidebar">
+                            <div className="card updates__side-card">
+                                <div className="section-label" style={{ marginBottom: 14 }}>📅 Upcoming</div>
+                                {UPCOMING.map((d, i) => (
+                                    <div key={i} className="updates__cal-item">
+                                        <div className="updates__cal-date">{d.date}</div>
+                                        <div>
+                                            <p className="updates__cal-event">{d.event}</p>
+                                            <span className={`badge ${TYPE_BADGE[d.type] || "badge-missing"}`} style={{ fontSize: 9 }}>{d.type}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="card updates__side-card">
+                                <div className="section-label" style={{ marginBottom: 14 }}>Following</div>
+                                {[
+                                    { name: "BTS",        updates: 8, active: true  },
+                                    { name: "Stray Kids", updates: 2, active: false },
+                                    { name: "SEVENTEEN",  updates: 0, active: false },
+                                ].map(g => (
+                                    <div key={g.name} className="updates__follow-item">
+                                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                            <div className="updates__follow-dot" style={{ opacity: g.active ? 1 : 0.2 }} />
+                                            <span style={{ fontSize: 13, color: g.active ? "var(--text-secondary)" : "var(--text-faint)" }}>
                                             {g.name}
                                         </span>
+                                        </div>
+                                        {g.updates > 0 && (
+                                            <span className="badge badge-owned" style={{ fontSize: 9 }}>{g.updates} new</span>
+                                        )}
                                     </div>
-                                    {g.updates > 0 && (
-                                        <span className="badge badge-owned" style={{ fontSize: 9 }}>{g.updates} new</span>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
 
-                        {/* ARIRANG track list */}
-                        <div className="card updates__side-card">
-                            <div className="section-label" style={{ marginBottom: 14 }}>ARIRANG Tracklist</div>
-                            {[
-                                "1. ARIRANG (Title)",
-                                "2. Han River",
-                                "3. Roots",
-                                "4. 7 (Seven)",
-                                "5. Grandmother's Song",
-                                "6. Night Blooms",
-                                "7. The Boy from Ilsan",
-                                "8. Hanji",
-                                "9. Monsoon",
-                                "10. Promise Kept",
-                                "11. Blue Hour (Reprise)",
-                                "12. Letter to ARMY",
-                                "13. Still With You 2026",
-                                "14. Home",
-                            ].map((t, i) => (
-                                <div key={i} style={{
-                                    fontSize: 12, color: i === 0 ? "var(--purple-light)" : "var(--text-faint)",
-                                    padding: "5px 0",
-                                    borderBottom: i < 13 ? "0.5px solid var(--border-subtle)" : "none",
-                                    fontWeight: i === 0 ? 500 : 400,
-                                }}>{t}</div>
-                            ))}
-                        </div>
-                    </aside>
+                            {/* ARIRANG track list */}
+                            <div className="card updates__side-card">
+                                <div className="section-label" style={{ marginBottom: 14 }}>ARIRANG Tracklist</div>
+                                {[
+                                    "1. ARIRANG (Title)",
+                                    "2. Han River",
+                                    "3. Roots",
+                                    "4. 7 (Seven)",
+                                    "5. Grandmother's Song",
+                                    "6. Night Blooms",
+                                    "7. The Boy from Ilsan",
+                                    "8. Hanji",
+                                    "9. Monsoon",
+                                    "10. Promise Kept",
+                                    "11. Blue Hour (Reprise)",
+                                    "12. Letter to ARMY",
+                                    "13. Still With You 2026",
+                                    "14. Home",
+                                ].map((t, i) => (
+                                    <div key={i} style={{
+                                        fontSize: 12, color: i === 0 ? "var(--purple-light)" : "var(--text-faint)",
+                                        padding: "5px 0",
+                                        borderBottom: i < 13 ? "0.5px solid var(--border-subtle)" : "none",
+                                        fontWeight: i === 0 ? 500 : 400,
+                                    }}>{t}</div>
+                                ))}
+                            </div>
+                        </aside>
 
-                </div>
-            </main>
-        </div>
+                    </div>
+                </main>
+            </div>
+            <MobileBottomNav
+                activePage="updates"
+                onHome={onHome}
+                onCatalog={onCatalog}
+                onUpdates={onUpdates}
+                onStyle={onStyle}
+                onLore={onLore}
+            />
+        </>
+    );
+}
+
+
+// ─── Shared mobile bottom nav ─────────────────────────────────────────────────
+function MobileBottomNav({ activePage, onHome, onCatalog, onUpdates, onStyle, onLore }) {
+    const tabs = [
+        { id: "home",    icon: "◫",  label: "Binder",  action: onHome    },
+        { id: "catalog", icon: "✦",  label: "Catalog",  action: onCatalog },
+        { id: "updates", icon: "◈",  label: "Updates",  action: onUpdates },
+        { id: "style",   icon: "✧",  label: "Style",    action: onStyle   },
+        { id: "lore",    icon: "◉",  label: "Lore",     action: onLore    },
+    ];
+    return (
+        <nav className="mobile-bottom-nav">
+            {tabs.map(tab => (
+                <button key={tab.id}
+                        className={`mobile-bottom-nav__item${activePage === tab.id ? " mobile-bottom-nav__item--active" : ""}`}
+                        onClick={tab.action}>
+                    <span className="mobile-bottom-nav__icon">{tab.icon}</span>
+                    <span className="mobile-bottom-nav__label">{tab.label}</span>
+                </button>
+            ))}
+        </nav>
     );
 }
 

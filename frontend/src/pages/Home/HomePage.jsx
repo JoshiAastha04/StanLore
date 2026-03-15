@@ -1,8 +1,10 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { supabase } from "../../lib/supabase";
 import "../Home/Home.css";
 import "../../styles/Components.css";
 import "../../styles/globals.css";
+import "../../styles/Mobile.css"
 
 // ─── Nav config ───────────────────────────────────────────────────────────────
 const BINDER_TABS = [
@@ -12,10 +14,10 @@ const BINDER_TABS = [
 ];
 
 const COMMUNITY_TABS = [
-    { id: "catalog", icon: "✦", label: "Catalog"             },
-    { id: "updates", icon: "◈", label: "Updates", badge: 7   },
-    { id: "style",   icon: "✧", label: "Style"               },
-    { id: "lore",    icon: "◉", label: "Lore"                },
+    { id: "catalog", icon: "✦", label: "Catalog"           },
+    { id: "updates", icon: "◈", label: "Updates", badge: 7 },
+    { id: "style",   icon: "✧", label: "Style"             },
+    { id: "lore",    icon: "◉", label: "Lore"              },
 ];
 
 const BADGE_CLASS = {
@@ -29,43 +31,7 @@ const MEMBER_INITIALS = {
 };
 
 const MEMBERS = ["All", "RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "Jungkook"];
-const pct = (owned, total) => Math.round((owned / total) * 100);
-
-// ─── Mock collection (replace with Supabase query later) ─────────────────────
-const ERAS = [
-    {
-        id: 1, member: "Jungkook", era: "Butter", owned: 5, total: 8,
-        cards: [
-            { ver: "Ver. A", status: "owned" },   { ver: "Ver. B", status: "owned" },
-            { ver: "Ver. C", status: "wishlist" }, { ver: "Ver. D", status: "missing" },
-            { ver: "Ver. E", status: "owned" },   { ver: "Ver. F", status: "duplicate" },
-            { ver: "Ver. G", status: "owned" },   { ver: "Ver. H", status: "missing" },
-        ],
-    },
-    {
-        id: 2, member: "Jimin", era: "Proof", owned: 3, total: 6,
-        cards: [
-            { ver: "Ver. A", status: "owned" },   { ver: "Ver. B", status: "wishlist" },
-            { ver: "Ver. C", status: "owned" },   { ver: "Ver. D", status: "missing" },
-            { ver: "Ver. E", status: "owned" },   { ver: "Ver. F", status: "missing" },
-        ],
-    },
-    {
-        id: 3, member: "V", era: "BE", owned: 2, total: 4,
-        cards: [
-            { ver: "Ver. A", status: "owned" }, { ver: "Ver. B", status: "missing" },
-            { ver: "Ver. C", status: "owned" }, { ver: "Ver. D", status: "wishlist" },
-        ],
-    },
-    {
-        id: 4, member: "Suga", era: "Map of the Soul", owned: 6, total: 6,
-        cards: [
-            { ver: "Ver. A", status: "owned" }, { ver: "Ver. B", status: "owned" },
-            { ver: "Ver. C", status: "owned" }, { ver: "Ver. D", status: "owned" },
-            { ver: "Ver. E", status: "owned" }, { ver: "Ver. F", status: "owned" },
-        ],
-    },
-];
+const pct = (owned, total) => total > 0 ? Math.round((owned / total) * 100) : 0;
 
 // ─── Stat card ────────────────────────────────────────────────────────────────
 function StatCard({ value, label, accentColor }) {
@@ -79,12 +45,35 @@ function StatCard({ value, label, accentColor }) {
     );
 }
 
-// ─── Photocard tile ───────────────────────────────────────────────────────────
+// ─── Photocard tile — shows real image if available ──────────────────────────
 function PcTile({ card, onClick }) {
+    const [imgErr, setImgErr] = useState(false);
     return (
-        <div className={`pc-tile pc-tile--${card.status}`} onClick={() => onClick(card)}>
-            <div className="pc-tile__ver">{card.ver}</div>
-            <span className={`badge ${BADGE_CLASS[card.status]}`}>{card.status}</span>
+        <div className={`pc-tile pc-tile--${card.status}`}
+             style={{ position: "relative", overflow: "hidden" }}
+             onClick={() => onClick(card)}>
+            {card.publicUrl && !imgErr ? (
+                <>
+                    <img
+                        src={card.publicUrl}
+                        alt={card.ver}
+                        style={{ width: "100%", height: "100%", objectFit: "cover",
+                            borderRadius: "inherit", display: "block",
+                            position: "absolute", inset: 0 }}
+                        onError={() => setImgErr(true)}
+                        loading="lazy"
+                    />
+                    <span className={`badge ${BADGE_CLASS[card.status]}`}
+                          style={{ position: "absolute", bottom: 6, left: 6, zIndex: 2 }}>
+                        {card.status}
+                    </span>
+                </>
+            ) : (
+                <>
+                    <div className="pc-tile__ver">{card.ver}</div>
+                    <span className={`badge ${BADGE_CLASS[card.status]}`}>{card.status}</span>
+                </>
+            )}
         </div>
     );
 }
@@ -125,34 +114,57 @@ function EraCard({ era, onCardClick }) {
 
 // ─── Card status modal ────────────────────────────────────────────────────────
 function CardModal({ card, onClose }) {
+    const [imgErr, setImgErr] = useState(false);
     if (!card) return null;
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="card-modal" onClick={e => e.stopPropagation()}>
-                <div className={`card-modal__preview pc-tile--${card.status}`}>
-                    <span style={{ fontFamily: "var(--font-serif)", fontSize: 22,
-                        color: "var(--purple-pale)", fontStyle: "italic" }}>{card.ver}</span>
-                </div>
+                {/* Real image or colour fallback */}
+                {card.publicUrl && !imgErr ? (
+                    <img src={card.publicUrl}
+                         alt={card.ver}
+                         className="card-modal__preview"
+                         style={{ objectFit: "cover", borderRadius: "var(--radius-md)" }}
+                         onError={() => setImgErr(true)} />
+                ) : (
+                    <div className={`card-modal__preview pc-tile--${card.status}`}>
+                        <span style={{ fontFamily: "var(--font-serif)", fontSize: 22,
+                            color: "var(--purple-pale)", fontStyle: "italic" }}>{card.ver}</span>
+                    </div>
+                )}
+
                 <div className="card-modal__title">{card.ver}</div>
+
                 <div className="card-modal__statuses">
                     {["owned","wishlist","duplicate","missing"].map(st => (
                         <button key={st}
                                 className={`card-modal__status-btn badge ${BADGE_CLASS[st]}`}
-                                style={{ opacity: card.status === st ? 1 : 0.45,
-                                    cursor: "pointer", border: "none" }}>
+                                style={{ opacity: card.status === st ? 1 : 0.45, cursor: "pointer", border: "none" }}>
                             {st}
                         </button>
                     ))}
                 </div>
-                <button className="btn btn-ghost btn-sm" onClick={onClose}>Close</button>
+
+                {/* Trade option — only show for owned cards */}
+                {card.status === "owned" && (
+                    <button className="btn btn-ghost btn-sm"
+                            style={{ width: "100%", marginTop: 4, borderColor: "rgba(127,119,221,0.3)" }}>
+                        ⇄ List for trade
+                    </button>
+                )}
+
+                <button className="btn btn-ghost btn-sm"
+                        style={{ width: "100%", marginTop: 6 }} onClick={onClose}>
+                    Close
+                </button>
             </div>
         </div>
     );
 }
 
-// ─── Sidebar (desktop only) ───────────────────────────────────────────────────
+// ─── Sidebar ──────────────────────────────────────────────────────────────────
 function Sidebar({ activeTab, onTabChange, onSignOut, onProfile, onLore,
-                     onUpdates, onStyle, onCatalog, onGroupSwitch, activeGroup, stars }) {
+                     onUpdates, onStyle, onCatalog, onGroupSwitch, activeGroup, stars, username }) {
 
     function handleCommunity(id) {
         if (id === "lore")    { onLore?.();    return; }
@@ -164,27 +176,23 @@ function Sidebar({ activeTab, onTabChange, onSignOut, onProfile, onLore,
 
     return (
         <aside className="sidebar">
-
-            {/* Logo + profile avatar */}
             <div className="sidebar__toprow">
                 <div className="sidebar__logo" style={{ marginBottom: 0 }}>
                     <div className="logo-mark logo-mark--sm">S</div>
                     <span className="logo-wordmark logo-wordmark--sm">Stanlore</span>
                 </div>
                 <button className="sidebar__profile-btn"
-                        onClick={() => onProfile?.("stan_collector")} title="My profile">
+                        onClick={() => onProfile?.(username)} title="My profile">
                     <div className="sidebar__profile-avatar">✦</div>
                 </button>
             </div>
 
-            {/* Stars balance */}
             <div className="sidebar__stars">
                 <span className="sidebar__stars-icon">⭐</span>
                 <span className="sidebar__stars-count">{(stars ?? 0).toLocaleString()}</span>
                 <span className="sidebar__stars-label">stars</span>
             </div>
 
-            {/* Active group */}
             <button className="sidebar__group-pill" onClick={onGroupSwitch}>
                 <div className="sidebar__group-dot" />
                 <div>
@@ -226,7 +234,7 @@ function Sidebar({ activeTab, onTabChange, onSignOut, onProfile, onLore,
                     <div className="avatar avatar--sm"
                          style={{ background: "rgba(127,119,221,0.2)", fontSize: 14 }}>✦</div>
                     <div style={{ flex: 1 }}>
-                        <div className="sidebar__user-name">@stan_collector</div>
+                        <div className="sidebar__user-name">@{username ?? "stan_collector"}</div>
                         <div className="sidebar__user-tag">Early access</div>
                     </div>
                 </div>
@@ -237,7 +245,7 @@ function Sidebar({ activeTab, onTabChange, onSignOut, onProfile, onLore,
 }
 
 // ─── Mobile top bar ───────────────────────────────────────────────────────────
-function MobileTopBar({ activeGroup, onGroupSwitch, onProfile, stars }) {
+function MobileTopBar({ activeGroup, onGroupSwitch, onProfile, stars, username }) {
     return (
         <div className="mobile-topbar">
             <button className="mobile-topbar__group" onClick={onGroupSwitch}>
@@ -246,17 +254,13 @@ function MobileTopBar({ activeGroup, onGroupSwitch, onProfile, stars }) {
                 <span className="mobile-topbar__era">{activeGroup?.era ?? "MOTS: 7"}</span>
                 <span style={{ fontSize: 10, color: "var(--text-faint)", marginLeft: 2 }}>↗</span>
             </button>
-
-            {/* Stars visible on mobile too */}
             <div className="mobile-topbar__stars">
                 <span>⭐</span>
                 <span style={{ fontSize: 12, color: "var(--purple-light)", fontWeight: 500 }}>
                     {(stars ?? 0).toLocaleString()}
                 </span>
             </div>
-
-            <button className="mobile-topbar__profile"
-                    onClick={() => onProfile?.("stan_collector")}>
+            <button className="mobile-topbar__profile" onClick={() => onProfile?.(username)}>
                 <div className="mobile-topbar__avatar">✦</div>
             </button>
         </div>
@@ -290,17 +294,61 @@ function MobileBottomNav({ activeTab, onTabChange, onLore, onUpdates, onStyle, o
     );
 }
 
+// ─── Empty binder state ───────────────────────────────────────────────────────
+function EmptyBinderState({ onCatalog }) {
+    return (
+        <div className="binder-empty">
+            {/* Ghost card grid */}
+            <div className="binder-empty__ghost-grid">
+                {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="binder-empty__ghost-card"
+                         style={{ animationDelay: `${i * 0.12}s` }} />
+                ))}
+            </div>
+
+            <div className="binder-empty__text">
+                <h2 className="binder-empty__title">
+                    Start making your own collection ♡
+                </h2>
+                <p className="binder-empty__sub">
+                    Your binder is empty — and that's the best place to start.
+                    Head to the catalog, spend your ⭐ stars, and claim your first photocard.
+                </p>
+                <button className="btn btn-primary" onClick={onCatalog}>
+                    Browse the catalog →
+                </button>
+            </div>
+        </div>
+    );
+}
+
 // ─── Collection tab ───────────────────────────────────────────────────────────
-function CollectionTab({ eras }) {
+function CollectionTab({ eras, loading, onCatalog }) {
     const [activeMember, setActiveMember] = useState("All");
     const [selectedCard, setSelectedCard] = useState(null);
+
+    if (loading) {
+        return (
+            <div className="binder-loading">
+                {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="binder-loading__card"
+                         style={{ animationDelay: `${i * 0.1}s` }} />
+                ))}
+            </div>
+        );
+    }
+
+    // Real new user — no cards at all
+    if (eras.length === 0) {
+        return <EmptyBinderState onCatalog={onCatalog} />;
+    }
 
     const filtered   = activeMember === "All" ? eras : eras.filter(e => e.member === activeMember);
     const totalOwned = eras.reduce((s, e) => s + e.owned, 0);
     const totalCards = eras.reduce((s, e) => s + e.total, 0);
     const totalWish  = eras.reduce((s, e) => s + e.cards.filter(c => c.status === "wishlist").length, 0);
     const totalDupes = eras.reduce((s, e) => s + e.cards.filter(c => c.status === "duplicate").length, 0);
-    const totalPct   = Math.round((totalOwned / totalCards) * 100);
+    const totalPct   = pct(totalOwned, totalCards);
 
     return (
         <>
@@ -310,7 +358,6 @@ function CollectionTab({ eras }) {
                 <StatCard value={totalDupes}     label="Dupes"     accentColor="var(--purple-light)" />
                 <StatCard value={`${totalPct}%`} label="Complete"  accentColor="var(--text-success)" />
             </div>
-
             <div className="home__filters">
                 {MEMBERS.map(m => (
                     <button key={m}
@@ -318,27 +365,28 @@ function CollectionTab({ eras }) {
                             onClick={() => setActiveMember(m)}>{m}</button>
                 ))}
             </div>
-
             {filtered.length > 0 ? (
                 <div className="home__era-grid">
                     {filtered.map(era => <EraCard key={era.id} era={era} onCardClick={setSelectedCard} />)}
                 </div>
             ) : (
                 <div className="empty-state">
-                    No eras for {activeMember}.<br />
-                    <span style={{ fontSize: 15 }}>Browse the catalog to add cards.</span>
+                    No cards for {activeMember} yet.<br />
+                    <span style={{ fontSize: 15 }}>Browse the catalog to add some.</span>
                 </div>
             )}
-
             <CardModal card={selectedCard} onClose={() => setSelectedCard(null)} />
         </>
     );
 }
 
 // ─── Wishlist tab ─────────────────────────────────────────────────────────────
-function WishlistTab({ eras }) {
+function WishlistTab({ eras, loading }) {
+    if (loading) return null;
+
     const items = eras.flatMap(era =>
-        era.cards.filter(c => c.status === "wishlist")
+        era.cards
+            .filter(c => c.status === "wishlist")
             .map(c => ({ ...c, member: era.member, era: era.era }))
     );
 
@@ -346,23 +394,49 @@ function WishlistTab({ eras }) {
         return (
             <div className="empty-state">
                 Your wishlist is empty.<br />
-                <span style={{ fontSize: 15 }}>Browse the catalog and mark cards you want.</span>
+                <span style={{ fontSize: 15 }}>
+                    Go to the catalog and tap ♡ on any card to add it here.
+                </span>
             </div>
         );
     }
 
     return (
-        <div className="wishlist-grid">
-            {items.map((item, i) => (
-                <div key={i} className="wishlist-card">
-                    <div className="wishlist-card__member">{item.member}</div>
-                    <div className="wishlist-card__era">{item.era} Era</div>
-                    <div className="wishlist-card__ver">{item.ver}</div>
-                    <div style={{ marginTop: 10 }}>
-                        <span className="badge badge-wishlist">wishlist</span>
+        <div className="wishlist-real-grid">
+            {items.map((item, i) => {
+                const [imgErr, setImgErr] = React.useState(false);
+                return (
+                    <div key={i} className="wishlist-real-card">
+                        <div className="wishlist-real-card__img">
+                            {item.publicUrl && !imgErr ? (
+                                <img src={item.publicUrl}
+                                     alt={item.ver}
+                                     style={{ width:"100%", height:"100%",
+                                         objectFit:"cover", borderRadius:"inherit" }}
+                                     onError={() => setImgErr(true)}
+                                     loading="lazy" />
+                            ) : (
+                                <div style={{ display:"flex", alignItems:"center",
+                                    justifyContent:"center", height:"100%",
+                                    fontFamily:"var(--font-serif)", fontSize:18,
+                                    color:"var(--purple-pale)", fontStyle:"italic" }}>
+                                    {item.member}
+                                </div>
+                            )}
+                        </div>
+                        <div className="wishlist-real-card__info">
+                            <div style={{ fontSize:13, fontWeight:500,
+                                color:"var(--text-secondary)" }}>{item.member}</div>
+                            <div style={{ fontSize:11, color:"var(--text-faint)" }}>
+                                {item.ver} · {item.era}
+                            </div>
+                            <span className="badge badge-wishlist" style={{ marginTop:6, display:"inline-block" }}>
+                                ♡ wishlist
+                            </span>
+                        </div>
                     </div>
-                </div>
-            ))}
+                );
+            })}
         </div>
     );
 }
@@ -374,7 +448,19 @@ const EXAMPLE_TRADES = [
     { user: "@sevenpc",          have: "RM · BE · Ver. A",           want: "Jin · BE · Ver. A",        time: "1d ago" },
 ];
 
-function TradesTab() {
+function TradesTab({ hasCards }) {
+    // New users with no cards yet see an empty state, not fake listings
+    if (!hasCards) {
+        return (
+            <div className="empty-state">
+                No trades yet.<br />
+                <span style={{ fontSize: 15 }}>
+                    Once you have cards in your binder you can post trade listings here.
+                </span>
+            </div>
+        );
+    }
+
     return (
         <>
             <div className="trades-compose">
@@ -394,7 +480,6 @@ function TradesTab() {
                     </button>
                 </div>
             </div>
-
             {EXAMPLE_TRADES.map((l, i) => (
                 <div key={i} className="trade-listing">
                     <div className="avatar avatar--sm"
@@ -417,7 +502,6 @@ function TradesTab() {
     );
 }
 
-// ─── Page meta ────────────────────────────────────────────────────────────────
 const PAGE_META = {
     collection: { title: "My binder",   sub: "Your photocard collection, every era." },
     wishlist:   { title: "Wishlist",    sub: "Cards you're hunting."                 },
@@ -429,58 +513,132 @@ export default function HomePage({
                                      onSignOut, onProfile, onLore, onUpdates, onStyle, onCatalog,
                                      onGroupSwitch, activeGroup, initialTab = "collection",
                                  }) {
-    const { profile } = useAuth();
+    const { user, profile } = useAuth();
     const [activeTab, setActiveTab] = useState(initialTab);
-    const meta = PAGE_META[activeTab] ?? PAGE_META.collection;
+    const [eras,    setEras]    = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const meta  = PAGE_META[activeTab] ?? PAGE_META.collection;
     const stars = profile?.stars ?? 0;
+    const username = profile?.username || user?.email?.split("@")[0] || "stan_collector";
+
+    // ── Fetch real collection from Supabase ──────────────────────────────────
+    useEffect(() => {
+        if (!user) { setLoading(false); return; }
+
+        async function loadCollection() {
+            try {
+                const { data, error } = await supabase
+                    .from("collection")
+                    .select(`
+                        card_id, status,
+                        photocards (
+                            id, image_url,
+                            members   ( name, stage_name ),
+                            versions  ( name,
+                                albums ( title,
+                                    eras ( name, slug )
+                                )
+                            )
+                        )
+                    `)
+                    .eq("user_id", user.id);
+                // No status filter — fetch owned AND wishlist together
+
+                if (error) throw error;
+                if (!data || data.length === 0) {
+                    setEras([]);
+                    setLoading(false);
+                    return;
+                }
+
+                // Group by member + era — include all statuses
+                const grouped = {};
+                data.forEach(row => {
+                    const pc        = row.photocards;
+                    const member    = pc?.members?.stage_name || pc?.members?.name || "Unknown";
+                    const era       = pc?.versions?.albums?.eras?.name || pc?.versions?.albums?.title || "Unknown";
+                    const version   = pc?.versions?.name || "Ver. A";
+                    const imagePath = pc?.image_url;
+                    const cleanPath = imagePath
+                        ? (imagePath.includes(".") ? imagePath : imagePath + ".png")
+                        : null;
+                    const fullUrl = cleanPath
+                        ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/bts-media/${cleanPath}`
+                        : null;
+                    const key = `${member}__${era}`;
+
+                    if (!grouped[key]) {
+                        grouped[key] = { id: key, member, era, owned: 0, total: 0, cards: [] };
+                    }
+                    grouped[key].cards.push({ ver: version, status: row.status, publicUrl: fullUrl, cardId: row.card_id });
+                    if (row.status === "owned") grouped[key].owned += 1;
+                    grouped[key].total += 1;
+                });
+
+                setEras(Object.values(grouped));
+            } catch (err) {
+                console.error("Failed to load collection:", err);
+                setEras([]);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadCollection();
+    }, [user]);
 
     return (
-        <div className="home">
+        <>
+            <div className="home">
+                <Sidebar
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                    onSignOut={onSignOut}
+                    onProfile={onProfile}
+                    onLore={onLore}
+                    onUpdates={onUpdates}
+                    onStyle={onStyle}
+                    onCatalog={onCatalog}
+                    onGroupSwitch={onGroupSwitch}
+                    activeGroup={activeGroup}
+                    stars={stars}
+                    username={username}
+                />
 
-            <Sidebar
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-                onSignOut={onSignOut}
-                onProfile={onProfile}
-                onLore={onLore}
-                onUpdates={onUpdates}
-                onStyle={onStyle}
-                onCatalog={onCatalog}
-                onGroupSwitch={onGroupSwitch}
-                activeGroup={activeGroup}
-                stars={stars}
-            />
-
-            <MobileTopBar
-                activeGroup={activeGroup}
-                onGroupSwitch={onGroupSwitch}
-                onProfile={onProfile}
-                stars={stars}
-            />
-
-            <main className="home__main">
-                <div className="home__group-bar">
-                    <div className="home__group-pill">
-                        <div className="home__group-dot" />
-                        <span className="home__group-label">{activeGroup?.name ?? "BTS"}</span>
-                        <span className="home__group-era">{activeGroup?.era ?? "MOTS: 7"}</span>
+                <main className="home__main">
+                    <MobileTopBar
+                        activeGroup={activeGroup}
+                        onGroupSwitch={onGroupSwitch}
+                        onProfile={onProfile}
+                        stars={stars}
+                        username={username}
+                    />
+                    <div className="home__group-bar">
+                        <div className="home__group-pill">
+                            <div className="home__group-dot" />
+                            <span className="home__group-label">{activeGroup?.name ?? "BTS"}</span>
+                            <span className="home__group-era">{activeGroup?.era ?? "MOTS: 7"}</span>
+                        </div>
+                        <button className="btn btn-ghost btn-sm" onClick={onGroupSwitch}
+                                style={{ fontSize: 11, padding: "4px 12px" }}>
+                            Switch group ↗
+                        </button>
                     </div>
-                    <button className="btn btn-ghost btn-sm" onClick={onGroupSwitch}
-                            style={{ fontSize: 11, padding: "4px 12px" }}>
-                        Switch group ↗
-                    </button>
-                </div>
 
-                <div className="home__header">
-                    <h1 className="home__title">{meta.title}</h1>
-                    <p className="home__subtitle">{meta.sub}</p>
-                </div>
+                    <div className="home__header">
+                        <h1 className="home__title">{meta.title}</h1>
+                        <p className="home__subtitle">{meta.sub}</p>
+                    </div>
 
-                {activeTab === "collection" && <CollectionTab eras={ERAS} />}
-                {activeTab === "wishlist"   && <WishlistTab   eras={ERAS} />}
-                {activeTab === "trades"     && <TradesTab />}
-            </main>
+                    {activeTab === "collection" && (
+                        <CollectionTab eras={eras} loading={loading} onCatalog={onCatalog} />
+                    )}
+                    {activeTab === "wishlist" && <WishlistTab eras={eras} loading={loading} />}
+                    {activeTab === "trades"   && <TradesTab hasCards={eras.length > 0} />}
+                </main>
 
+            </div>
             <MobileBottomNav
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
@@ -489,6 +647,6 @@ export default function HomePage({
                 onStyle={onStyle}
                 onCatalog={onCatalog}
             />
-        </div>
+        </>
     );
 }

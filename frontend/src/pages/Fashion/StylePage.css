@@ -163,3 +163,8 @@
     .style__filter-group { gap: 8px; }
     .style__title { font-size: 28px; }
 }
+
+/* Mobile: extra bottom padding for bottom nav */
+@media (max-width: 768px) {
+    .lore__main, .updates__main, .style__main { padding-bottom: 90px !important; }
+}

@@ -1,6 +1,14 @@
+/* ─────────────────────────────────────────────────────────────
+   Mobile.css  —  import in main.jsx after globals.css
+   ───────────────────────────────────────────────────────────── */
+
 /* ─── Desktop: hide mobile-only components ───────────────── */
-.mobile-topbar     { display: none; }
-.mobile-bottom-nav { display: none; }
+.mobile-topbar     { display: none !important; }
+.mobile-bottom-nav { display: none !important; } /* !important beats flex child rendering */
+
+/* ─── Desktop: ensure dark background on all pages ────────── */
+.home { display: flex; min-height: 100vh; background: #1a1830; }
+.home__main { background: #1a1830; flex: 1; min-width: 0; }
 
 /* ─── Desktop: profile button in sidebar toprow ──────────── */
 .sidebar__toprow {
@@ -18,11 +26,12 @@
 .sidebar__profile-btn:hover { transform: scale(1.08); }
 
 .sidebar__profile-avatar {
-    background: linear-gradient(135deg, var(--purple-mid), var(--purple-main)) !important;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(38, 33, 92, 0.7) !important;
     border: 1.5px solid rgba(175,169,236,0.3);
-    color: #fff !important;
-    font-size: 12px !important;
-    font-weight: 600 !important;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; line-height: 1;
+    color: var(--purple-light) !important;
 }
 
 /* Fix: sidebar logo no longer has its own margin-bottom */
@@ -38,16 +47,16 @@
 
     /* ── Mobile top bar ── */
     .mobile-topbar {
-        display: flex;
+        display: flex !important; /* override desktop display:none !important */
         align-items: center;
         justify-content: space-between;
         position: fixed;
         top: 0; left: 0; right: 0;
         height: 52px;
-        background: var(--bg-sidebar);
-        border-bottom: 0.5px solid var(--border-subtle);
+        background: #14122a;
+        border-bottom: 0.5px solid rgba(175,169,236,0.12);
         padding: 0 16px;
-        z-index: 60;
+        z-index: 100;
         gap: 8px;
     }
 
@@ -90,26 +99,28 @@
 
     .mobile-topbar__avatar {
         width: 32px; height: 32px; border-radius: 50%;
-        background: linear-gradient(135deg, var(--purple-mid), var(--purple-main));
+        background: rgba(38, 33, 92, 0.7);
         display: flex; align-items: center; justify-content: center;
-        font-size: 13px; font-weight: 600; color: #fff;
+        font-size: 16px; line-height: 1;
         border: 1.5px solid rgba(175,169,236,0.3);
+        color: var(--purple-light);
     }
 
     /* ── Mobile bottom nav ── */
     /* Fix #2: 7 evenly-spaced tabs — Style between Updates & Lore, no gap */
     .mobile-bottom-nav {
-        display: flex;
+        display: flex !important; /* override the desktop display:none !important */
         position: fixed;
         bottom: 0; left: 0; right: 0;
         height: 58px;
-        background: var(--bg-sidebar);
-        border-top: 0.5px solid var(--border-subtle);
-        z-index: 60;
+        background: #14122a;
+        border-top: 0.5px solid rgba(175,169,236,0.12);
+        z-index: 100;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
     }
+
     .mobile-bottom-nav::-webkit-scrollbar { display: none; }
 
     .mobile-bottom-nav__item {
@@ -117,7 +128,8 @@
         display: flex; flex-direction: column;
         align-items: center; justify-content: center;
         gap: 2px; padding: 5px 2px 7px;
-        background: none; border: none; cursor: pointer;
+        background: #14122a !important; /* force dark bg */
+        border: none; cursor: pointer;
         font-family: var(--font-sans);
         position: relative;
         border-top: 2px solid transparent;
@@ -125,13 +137,13 @@
     }
 
     .mobile-bottom-nav__item--active {
-        border-top-color: var(--purple-main);
-        background: rgba(127,119,221,0.08);
+        border-top-color: #7F77DD !important;
+        background: rgba(127,119,221,0.12) !important;
     }
 
-    .mobile-bottom-nav__icon  { font-size: 16px; display: block; line-height: 1; }
-    .mobile-bottom-nav__label { font-size: 9px; color: var(--text-faint); white-space: nowrap; }
-    .mobile-bottom-nav__item--active .mobile-bottom-nav__label { color: var(--purple-light); }
+    .mobile-bottom-nav__icon  { font-size: 16px; display: block; line-height: 1; color: rgba(175,169,236,0.6) !important; }
+    .mobile-bottom-nav__label { font-size: 9px; color: rgba(175,169,236,0.45) !important; white-space: nowrap; }
+    .mobile-bottom-nav__item--active .mobile-bottom-nav__label { color: #AFA9EC !important; }
 
     .mobile-bottom-nav__badge {
         position: absolute; top: 3px;
@@ -145,7 +157,22 @@
     /* ── Main content clears both bars ── */
     .home__main {
         margin-left: 0 !important;
-        padding: 68px 14px 72px !important;
+        padding: 68px 14px 90px !important;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    /* Other pages — clear fixed bottom nav */
+    .catalog__main { padding-bottom: 90px !important; }
+    .lore__main    { padding-bottom: 90px !important; }
+    .updates__main { padding-bottom: 90px !important; }
+    .style__main   { padding-bottom: 90px !important; }
+
+    /* Fix white overflow — background only, never set overflow on body */
+    body, #root {
+        background: #1a1830 !important;
+    }
+    .home, .catalog-page, .lore-page, .updates-page, .style-page {
+        background: #1a1830 !important;
     }
 
     /* Hide desktop group context bar on mobile */
