@@ -8,8 +8,8 @@ import ProfilePage  from "./pages/Profile/ProfilePage";
 import LorePage     from "./pages/Lore/LorePage";
 import UpdatesPage  from "./pages/Updates/UpdatesPage";
 import StylePage    from "./pages/Fashion/StylePage";
+import CatalogPage  from "./pages/Catalog/CatalogPage";
 import "./styles/globals.css";
-import "./styles/Mobile.css";
 
 function Router() {
     const { isLoggedIn, loading, signOut } = useAuth();
@@ -85,6 +85,15 @@ function Router() {
         );
     }
 
+    // Catalog
+    if (page === "catalog") {
+        return (
+            <CatalogPage
+                onBack={() => setPage(isLoggedIn ? "home" : "grpselect")}
+            />
+        );
+    }
+
     // Style / Fashion
     if (page === "style") {
         return (
@@ -106,6 +115,7 @@ function Router() {
                 onLore={() => setPage("lore")}
                 onUpdates={() => setPage("updates")}
                 onStyle={() => setPage("style")}
+                onCatalog={() => setPage("catalog")}
                 onGroupSwitch={() => setPage("grpselect")}
                 onSignOut={async () => {
                     await signOut();

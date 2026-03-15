@@ -1,11 +1,37 @@
 import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 import "../Home/Home.css";
 import "../../styles/Components.css";
 import "../../styles/globals.css";
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
-const MEMBERS = ["All", "RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "Jungkook"];
+// ─── Nav config ───────────────────────────────────────────────────────────────
+const BINDER_TABS = [
+    { id: "collection", icon: "◫", label: "My binder" },
+    { id: "wishlist",   icon: "◎", label: "Wishlist"  },
+    { id: "trades",     icon: "⇄", label: "Trades"    },
+];
 
+const COMMUNITY_TABS = [
+    { id: "catalog", icon: "✦", label: "Catalog"             },
+    { id: "updates", icon: "◈", label: "Updates", badge: 7   },
+    { id: "style",   icon: "✧", label: "Style"               },
+    { id: "lore",    icon: "◉", label: "Lore"                },
+];
+
+const BADGE_CLASS = {
+    owned: "badge-owned", wishlist: "badge-wishlist",
+    duplicate: "badge-duplicate", missing: "badge-missing",
+};
+
+const MEMBER_INITIALS = {
+    RM: "RM", Jin: "JN", Suga: "SG",
+    "J-Hope": "JH", Jimin: "JM", V: "V", Jungkook: "JK",
+};
+
+const MEMBERS = ["All", "RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "Jungkook"];
+const pct = (owned, total) => Math.round((owned / total) * 100);
+
+// ─── Mock collection (replace with Supabase query later) ─────────────────────
 const ERAS = [
     {
         id: 1, member: "Jungkook", era: "Butter", owned: 5, total: 8,
@@ -27,8 +53,8 @@ const ERAS = [
     {
         id: 3, member: "V", era: "BE", owned: 2, total: 4,
         cards: [
-            { ver: "Ver. A", status: "owned" },   { ver: "Ver. B", status: "missing" },
-            { ver: "Ver. C", status: "owned" },   { ver: "Ver. D", status: "wishlist" },
+            { ver: "Ver. A", status: "owned" }, { ver: "Ver. B", status: "missing" },
+            { ver: "Ver. C", status: "owned" }, { ver: "Ver. D", status: "wishlist" },
         ],
     },
     {
@@ -40,33 +66,6 @@ const ERAS = [
         ],
     },
 ];
-
-// ─── Nav definitions ──────────────────────────────────────────────────────────
-const BINDER_TABS = [
-    { id: "collection", icon: "◫", label: "My binder" },
-    { id: "wishlist",   icon: "◎", label: "Wishlist"  },
-    { id: "trades",     icon: "⇄", label: "Trades"    },
-    { id: "catalog",    icon: "✦", label: "Catalog"   },
-];
-
-// Style sits between Updates and Lore — fixes the gap and adds the page
-const COMMUNITY_TABS = [
-    { id: "updates", icon: "◈", label: "Updates", badge: 7 },
-    { id: "style",   icon: "✧", label: "Style"             },
-    { id: "lore",    icon: "◉", label: "Lore"              },
-];
-
-const BADGE_CLASS = {
-    owned: "badge-owned", wishlist: "badge-wishlist",
-    duplicate: "badge-duplicate", missing: "badge-missing",
-};
-
-const MEMBER_INITIALS = {
-    RM: "RM", Jin: "JN", Suga: "SG",
-    "J-Hope": "JH", Jimin: "JM", V: "V", Jungkook: "JK",
-};
-
-const pct = (owned, total) => Math.round((owned / total) * 100);
 
 // ─── Stat card ────────────────────────────────────────────────────────────────
 function StatCard({ value, label, accentColor }) {
@@ -124,7 +123,7 @@ function EraCard({ era, onCardClick }) {
     );
 }
 
-// ─── Card modal ───────────────────────────────────────────────────────────────
+// ─── Card status modal ────────────────────────────────────────────────────────
 function CardModal({ card, onClose }) {
     if (!card) return null;
     return (
@@ -139,8 +138,10 @@ function CardModal({ card, onClose }) {
                     {["owned","wishlist","duplicate","missing"].map(st => (
                         <button key={st}
                                 className={`card-modal__status-btn badge ${BADGE_CLASS[st]}`}
-                                style={{ opacity: card.status === st ? 1 : 0.45, cursor: "pointer", border: "none" }}
-                        >{st}</button>
+                                style={{ opacity: card.status === st ? 1 : 0.45,
+                                    cursor: "pointer", border: "none" }}>
+                            {st}
+                        </button>
                     ))}
                 </div>
                 <button className="btn btn-ghost btn-sm" onClick={onClose}>Close</button>
@@ -150,35 +151,40 @@ function CardModal({ card, onClose }) {
 }
 
 // ─── Sidebar (desktop only) ───────────────────────────────────────────────────
-// Fix #1: profile button moves to TOP of sidebar (top-right of the page on desktop)
-// Fix #2: Style tab added between Updates and Lore
-function Sidebar({ activeTab, onTabChange, onSignOut, onProfile,
-                     onLore, onUpdates, onStyle, onGroupSwitch, activeGroup }) {
+function Sidebar({ activeTab, onTabChange, onSignOut, onProfile, onLore,
+                     onUpdates, onStyle, onCatalog, onGroupSwitch, activeGroup, stars }) {
 
     function handleCommunity(id) {
         if (id === "lore")    { onLore?.();    return; }
         if (id === "updates") { onUpdates?.(); return; }
         if (id === "style")   { onStyle?.();   return; }
+        if (id === "catalog") { onCatalog?.(); return; }
         onTabChange(id);
     }
 
     return (
         <aside className="sidebar">
 
-            {/* Logo + profile avatar in one row — profile always top-right */}
+            {/* Logo + profile avatar */}
             <div className="sidebar__toprow">
                 <div className="sidebar__logo" style={{ marginBottom: 0 }}>
                     <div className="logo-mark logo-mark--sm">S</div>
                     <span className="logo-wordmark logo-wordmark--sm">Stanlore</span>
                 </div>
-                {/* Fix #1: profile button top-right on desktop */}
-                <button className="sidebar__profile-btn" onClick={() => onProfile?.("stan_collector")}
-                        title="My profile">
+                <button className="sidebar__profile-btn"
+                        onClick={() => onProfile?.("stan_collector")} title="My profile">
                     <div className="sidebar__profile-avatar">✦</div>
                 </button>
             </div>
 
-            {/* Active group pill */}
+            {/* Stars balance */}
+            <div className="sidebar__stars">
+                <span className="sidebar__stars-icon">⭐</span>
+                <span className="sidebar__stars-count">{(stars ?? 0).toLocaleString()}</span>
+                <span className="sidebar__stars-label">stars</span>
+            </div>
+
+            {/* Active group */}
             <button className="sidebar__group-pill" onClick={onGroupSwitch}>
                 <div className="sidebar__group-dot" />
                 <div>
@@ -200,7 +206,7 @@ function Sidebar({ activeTab, onTabChange, onSignOut, onProfile,
                 ))}
             </nav>
 
-            <div className="sidebar__section-label" style={{ marginTop: 20 }}>Community</div>
+            <div className="sidebar__section-label" style={{ marginTop: 20 }}>Explore</div>
             <nav className="sidebar__nav">
                 {COMMUNITY_TABS.map(item => (
                     <button key={item.id}
@@ -215,10 +221,10 @@ function Sidebar({ activeTab, onTabChange, onSignOut, onProfile,
 
             <div className="sidebar__spacer" />
 
-            {/* Sign out only at bottom — profile moved to top */}
             <div className="sidebar__user">
                 <div className="sidebar__user-row">
-                    <div className="avatar avatar--sm" style={{ background: "rgba(127,119,221,0.2)", fontSize: 14 }}>✦</div>
+                    <div className="avatar avatar--sm"
+                         style={{ background: "rgba(127,119,221,0.2)", fontSize: 14 }}>✦</div>
                     <div style={{ flex: 1 }}>
                         <div className="sidebar__user-name">@stan_collector</div>
                         <div className="sidebar__user-tag">Early access</div>
@@ -226,14 +232,12 @@ function Sidebar({ activeTab, onTabChange, onSignOut, onProfile,
                 </div>
                 <button className="sidebar__signout" onClick={onSignOut}>Sign out</button>
             </div>
-
         </aside>
     );
 }
 
 // ─── Mobile top bar ───────────────────────────────────────────────────────────
-// Fix #1: profile avatar always top-right on mobile too
-function MobileTopBar({ activeGroup, onGroupSwitch, onProfile }) {
+function MobileTopBar({ activeGroup, onGroupSwitch, onProfile, stars }) {
     return (
         <div className="mobile-topbar">
             <button className="mobile-topbar__group" onClick={onGroupSwitch}>
@@ -243,12 +247,16 @@ function MobileTopBar({ activeGroup, onGroupSwitch, onProfile }) {
                 <span style={{ fontSize: 10, color: "var(--text-faint)", marginLeft: 2 }}>↗</span>
             </button>
 
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div className="logo-mark logo-mark--sm">S</div>
+            {/* Stars visible on mobile too */}
+            <div className="mobile-topbar__stars">
+                <span>⭐</span>
+                <span style={{ fontSize: 12, color: "var(--purple-light)", fontWeight: 500 }}>
+                    {(stars ?? 0).toLocaleString()}
+                </span>
             </div>
 
-            {/* Fix #1: always top-right, always tappable */}
-            <button className="mobile-topbar__profile" onClick={() => onProfile?.("stan_collector")}>
+            <button className="mobile-topbar__profile"
+                    onClick={() => onProfile?.("stan_collector")}>
                 <div className="mobile-topbar__avatar">✦</div>
             </button>
         </div>
@@ -256,15 +264,14 @@ function MobileTopBar({ activeGroup, onGroupSwitch, onProfile }) {
 }
 
 // ─── Mobile bottom nav ────────────────────────────────────────────────────────
-// Fix #2: Style sits between Updates and Lore — no gap
-// Tab order: My binder | Wishlist | Trades | Catalog | Updates | Style | Lore
-function MobileBottomNav({ activeTab, onTabChange, onLore, onUpdates, onStyle }) {
+function MobileBottomNav({ activeTab, onTabChange, onLore, onUpdates, onStyle, onCatalog }) {
     const ALL_TABS = [...BINDER_TABS, ...COMMUNITY_TABS];
 
     function handleTab(id) {
         if (id === "lore")    { onLore?.();    return; }
         if (id === "updates") { onUpdates?.(); return; }
         if (id === "style")   { onStyle?.();   return; }
+        if (id === "catalog") { onCatalog?.(); return; }
         onTabChange(id);
     }
 
@@ -283,7 +290,7 @@ function MobileBottomNav({ activeTab, onTabChange, onLore, onUpdates, onStyle })
     );
 }
 
-// ─── Tabs ─────────────────────────────────────────────────────────────────────
+// ─── Collection tab ───────────────────────────────────────────────────────────
 function CollectionTab({ eras }) {
     const [activeMember, setActiveMember] = useState("All");
     const [selectedCard, setSelectedCard] = useState(null);
@@ -303,6 +310,7 @@ function CollectionTab({ eras }) {
                 <StatCard value={totalDupes}     label="Dupes"     accentColor="var(--purple-light)" />
                 <StatCard value={`${totalPct}%`} label="Complete"  accentColor="var(--text-success)" />
             </div>
+
             <div className="home__filters">
                 {MEMBERS.map(m => (
                     <button key={m}
@@ -310,6 +318,7 @@ function CollectionTab({ eras }) {
                             onClick={() => setActiveMember(m)}>{m}</button>
                 ))}
             </div>
+
             {filtered.length > 0 ? (
                 <div className="home__era-grid">
                     {filtered.map(era => <EraCard key={era.id} era={era} onCardClick={setSelectedCard} />)}
@@ -317,22 +326,31 @@ function CollectionTab({ eras }) {
             ) : (
                 <div className="empty-state">
                     No eras for {activeMember}.<br />
-                    <span style={{ fontSize: 15 }}>Browse the catalog to start.</span>
+                    <span style={{ fontSize: 15 }}>Browse the catalog to add cards.</span>
                 </div>
             )}
+
             <CardModal card={selectedCard} onClose={() => setSelectedCard(null)} />
         </>
     );
 }
 
+// ─── Wishlist tab ─────────────────────────────────────────────────────────────
 function WishlistTab({ eras }) {
     const items = eras.flatMap(era =>
-        era.cards.filter(c => c.status === "wishlist").map(c => ({ ...c, member: era.member, era: era.era }))
+        era.cards.filter(c => c.status === "wishlist")
+            .map(c => ({ ...c, member: era.member, era: era.era }))
     );
-    if (!items.length) return (
-        <div className="empty-state">Your wishlist is empty.<br />
-            <span style={{ fontSize: 15 }}>Start exploring the catalog.</span></div>
-    );
+
+    if (!items.length) {
+        return (
+            <div className="empty-state">
+                Your wishlist is empty.<br />
+                <span style={{ fontSize: 15 }}>Browse the catalog and mark cards you want.</span>
+            </div>
+        );
+    }
+
     return (
         <div className="wishlist-grid">
             {items.map((item, i) => (
@@ -340,17 +358,20 @@ function WishlistTab({ eras }) {
                     <div className="wishlist-card__member">{item.member}</div>
                     <div className="wishlist-card__era">{item.era} Era</div>
                     <div className="wishlist-card__ver">{item.ver}</div>
-                    <div style={{ marginTop: 10 }}><span className="badge badge-wishlist">wishlist</span></div>
+                    <div style={{ marginTop: 10 }}>
+                        <span className="badge badge-wishlist">wishlist</span>
+                    </div>
                 </div>
             ))}
         </div>
     );
 }
 
+// ─── Trades tab ───────────────────────────────────────────────────────────────
 const EXAMPLE_TRADES = [
-    { user: "@purple_collector", have: "Jungkook · Butter · Ver. C", want: "Jimin · Butter · Ver. A",  time: "2h ago" },
-    { user: "@binder_stan",      have: "V · Proof · Ver. B",         want: "V · Proof · Ver. A",       time: "5h ago" },
-    { user: "@sevenpc",          have: "RM · BE · Ver. A",           want: "Jin · BE · Ver. A",         time: "1d ago" },
+    { user: "@purple_collector", have: "Jungkook · Butter · Ver. C", want: "Jimin · Butter · Ver. A", time: "2h ago" },
+    { user: "@binder_stan",      have: "V · Proof · Ver. B",         want: "V · Proof · Ver. A",      time: "5h ago" },
+    { user: "@sevenpc",          have: "RM · BE · Ver. A",           want: "Jin · BE · Ver. A",        time: "1d ago" },
 ];
 
 function TradesTab() {
@@ -368,12 +389,16 @@ function TradesTab() {
                         <div className="section-label">I want</div>
                         <input className="input" placeholder="e.g. Jimin · Proof · Ver. B" />
                     </div>
-                    <button className="btn btn-primary btn-sm" style={{ marginTop: 22 }}>Post listing</button>
+                    <button className="btn btn-primary btn-sm" style={{ marginTop: 22 }}>
+                        Post listing
+                    </button>
                 </div>
             </div>
+
             {EXAMPLE_TRADES.map((l, i) => (
                 <div key={i} className="trade-listing">
-                    <div className="avatar avatar--sm" style={{ background: "rgba(127,119,221,0.2)", color: "var(--text-muted)" }}>✦</div>
+                    <div className="avatar avatar--sm"
+                         style={{ background: "rgba(127,119,221,0.2)", color: "var(--text-muted)" }}>✦</div>
                     <div style={{ flex: 1 }}>
                         <div className="trade-listing__user">{l.user}</div>
                         <div className="trade-listing__cards">
@@ -392,34 +417,26 @@ function TradesTab() {
     );
 }
 
-function CatalogTab() {
-    return (
-        <div className="empty-state">
-            Full catalog coming soon.<br />
-            <span style={{ fontSize: 15 }}>Starting with ARIRANG and Butter eras.</span>
-        </div>
-    );
-}
-
+// ─── Page meta ────────────────────────────────────────────────────────────────
 const PAGE_META = {
     collection: { title: "My binder",   sub: "Your photocard collection, every era." },
     wishlist:   { title: "Wishlist",    sub: "Cards you're hunting."                 },
     trades:     { title: "Trade board", sub: "Have dupes? Find what you want."       },
-    catalog:    { title: "Catalog",     sub: "Browse all photocards."                },
 };
 
 // ─── Home page ────────────────────────────────────────────────────────────────
 export default function HomePage({
-                                     onSignOut, onProfile, onLore, onUpdates, onStyle,
+                                     onSignOut, onProfile, onLore, onUpdates, onStyle, onCatalog,
                                      onGroupSwitch, activeGroup, initialTab = "collection",
                                  }) {
+    const { profile } = useAuth();
     const [activeTab, setActiveTab] = useState(initialTab);
     const meta = PAGE_META[activeTab] ?? PAGE_META.collection;
+    const stars = profile?.stars ?? 0;
 
     return (
         <div className="home">
 
-            {/* Desktop sidebar — hidden on mobile */}
             <Sidebar
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
@@ -428,19 +445,20 @@ export default function HomePage({
                 onLore={onLore}
                 onUpdates={onUpdates}
                 onStyle={onStyle}
+                onCatalog={onCatalog}
                 onGroupSwitch={onGroupSwitch}
                 activeGroup={activeGroup}
+                stars={stars}
             />
 
-            {/* Mobile top bar — profile always top-right */}
             <MobileTopBar
                 activeGroup={activeGroup}
                 onGroupSwitch={onGroupSwitch}
                 onProfile={onProfile}
+                stars={stars}
             />
 
             <main className="home__main">
-                {/* Desktop group context bar */}
                 <div className="home__group-bar">
                     <div className="home__group-pill">
                         <div className="home__group-dot" />
@@ -461,16 +479,15 @@ export default function HomePage({
                 {activeTab === "collection" && <CollectionTab eras={ERAS} />}
                 {activeTab === "wishlist"   && <WishlistTab   eras={ERAS} />}
                 {activeTab === "trades"     && <TradesTab />}
-                {activeTab === "catalog"    && <CatalogTab />}
             </main>
 
-            {/* Mobile bottom nav — hidden on desktop */}
             <MobileBottomNav
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
                 onLore={onLore}
                 onUpdates={onUpdates}
                 onStyle={onStyle}
+                onCatalog={onCatalog}
             />
         </div>
     );

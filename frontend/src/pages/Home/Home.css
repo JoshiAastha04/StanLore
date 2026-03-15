@@ -1,3 +1,203 @@
+/* ─── Sidebar top row: logo left, profile avatar right ───── */
+.sidebar__toprow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+/* Override Home.css which sets margin-bottom: 36px on logo */
+.sidebar__toprow .sidebar__logo {
+    margin-bottom: 0;
+    padding-left: 0;
+}
+
+/* ─── Profile button ──────────────────────────────────────── */
+.sidebar__profile-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: transform var(--transition-fast);
+}
+.sidebar__profile-btn:hover { transform: scale(1.1); }
+
+.sidebar__profile-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(38, 33, 92, 0.7);
+    border: 1.5px solid rgba(175,169,236,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--purple-light);
+}
+
+/* ─── Stars widget in sidebar ─────────────────────────────── */
+.sidebar__stars {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    margin-bottom: 16px;
+    background: rgba(127,119,221,0.08);
+    border: 0.5px solid rgba(127,119,221,0.18);
+    border-radius: var(--radius-sm);
+}
+.sidebar__stars-icon  { font-size: 14px; }
+.sidebar__stars-count {
+    font-family: var(--font-serif);
+    font-size: 20px;
+    font-weight: 300;
+    color: var(--purple-pale);
+}
+.sidebar__stars-label {
+    font-size: 10px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* ─── Section label (Explore, Binder) ─────────────────────── */
+.sidebar__section-label {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding: 0 12px;
+    margin-bottom: 4px;
+    margin-top: 4px;
+    opacity: 0.6;
+}
+
+/* ─── Group pill ──────────────────────────────────────────── */
+.sidebar__group-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    margin-bottom: 20px;
+    border-radius: var(--radius-sm);
+    background: rgba(83, 74, 183, 0.18);
+    border: 0.5px solid rgba(127, 119, 221, 0.25);
+    cursor: pointer;
+    width: 100%;
+    font-family: var(--font-sans);
+    text-align: left;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+.sidebar__group-pill:hover {
+    background: rgba(83, 74, 183, 0.26);
+    border-color: rgba(127, 119, 221, 0.4);
+}
+
+.sidebar__group-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--purple-main);
+    flex-shrink: 0;
+    box-shadow: 0 0 6px rgba(127, 119, 221, 0.6);
+}
+.sidebar__group-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    line-height: 1.2;
+}
+.sidebar__group-era {
+    font-size: 10px;
+    color: var(--text-faint);
+    letter-spacing: 0.04em;
+}
+.sidebar__group-switch {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--text-faint);
+}
+
+/* ─── Nav badge (notification count) ─────────────────────── */
+.sidebar__nav-badge {
+    margin-left: auto;
+    background: var(--purple-main);
+    color: var(--bg-deep);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: var(--radius-pill);
+    min-width: 18px;
+    text-align: center;
+    line-height: 1.4;
+}
+
+/* ─── User row ────────────────────────────────────────────── */
+.sidebar__user-row--btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 8px;
+    background: transparent;
+    border: 0.5px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: var(--font-sans);
+    text-align: left;
+    transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+.sidebar__user-row--btn:hover {
+    background: rgba(127, 119, 221, 0.06);
+    border-color: var(--border-subtle);
+}
+
+/* ─── Group context bar (top of main content) ────────────── */
+.home__group-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding: 10px 16px;
+    background: rgba(38, 33, 92, 0.35);
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    animation: fadeUp 0.4s ease forwards;
+}
+.home__group-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.home__group-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--purple-main);
+    box-shadow: 0 0 6px rgba(127, 119, 221, 0.5);
+}
+.home__group-label {
+    font-family: var(--font-serif);
+    font-size: 17px;
+    font-weight: 300;
+    color: var(--text-secondary);
+}
+.home__group-era {
+    font-size: 10px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 2px 8px;
+    background: rgba(127, 119, 221, 0.1);
+    border-radius: var(--radius-pill);
+    border: 0.5px solid rgba(127, 119, 221, 0.2);
+}
+
 /* ─── App shell ───────────────────────────────────────────── */
 .home {
     background: var(--bg-deep);
