@@ -276,7 +276,7 @@
 
 /* ─── Mobile ──────────────────────────────────────────────── */
 @media (max-width: 768px) {
-    .catalog__main { padding: 24px 16px 72px; }
+    .catalog__main { padding: 24px 16px 90px; }
     .catalog__nav  { padding: 14px 16px; }
     .catalog__grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
     .catalog__skeleton-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
@@ -290,4 +290,23 @@
 @media (max-width: 400px) {
     .catalog__grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .catalog__card-member { font-size: 10px; }
+}
+
+/* ─── Wishlist heart button ───────────────────────────────── */
+.catalog__wish-btn {
+    position: absolute;
+    top: 7px; right: 7px;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(10,8,30,0.6);
+    border: none; cursor: pointer;
+    font-size: 15px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.15s, background 0.15s;
+    z-index: 3;
+    backdrop-filter: blur(4px);
+}
+.catalog__wish-btn:hover {
+    transform: scale(1.2);
+    background: rgba(10,8,30,0.8);
 }

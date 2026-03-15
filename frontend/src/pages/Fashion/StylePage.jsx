@@ -164,7 +164,7 @@ const MEMBER_INITIALS = {
     "J-Hope": "JH", Jimin: "JM", V: "V", Jungkook: "JK",
 };
 
-export default function StylePage({ onBack, onSignIn, isGuest }) {
+export default function StylePage({ onBack, onSignIn, isGuest, onHome, onCatalog, onUpdates, onStyle, onLore }) {
     const [activeMember,   setActiveMember]   = useState("All");
     const [activeOccasion, setActiveOccasion] = useState("All");
     const [expandedId,     setExpandedId]     = useState(null);
@@ -186,110 +186,144 @@ export default function StylePage({ onBack, onSignIn, isGuest }) {
     }
 
     return (
-        <div className="style-page">
-            <div className="orb orb--1" />
-            <div className="orb orb--3" />
+        <>
+            <div className="style-page">
+                <div className="orb orb--1" />
+                <div className="orb orb--3" />
 
-            {/* Nav */}
-            <nav className="style__nav">
-                <button className="style__back" onClick={onBack}>← Back</button>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div className="logo-mark logo-mark--sm">S</div>
-                    <span className="logo-wordmark logo-wordmark--sm">Stanlore</span>
-                </div>
-                <div className="style__nav-right">
-                    {isGuest ? (
-                        <button className="btn btn-primary btn-sm" onClick={onSignIn}>Sign up</button>
-                    ) : (
-                        <button className="btn btn-ghost btn-sm" onClick={() => setSubmitOpen(true)}>
-                            + Submit a look
+                {/* Nav */}
+                <nav className="style__nav">
+                    <button className="style__back" onClick={onBack}>← Back</button>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div className="logo-mark logo-mark--sm">S</div>
+                        <span className="logo-wordmark logo-wordmark--sm">Stanlore</span>
+                    </div>
+                    <div className="style__nav-right">
+                        {isGuest ? (
+                            <button className="btn btn-primary btn-sm" onClick={onSignIn}>Sign up</button>
+                        ) : (
+                            <button className="btn btn-ghost btn-sm" onClick={() => setSubmitOpen(true)}>
+                                + Submit a look
+                            </button>
+                        )}
+                    </div>
+                </nav>
+
+                {isGuest && (
+                    <div className="style__guest-banner">
+                        <span>Browsing as guest.</span>
+                        <button className="style__guest-cta" onClick={onSignIn}>
+                            Sign up to save looks & submit outfit IDs →
                         </button>
-                    )}
-                </div>
-            </nav>
-
-            {isGuest && (
-                <div className="style__guest-banner">
-                    <span>Browsing as guest.</span>
-                    <button className="style__guest-cta" onClick={onSignIn}>
-                        Sign up to save looks & submit outfit IDs →
-                    </button>
-                </div>
-            )}
-
-            <main className="style__main">
-
-                <div className="style__page-header">
-                    <div>
-                        <div className="eyebrow" style={{ marginBottom: 12 }}>Idol Fits</div>
-                        <h1 className="style__title">Style Archive</h1>
-                        <p className="style__sub">
-                            Identify idol outfits · find affordable dupes · submit your ID
-                        </p>
-                    </div>
-                </div>
-
-                {/* Filters */}
-                <div className="style__filters">
-                    <div className="style__filter-group">
-                        <span className="section-label" style={{ marginBottom: 0 }}>Member</span>
-                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                            {MEMBERS.map(m => (
-                                <button
-                                    key={m}
-                                    className={`filter-btn${activeMember === m ? " filter-btn--active" : ""}`}
-                                    onClick={() => setActiveMember(m)}
-                                >{m}</button>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="style__filter-group">
-                        <span className="section-label" style={{ marginBottom: 0 }}>Occasion</span>
-                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                            {OCCASIONS.map(o => (
-                                <button
-                                    key={o}
-                                    className={`filter-btn${activeOccasion === o ? " filter-btn--active" : ""}`}
-                                    onClick={() => setActiveOccasion(o)}
-                                >{o}</button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Look cards */}
-                <div className="style__grid">
-                    {filtered.map(look => (
-                        <LookCard
-                            key={look.id}
-                            look={look}
-                            expanded={expandedId === look.id}
-                            onExpand={() => setExpandedId(expandedId === look.id ? null : look.id)}
-                            saved={savedLooks.has(look.id)}
-                            onSave={() => toggleSave(look.id)}
-                            isGuest={isGuest}
-                        />
-                    ))}
-                </div>
-
-                {filtered.length === 0 && (
-                    <div className="empty-state">
-                        No looks found for this filter.<br />
-                        <span style={{ fontSize: 15 }}>Try a different member or occasion.</span>
                     </div>
                 )}
 
-            </main>
+                <main className="style__main">
 
-            {/* Submit modal */}
-            {submitOpen && (
-                <SubmitModal onClose={() => setSubmitOpen(false)} />
-            )}
-        </div>
+                    <div className="style__page-header">
+                        <div>
+                            <div className="eyebrow" style={{ marginBottom: 12 }}>Idol Fits</div>
+                            <h1 className="style__title">Style Archive</h1>
+                            <p className="style__sub">
+                                Identify idol outfits · find affordable dupes · submit your ID
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Filters */}
+                    <div className="style__filters">
+                        <div className="style__filter-group">
+                            <span className="section-label" style={{ marginBottom: 0 }}>Member</span>
+                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                                {MEMBERS.map(m => (
+                                    <button
+                                        key={m}
+                                        className={`filter-btn${activeMember === m ? " filter-btn--active" : ""}`}
+                                        onClick={() => setActiveMember(m)}
+                                    >{m}</button>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="style__filter-group">
+                            <span className="section-label" style={{ marginBottom: 0 }}>Occasion</span>
+                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                                {OCCASIONS.map(o => (
+                                    <button
+                                        key={o}
+                                        className={`filter-btn${activeOccasion === o ? " filter-btn--active" : ""}`}
+                                        onClick={() => setActiveOccasion(o)}
+                                    >{o}</button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Look cards */}
+                    <div className="style__grid">
+                        {filtered.map(look => (
+                            <LookCard
+                                key={look.id}
+                                look={look}
+                                expanded={expandedId === look.id}
+                                onExpand={() => setExpandedId(expandedId === look.id ? null : look.id)}
+                                saved={savedLooks.has(look.id)}
+                                onSave={() => toggleSave(look.id)}
+                                isGuest={isGuest}
+                            />
+                        ))}
+                    </div>
+
+                    {filtered.length === 0 && (
+                        <div className="empty-state">
+                            No looks found for this filter.<br />
+                            <span style={{ fontSize: 15 }}>Try a different member or occasion.</span>
+                        </div>
+                    )}
+
+                </main>
+
+                {/* Submit modal */}
+                {submitOpen && (
+                    <SubmitModal onClose={() => setSubmitOpen(false)} />
+                )}
+            </div>
+            <MobileBottomNav
+                activePage="style"
+                onHome={onHome}
+                onCatalog={onCatalog}
+                onUpdates={onUpdates}
+                onStyle={onStyle}
+                onLore={onLore}
+            />
+        </>
     );
 }
 
 // ─── Look card ────────────────────────────────────────────────────────────────
+
+// ─── Shared mobile bottom nav ─────────────────────────────────────────────────
+function MobileBottomNav({ activePage, onHome, onCatalog, onUpdates, onStyle, onLore }) {
+    const tabs = [
+        { id: "home",    icon: "◫",  label: "Binder",  action: onHome    },
+        { id: "catalog", icon: "✦",  label: "Catalog",  action: onCatalog },
+        { id: "updates", icon: "◈",  label: "Updates",  action: onUpdates },
+        { id: "style",   icon: "✧",  label: "Style",    action: onStyle   },
+        { id: "lore",    icon: "◉",  label: "Lore",     action: onLore    },
+    ];
+    return (
+        <nav className="mobile-bottom-nav">
+            {tabs.map(tab => (
+                <button key={tab.id}
+                        className={`mobile-bottom-nav__item${activePage === tab.id ? " mobile-bottom-nav__item--active" : ""}`}
+                        onClick={tab.action}>
+                    <span className="mobile-bottom-nav__icon">{tab.icon}</span>
+                    <span className="mobile-bottom-nav__label">{tab.label}</span>
+                </button>
+            ))}
+        </nav>
+    );
+}
+
 function LookCard({ look, expanded, onExpand, saved, onSave, isGuest }) {
     const initials = MEMBER_INITIALS[look.member] || look.member.slice(0, 2).toUpperCase();
 

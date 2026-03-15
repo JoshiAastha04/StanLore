@@ -66,7 +66,7 @@ const GROUPS = [
     },
 ];
 
-export default function GrpSelect({ onEnter, onLore, onUpdates, onSignIn, onSignOut, isGuest }) {
+export default function GrpSelect({ onEnter, onLore, onUpdates, onCatalog, onSignIn, onSignOut, isGuest }) {
     const [hovered, setHovered]   = useState(null);
     const [entering, setEntering] = useState(null);
     const [mounted, setMounted]   = useState(false);
@@ -97,6 +97,7 @@ export default function GrpSelect({ onEnter, onLore, onUpdates, onSignIn, onSign
 
                 {/* Right side nav actions */}
                 <div className="grpselect__nav-right">
+                    <button className="grpselect__nav-link" onClick={onCatalog}>Catalog</button>
                     <button className="grpselect__nav-link" onClick={onUpdates}>Updates</button>
                     <button className="grpselect__nav-link" onClick={onLore}>Lore</button>
                     {isGuest ? (

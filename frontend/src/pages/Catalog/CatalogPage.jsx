@@ -6,7 +6,6 @@ import "../../styles/globals.css";
 import "../../styles/Components.css";
 import "./CatalogPage.css";
 
-// ─── Star cost per card rarity ────────────────────────────────────────────────
 const STAR_COST = { common: 5, uncommon: 15, rare: 30 };
 
 function getCardRarity(photo) {
@@ -27,14 +26,8 @@ function StarCost({ cost }) {
     return <span className="catalog__star-cost">⭐ {cost}</span>;
 }
 
-// Filter labels must exactly match what's in the DB stage_name column.
-// Our migration seeded: RM, Jin, Suga, J-Hope, Jimin, V, JK
-// BUT the image paths use JK for Jungkook, so stage_name is "JK" not "Jungkook".
-// We map display label → DB stage_name here so we can change either side easily.
 const MEMBERS = ["All", "RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "Jungkook"];
 
-// Map from filter button label → what's actually stored in DB stage_name
-// Check your Supabase members table and update this if your stage_names differ.
 const FILTER_TO_STAGE = {
     "RM":       ["RM"],
     "Jin":      ["Jin", "JN"],
@@ -45,8 +38,8 @@ const FILTER_TO_STAGE = {
     "Jungkook": ["Jungkook", "JK"],
 };
 
-export default function CatalogPage({ onBack }) {
-    const { user, profile } = useAuth();
+export default function CatalogPage({ onBack, isGuest = false, onSignIn, onHome, onCatalog, onUpdates, onStyle, onLore }) {
+    const { user, profile, spendStars } = useAuth();
 
     const [photos,       setPhotos]       = useState([]);
     const [loading,      setLoading]      = useState(true);
@@ -54,22 +47,36 @@ export default function CatalogPage({ onBack }) {
     const [activeMember, setActiveMember] = useState("All");
     const [selected,     setSelected]     = useState(null);
     const [collection,   setCollection]   = useState(new Set());
-    const [stars,        setStars]        = useState(profile?.stars ?? 0);
+    const [buying,       setBuying]       = useState(false);
+    const [wishlisted,   setWishlisted]   = useState(new Set());
+
+    // Stars always come from profile in AuthContext — single source of truth.
+    // When spendStars() runs it calls fetchProfile() → profile.stars updates
+    // → this component re-renders with the new balance automatically.
+    const stars = profile?.stars ?? 0;
 
     useEffect(() => {
-        setStars(profile?.stars ?? 0);
-
         async function load() {
             try {
                 const data = await getButterPhotos();
                 setPhotos(data);
 
                 if (user) {
+                    // Owned cards — status = "owned" only
                     const { data: owned } = await supabase
                         .from("collection")
                         .select("card_id")
-                        .eq("user_id", user.id);
+                        .eq("user_id", user.id)
+                        .eq("status", "owned");
                     if (owned) setCollection(new Set(owned.map(r => r.card_id)));
+
+                    // Wishlisted cards — status = "wishlist" only
+                    const { data: wished } = await supabase
+                        .from("collection")
+                        .select("card_id")
+                        .eq("user_id", user.id)
+                        .eq("status", "wishlist");
+                    if (wished) setWishlisted(new Set(wished.map(r => r.card_id)));
                 }
             } catch (err) {
                 setError(err.message);
@@ -79,9 +86,19 @@ export default function CatalogPage({ onBack }) {
         }
 
         load();
-    }, [user, profile?.stars]);
+    }, [user]);
 
-    // Filter uses FILTER_TO_STAGE to match any possible stage_name variant in DB
+    // Re-sync OWNED set when stars change (purchase happened)
+    useEffect(() => {
+        if (!user) return;
+        supabase.from("collection").select("card_id")
+            .eq("user_id", user.id)
+            .eq("status", "owned")   // ← only owned, not wishlist
+            .then(({ data }) => {
+                if (data) setCollection(new Set(data.map(r => r.card_id)));
+            });
+    }, [profile?.stars]);
+
     const filtered = activeMember === "All"
         ? photos
         : photos.filter(p => {
@@ -91,7 +108,8 @@ export default function CatalogPage({ onBack }) {
         });
 
     async function handleAddCard(photo) {
-        if (!user) return;
+        if (isGuest) { onSignIn?.(); return; }
+        if (!user || buying) return;
         const cost = getStarCost(photo);
 
         if (stars < cost) {
@@ -99,127 +117,198 @@ export default function CatalogPage({ onBack }) {
             return;
         }
 
-        const newStars = stars - cost;
+        setBuying(true);
+        const result = await spendStars(photo.id, cost);
+        setBuying(false);
 
-        const { error: collErr } = await supabase
-            .from("collection")
-            .upsert({ user_id: user.id, card_id: photo.id, status: "owned" },
-                { onConflict: "user_id,card_id" });
-        if (collErr) { console.error(collErr); return; }
+        if (result.success) {
+            setCollection(prev => new Set([...prev, photo.id]));
+            setWishlisted(prev => { const n = new Set(prev); n.delete(photo.id); return n; });
+        } else {
+            console.error("Purchase failed:", result.error);
+        }
+    }
 
-        const { error: starErr } = await supabase
-            .from("profiles")
-            .update({ stars: newStars })
-            .eq("id", user.id);
-        if (starErr) { console.error(starErr); return; }
-
-        setCollection(prev => new Set([...prev, photo.id]));
-        setStars(newStars);
+    async function handleWishlist(photo, e) {
+        e?.stopPropagation();
+        if (isGuest) { onSignIn?.(); return; }
+        if (!user) return;
+        const isWished = wishlisted.has(photo.id);
+        // Toggle wishlist in DB
+        if (isWished) {
+            await supabase.from("collection")
+                .delete()
+                .eq("user_id", user.id)
+                .eq("card_id", photo.id)
+                .eq("status", "wishlist");
+            setWishlisted(prev => { const n = new Set(prev); n.delete(photo.id); return n; });
+        } else {
+            await supabase.from("collection")
+                .upsert({ user_id: user.id, card_id: photo.id, status: "wishlist" },
+                    { onConflict: "user_id,card_id" });
+            setWishlisted(prev => new Set([...prev, photo.id]));
+        }
     }
 
     return (
-        <div className="catalog-page">
-            <div className="orb orb--1" />
-            <div className="orb orb--2" />
+        <>
+            <div className="catalog-page">
+                <div className="orb orb--1" />
+                <div className="orb orb--2" />
 
-            <nav className="catalog__nav">
-                <button className="catalog__back" onClick={onBack}>← Back</button>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div className="logo-mark logo-mark--sm">S</div>
-                    <span className="logo-wordmark logo-wordmark--sm">Stanlore</span>
-                </div>
-                <div className="catalog__nav-stars">
-                    <span>⭐</span>
-                    <span className="catalog__nav-stars-count">{stars.toLocaleString()}</span>
-                </div>
-            </nav>
-
-            <main className="catalog__main">
-
-                <div className="catalog__header">
-                    <div>
-                        <div className="eyebrow" style={{ marginBottom: 10 }}>BTS · Butter Era</div>
-                        <h1 className="catalog__title">Catalog</h1>
-                        <p className="catalog__sub">
-                            Spend ⭐ stars to collect photocards · common ⭐5 · uncommon ⭐15 · rare ⭐30
-                        </p>
+                <nav className="catalog__nav">
+                    <button className="catalog__back" onClick={onBack}>← Back</button>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div className="logo-mark logo-mark--sm">S</div>
+                        <span className="logo-wordmark logo-wordmark--sm">Stanlore</span>
                     </div>
-                    {!loading && (
-                        <div className="catalog__count">
-                            <div className="stat-card__value" style={{ fontSize: 32 }}>
-                                {filtered.length}
-                            </div>
-                            <div className="stat-card__label">cards</div>
+                    <div className="catalog__nav-stars">
+                        <span>⭐</span>
+                        <span className="catalog__nav-stars-count">{stars.toLocaleString()}</span>
+                    </div>
+                </nav>
+
+                {/* Guest banner */}
+                {isGuest && (
+                    <div style={{
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        gap: 16, padding: "10px 24px",
+                        background: "rgba(240,153,123,0.08)",
+                        borderBottom: "0.5px solid rgba(240,153,123,0.18)",
+                        fontSize: 13, color: "var(--text-muted)",
+                        flexWrap: "wrap", textAlign: "center",
+                    }}>
+                        <span>You're browsing as a guest.</span>
+                        <button onClick={onSignIn} style={{
+                            background: "none", border: "none", color: "var(--coral)",
+                            fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 500,
+                            cursor: "pointer", textDecoration: "underline",
+                        }}>
+                            Sign up to collect cards →
+                        </button>
+                    </div>
+                )}
+
+                <main className="catalog__main">
+
+                    <div className="catalog__header">
+                        <div>
+                            <div className="eyebrow" style={{ marginBottom: 10 }}>BTS · Butter Era</div>
+                            <h1 className="catalog__title">Catalog</h1>
+                            <p className="catalog__sub">
+                                Spend ⭐ stars to collect photocards · common ⭐5 · uncommon ⭐15 · rare ⭐30
+                            </p>
                         </div>
-                    )}
-                </div>
+                        {!loading && (
+                            <div className="catalog__count">
+                                <div className="stat-card__value" style={{ fontSize: 32 }}>{filtered.length}</div>
+                                <div className="stat-card__label">cards</div>
+                            </div>
+                        )}
+                    </div>
 
-                <div className="home__filters" style={{ marginBottom: 28 }}>
-                    {MEMBERS.map(m => (
-                        <button key={m}
-                                className={`filter-btn${activeMember === m ? " filter-btn--active" : ""}`}
-                                onClick={() => setActiveMember(m)}>{m}</button>
-                    ))}
-                </div>
-
-                {loading && (
-                    <div className="catalog__skeleton-grid">
-                        {Array.from({ length: 12 }).map((_, i) => (
-                            <div key={i} className="catalog__skeleton"
-                                 style={{ animationDelay: `${i * 0.05}s` }} />
+                    <div className="home__filters" style={{ marginBottom: 28 }}>
+                        {MEMBERS.map(m => (
+                            <button key={m}
+                                    className={`filter-btn${activeMember === m ? " filter-btn--active" : ""}`}
+                                    onClick={() => setActiveMember(m)}>{m}</button>
                         ))}
                     </div>
-                )}
 
-                {error && !loading && (
-                    <div className="empty-state">
-                        <span style={{ fontSize: 32, display: "block", marginBottom: 12 }}>✦</span>
-                        Couldn't load cards.<br />
-                        <span style={{ fontSize: 13, color: "var(--coral)" }}>{error}</span>
-                    </div>
-                )}
-
-                {!loading && !error && (
-                    filtered.length > 0 ? (
-                        <div className="catalog__grid">
-                            {filtered.map(photo => (
-                                <PhotoCard
-                                    key={photo.id}
-                                    photo={photo}
-                                    owned={collection.has(photo.id)}
-                                    onAdd={() => handleAddCard(photo)}
-                                    onDetail={() => setSelected(photo)}
-                                />
+                    {loading && (
+                        <div className="catalog__skeleton-grid">
+                            {Array.from({ length: 12 }).map((_, i) => (
+                                <div key={i} className="catalog__skeleton"
+                                     style={{ animationDelay: `${i * 0.05}s` }} />
                             ))}
                         </div>
-                    ) : (
+                    )}
+
+                    {error && !loading && (
                         <div className="empty-state">
-                            No cards for {activeMember} yet.<br />
-                            <span style={{ fontSize: 15 }}>More being added soon.</span>
+                            Couldn't load cards.<br />
+                            <span style={{ fontSize: 13, color: "var(--coral)" }}>{error}</span>
                         </div>
-                    )
+                    )}
+
+                    {!loading && !error && (
+                        filtered.length > 0 ? (
+                            <div className="catalog__grid">
+                                {filtered.map(photo => (
+                                    <PhotoCard
+                                        key={photo.id}
+                                        photo={photo}
+                                        owned={collection.has(photo.id)}
+                                        wishlisted={wishlisted.has(photo.id)}
+                                        onAdd={() => handleAddCard(photo)}
+                                        onWishlist={e => handleWishlist(photo, e)}
+                                        onDetail={() => setSelected(photo)}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="empty-state">
+                                No cards for {activeMember} yet.<br />
+                                <span style={{ fontSize: 15 }}>More being added soon.</span>
+                            </div>
+                        )
+                    )}
+
+                </main>
+
+                {selected && (
+                    <CardDetailModal
+                        photo={selected}
+                        owned={collection.has(selected.id)}
+                        stars={stars}
+                        onAdd={async () => { await handleAddCard(selected); setSelected(null); }}
+                        onClose={() => setSelected(null)}
+                    />
                 )}
+            </div>
+            <MobileBottomNav
+                activePage="catalog"
+                onHome={onHome}
+                onCatalog={onCatalog}
+                onUpdates={onUpdates}
+                onStyle={onStyle}
+                onLore={onLore}
+            />
+        </>
+    );
+}
 
-            </main>
 
-            {selected && (
-                <CardDetailModal
-                    photo={selected}
-                    owned={collection.has(selected.id)}
-                    stars={stars}
-                    onAdd={async () => { await handleAddCard(selected); setSelected(null); }}
-                    onClose={() => setSelected(null)}
-                />
-            )}
-        </div>
+// ─── Shared mobile bottom nav ─────────────────────────────────────────────────
+function MobileBottomNav({ activePage, onHome, onCatalog, onUpdates, onStyle, onLore }) {
+    const tabs = [
+        { id: "home",    icon: "◫",  label: "Binder",  action: onHome    },
+        { id: "catalog", icon: "✦",  label: "Catalog",  action: onCatalog },
+        { id: "updates", icon: "◈",  label: "Updates",  action: onUpdates },
+        { id: "style",   icon: "✧",  label: "Style",    action: onStyle   },
+        { id: "lore",    icon: "◉",  label: "Lore",     action: onLore    },
+    ];
+    return (
+        <nav className="mobile-bottom-nav">
+            {tabs.map(tab => (
+                <button key={tab.id}
+                        className={`mobile-bottom-nav__item${activePage === tab.id ? " mobile-bottom-nav__item--active" : ""}`}
+                        onClick={tab.action}>
+                    <span className="mobile-bottom-nav__icon">{tab.icon}</span>
+                    <span className="mobile-bottom-nav__label">{tab.label}</span>
+                </button>
+            ))}
+        </nav>
     );
 }
 
 // ─── Photo card tile ──────────────────────────────────────────────────────────
-function PhotoCard({ photo, owned, onAdd, onDetail }) {
+function PhotoCard({ photo, owned, wishlisted, onAdd, onWishlist, onDetail }) {
     const [imgError, setImgError] = useState(false);
     const rarity = getRarityLabel(photo);
     const cost   = getStarCost(photo);
+
+
 
     return (
         <div className={`catalog__card${owned ? " catalog__card--owned" : ""}`}>
@@ -234,15 +323,29 @@ function PhotoCard({ photo, owned, onAdd, onDetail }) {
                     />
                 ) : (
                     <div className="catalog__card-placeholder">
-                        <span style={{ fontFamily: "var(--font-serif)", fontSize: 22,
-                            color: "var(--purple-pale)", fontStyle: "italic" }}>
-                            {photo.memberName || "✦"}
+                        {/* Shows member name as fallback */}
+                        <span style={{
+                            fontFamily: "var(--font-serif)", fontSize: 18,
+                            color: "var(--purple-pale)", fontStyle: "italic",
+                            textAlign: "center", padding: "0 8px",
+                        }}>
+                            {photo.memberName}
                         </span>
                     </div>
                 )}
 
                 {rarity && (
                     <div className={`catalog__rare-badge ${rarity.cls}`}>{rarity.label}</div>
+                )}
+
+                {/* Wishlist heart — top right */}
+                {!owned && (
+                    <button className="catalog__wish-btn"
+                            onClick={onWishlist}
+                            title={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                            style={{ color: wishlisted ? "var(--coral)" : "rgba(255,255,255,0.5)" }}>
+                        {wishlisted ? "♥" : "♡"}
+                    </button>
                 )}
 
                 {owned && (
@@ -291,9 +394,9 @@ function CardDetailModal({ photo, owned, stars, onAdd, onClose }) {
                              onError={() => setImgError(true)} />
                     ) : (
                         <div className="catalog__detail-placeholder">
-                            <span style={{ fontFamily: "var(--font-serif)", fontSize: 36,
+                            <span style={{ fontFamily: "var(--font-serif)", fontSize: 28,
                                 color: "var(--purple-pale)", fontStyle: "italic" }}>
-                                {photo.memberName || "✦"}
+                                {photo.memberName}
                             </span>
                         </div>
                     )}

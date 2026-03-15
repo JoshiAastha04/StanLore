@@ -243,3 +243,8 @@
     .updates__title      { font-size: 28px; }
     .updates__pinned     { flex-direction: column; align-items: flex-start; }
 }
+
+/* Mobile: extra bottom padding for bottom nav */
+@media (max-width: 768px) {
+    .lore__main, .updates__main, .style__main { padding-bottom: 90px !important; }
+}

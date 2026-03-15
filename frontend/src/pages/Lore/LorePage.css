@@ -200,3 +200,8 @@
     .lore__filter-row { flex-direction: column; align-items: flex-start; }
     .lore__title      { font-size: 28px; }
 }
+
+/* Mobile: extra bottom padding for bottom nav */
+@media (max-width: 768px) {
+    .lore__main, .updates__main, .style__main { padding-bottom: 90px !important; }
+}
