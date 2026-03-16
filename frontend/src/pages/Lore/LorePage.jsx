@@ -76,7 +76,7 @@ function NewThreadModal({ onClose, onPosted, username }) {
     const [error,   setError]   = useState("");
 
     async function handlePost(e) {
-        e.preventDefault();
+        e?.preventDefault();
         if (!title.trim()) { setError("Title is required."); return; }
         if (!body.trim())  { setError("Body is required.");  return; }
         setPosting(true); setError("");
@@ -122,7 +122,8 @@ function NewThreadModal({ onClose, onPosted, username }) {
                     </div>
                 )}
 
-                <form onSubmit={handlePost}>
+                {/* Scrollable fields area */}
+                <div className="lore__modal-fields">
                     <div className="auth-field">
                         <label className="auth-label">Category</label>
                         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -158,19 +159,21 @@ function NewThreadModal({ onClose, onPosted, username }) {
                                 {body.length}/1000
                             </span>
                         </label>
-                        <textarea className="auth-input" style={{ resize: "vertical", minHeight: 120 }}
+                        <textarea className="auth-input lore__modal-textarea"
                                   placeholder="Share your theory, analysis, or question..."
                                   value={body} onChange={e => setBody(e.target.value)}
                                   maxLength={1000} />
                     </div>
+                </div>
 
-                    <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
-                        <button type="button" className="btn btn-ghost btn-sm" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="btn btn-primary btn-sm" disabled={posting}>
-                            {posting ? "Posting..." : "Post thread"}
-                        </button>
-                    </div>
-                </form>
+                {/* Buttons ALWAYS pinned at bottom — never inside scroll */}
+                <div className="lore__modal-actions">
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={onClose}>Cancel</button>
+                    <button type="button" className="btn btn-primary btn-sm" disabled={posting}
+                            onClick={handlePost}>
+                        {posting ? "Posting..." : "Post thread"}
+                    </button>
+                </div>
             </div>
         </div>
     );
