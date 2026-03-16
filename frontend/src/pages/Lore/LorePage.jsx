@@ -7,42 +7,9 @@ import "./LorePage.css";
 import "../../styles/Mobile.css";
 
 // ─── Seed threads shown as fallback if Supabase is empty ─────────────────────
-const SEED_THREADS = [
-    {
-        id: 1, tag: "Theory", group: "BTS",
-        title: "Which era is this concept photo from? The lighting is giving BE vibes but the outfits look HYYH",
-        body: "Found this unreleased looking photo on Weverse. The aesthetic is confusing me — could be the transition era between Wings and LY.",
-        author: "cosmicbora", time: "2h ago",
-        votes: 847, comments: 62, views: "4.2K",
-        hot: true, tags: ["concept-analysis", "BE", "HYYH"],
-    },
-    {
-        id: 2, tag: "Fashion", group: "BTS",
-        title: "Taehyung's airport look breakdown — Celine SS24 jacket, already sold out",
-        body: "Full analysis with affordable dupes. The trousers are from a Korean indie brand that ships internationally.",
-        author: "fashionpilled", time: "5h ago",
-        votes: 1203, comments: 94, views: "8.7K",
-        hot: true, tags: ["fashion", "taehyung", "airport-look"],
-    },
-    {
-        id: 3, tag: "Photocard", group: "BTS",
-        title: "Complete guide to identifying Butter Cream vs Peaches version photocards",
-        body: "The Cream PCs have a slightly warmer tone and the signature is placed 2mm higher.",
-        author: "pcdetective", time: "1d ago",
-        votes: 2041, comments: 178, views: "15.3K",
-        hot: false, tags: ["butter", "pc-guide"],
-    },
-    {
-        id: 4, tag: "Theory", group: "BTS",
-        title: "The WINGS short films hidden connections to Jungian archetypes — full thread",
-        body: "Been rewatching these and the symbolism goes deep. Each member's film corresponds to a shadow archetype.",
-        author: "lorekeeper99", time: "2d ago",
-        votes: 3892, comments: 241, views: "28.1K",
-        hot: false, tags: ["wings", "theory", "symbolism"],
-    },
-];
+const SEED_THREADS = [];
 
-const TRENDING   = ["#BTSComeback2025", "#ButterPC", "#WINGSTheory", "#CelineTaehyung", "#GoldenJungkook"];
+const TRENDING   = ["#BTSComeback2026", "#ARIRANG", "#WorldTour", "#CelineTaehyung", "#GoldenJungkook"];
 const CATEGORIES = [
     { id: "all",       label: "All",       count: null },
     { id: "theory",    label: "Theory",    count: null },
@@ -56,6 +23,31 @@ const TAG_BADGE = {
 };
 const TAGS = ["Theory", "Fashion", "Photocard", "Question"];
 
+// ─── User avatar — emoji if set, SVG silhouette otherwise ─────────────────────
+function UserAvatar({ avatar, size = 24 }) {
+    if (avatar) {
+        return (
+            <div style={{
+                width: size, height: size, borderRadius: "50%", flexShrink: 0,
+                background: "rgba(38,33,92,0.8)",
+                border: "1px solid rgba(175,169,236,0.2)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: size * 0.5,
+            }}>
+                {avatar}
+            </div>
+        );
+    }
+    return (
+        <svg width={size} height={size} viewBox="0 0 72 72" fill="none" style={{ flexShrink: 0 }}>
+            <circle cx="36" cy="36" r="36" fill="rgba(38,33,92,0.8)" />
+            <circle cx="36" cy="36" r="35" stroke="rgba(175,169,236,0.2)" strokeWidth="1" />
+            <circle cx="36" cy="27" r="11" fill="rgba(175,169,236,0.6)" />
+            <path d="M14 62 C14 48 22 42 36 42 C50 42 58 48 58 62" fill="rgba(175,169,236,0.6)" />
+        </svg>
+    );
+}
+
 function timeAgo(isoString) {
     if (!isoString) return "";
     const diff = Date.now() - new Date(isoString).getTime();
@@ -68,7 +60,7 @@ function timeAgo(isoString) {
 }
 
 // ─── New thread modal ─────────────────────────────────────────────────────────
-function NewThreadModal({ onClose, onPosted, username }) {
+function NewThreadModal({ onClose, onPosted, username, userAvatar }) {
     const [tag,     setTag]     = useState("Theory");
     const [title,   setTitle]   = useState("");
     const [body,    setBody]    = useState("");
@@ -85,11 +77,12 @@ function NewThreadModal({ onClose, onPosted, username }) {
             .from("lore_threads")
             .insert({
                 tag,
-                title:   title.trim(),
-                body:    body.trim(),
-                author:  username,
-                group_id: "bts",
-                votes:   0,
+                title:       title.trim(),
+                body:        body.trim(),
+                author:      username,
+                user_avatar: userAvatar ?? null,
+                group_id:    "bts",
+                votes:       0,
             })
             .select()
             .single();
@@ -204,12 +197,20 @@ export default function LorePage({ onBack, onSignIn, isGuest, onHome, onCatalog,
                 // Fall back to seed threads if table empty or doesn't exist
                 setThreads(SEED_THREADS);
             } else {
+                // Fetch current avatars for all thread authors from profiles
+                const authors = [...new Set(data.map(t => t.author).filter(Boolean))];
+                const { data: profileRows } = authors.length > 0
+                    ? await supabase.from("profiles").select("username, avatar").in("username", authors)
+                    : { data: [] };
+                const avatarMap = Object.fromEntries((profileRows ?? []).map(p => [p.username, p.avatar]));
+
                 // Merge real threads with seed (seed shown at bottom)
                 const real = data.map(t => ({
                     ...t,
-                    time: timeAgo(t.created_at),
-                    hot:  (t.votes ?? 0) > 100,
-                    tags: t.tags || [t.tag?.toLowerCase()],
+                    time:        timeAgo(t.created_at),
+                    hot:         (t.votes ?? 0) > 100,
+                    tags:        t.tags || [t.tag?.toLowerCase()],
+                    user_avatar: avatarMap[t.author] ?? t.user_avatar ?? null,
                 }));
                 setThreads([...real, ...SEED_THREADS]);
             }
@@ -342,6 +343,7 @@ export default function LorePage({ onBack, onSignIn, isGuest, onHome, onCatalog,
                 {showNewThread && (
                     <NewThreadModal
                         username={username}
+                        userAvatar={profile?.avatar ?? null}
                         onClose={() => setShowNewThread(false)}
                         onPosted={thread => {
                             const formatted = {
@@ -412,7 +414,7 @@ function ThreadCard({ thread, expanded, onExpand, isGuest, onSignIn }) {
 
             <div className="lore__thread-footer">
                 <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--text-faint)" }}>
-                    <div className="avatar avatar--sm" style={{ background: "rgba(127,119,221,0.2)", width: 20, height: 20, fontSize: 9 }}>✦</div>
+                    <UserAvatar avatar={thread.user_avatar ?? null} size={20} />
                     {thread.author}
                 </div>
                 <div className="lore__thread-stats">
