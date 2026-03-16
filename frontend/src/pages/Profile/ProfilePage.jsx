@@ -5,17 +5,46 @@ import "../../styles/globals.css";
 import "../../styles/Components.css";
 import "./profile.css";
 
-// ─── Avatar emoji ─────────────────────────────────────────────────────────────
-const AVATAR_EMOJIS = ["🌙","⭐","🪐","🌸","🦋","🌊","🔮","🌺","✨","🎵",
-    "🌟","🍀","🦄","🌈","🎭","🪷","💫","🎪","🦚","🎀"];
+// ─── Avatar options — null = default SVG silhouette ───────────────────────────
+const AVATAR_OPTIONS = [
+    null,  // default silhouette
+    "🌙","⭐","🪐","🌸","🦋","🌊","🔮","🌺","✨","🎵",
+    "🌟","🍀","🦄","🌈","🎭","🪷","💫","🎪","🦚","🎀",
+];
 
-function getAvatarEmoji(username) {
-    if (!username) return "✦";
-    let hash = 0;
-    for (let i = 0; i < username.length; i++) {
-        hash = username.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return AVATAR_EMOJIS[Math.abs(hash) % AVATAR_EMOJIS.length];
+// ─── Default SVG profile silhouette (same for everyone) ───────────────────────
+function DefaultAvatar({ size = 72 }) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 72 72" fill="none"
+             xmlns="http://www.w3.org/2000/svg">
+            <circle cx="36" cy="36" r="36"
+                    fill="rgba(38,33,92,0.7)" />
+            <circle cx="36" cy="36" r="35"
+                    stroke="rgba(175,169,236,0.25)" strokeWidth="1" fill="none" />
+            {/* Head */}
+            <circle cx="36" cy="26" r="11"
+                    fill="rgba(175,169,236,0.5)" />
+            {/* Body / shoulders */}
+            <path d="M14 62 C14 48 22 42 36 42 C50 42 58 48 58 62"
+                  fill="rgba(175,169,236,0.5)" />
+        </svg>
+    );
+}
+
+// ─── Render avatar — custom emoji or default silhouette ───────────────────────
+function ProfileAvatar({ avatarValue, size = 72 }) {
+    if (!avatarValue) return <DefaultAvatar size={size} />;
+    return (
+        <div style={{
+            width: size, height: size, borderRadius: "50%",
+            background: "rgba(38,33,92,0.7)",
+            border: "1px solid rgba(175,169,236,0.25)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: size * 0.44, flexShrink: 0,
+        }}>
+            {avatarValue}
+        </div>
+    );
 }
 
 function formatJoinDate(isoString) {
@@ -35,6 +64,7 @@ function EditProfileModal({ profile, onClose, onSave }) {
     const [displayName, setDisplayName] = useState(profile?.display_name || "");
     const [username,    setUsername]    = useState(profile?.username     || "");
     const [bio,         setBio]         = useState(profile?.bio          || "");
+    const [avatar,      setAvatar]      = useState(profile?.avatar       ?? null);
     const [saving,      setSaving]      = useState(false);
     const [error,       setError]       = useState("");
 
@@ -52,6 +82,7 @@ function EditProfileModal({ profile, onClose, onSave }) {
             display_name: displayName.trim() || null,
             username:     username.trim()    || profile?.username,
             bio:          bio.trim()         || null,
+            avatar:       avatar,
         });
         setSaving(false);
         if (saveError) {
@@ -72,6 +103,31 @@ function EditProfileModal({ profile, onClose, onSave }) {
                 </div>
                 {error && <div className="auth-alert auth-alert--error" style={{ marginBottom: 16 }}>{error}</div>}
                 <form onSubmit={handleSubmit}>
+
+                    {/* Avatar picker */}
+                    <div className="auth-field">
+                        <label className="auth-label">Profile icon</label>
+                        <div className="profile-edit-modal__avatar-grid">
+                            {AVATAR_OPTIONS.map((opt, i) => (
+                                <button key={i} type="button"
+                                        className={`profile-edit-modal__avatar-opt${avatar === opt ? " profile-edit-modal__avatar-opt--active" : ""}`}
+                                        onClick={() => setAvatar(opt)}
+                                        title={opt ?? "Default silhouette"}>
+                                    {opt ? (
+                                        <span style={{ fontSize: 22 }}>{opt}</span>
+                                    ) : (
+                                        <svg width="22" height="22" viewBox="0 0 72 72" fill="none">
+                                            <circle cx="36" cy="26" r="11" fill="rgba(175,169,236,0.7)" />
+                                            <path d="M14 62 C14 48 22 42 36 42 C50 42 58 48 58 62"
+                                                  fill="rgba(175,169,236,0.7)" />
+                                        </svg>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="auth-input-hint">Select an icon for your profile.</div>
+                    </div>
+
                     <div className="auth-field">
                         <label className="auth-label">Display name</label>
                         <input className="auth-input" type="text" placeholder="How you want to be known"
@@ -155,7 +211,7 @@ export default function ProfilePage({ onHome, onCatalog }) {
     const displayName = profile?.display_name || profile?.username || user?.email?.split("@")[0] || "Stan";
     const username    = profile?.username     || user?.email?.split("@")[0] || "stan";
     const bio         = profile?.bio;
-    const emoji       = getAvatarEmoji(username);
+    const avatarValue = profile?.avatar ?? null;   // null = default SVG silhouette
     const joinDate    = formatJoinDate(user?.created_at || profile?.created_at);
     const stars       = profile?.stars ?? 0;
 
@@ -234,7 +290,7 @@ export default function ProfilePage({ onHome, onCatalog }) {
                     <div className="profile-v2__hero-glow" />
 
                     <div className="profile-v2__avatar-wrap">
-                        <div className="profile-v2__emoji-avatar">{emoji}</div>
+                        <ProfileAvatar avatarValue={avatarValue} size={72} />
                         {!isNewUser && (
                             <div className="profile-v2__group-ring">
                                 <div className="profile-v2__group-dot" />
@@ -334,7 +390,7 @@ export default function ProfilePage({ onHome, onCatalog }) {
                             <WishlistTab collection={collection} />
                         )}
                         {activeTab === "trades"     && (
-                            <TradesTab />
+                            <TradesTab userId={user?.id} />
                         )}
                     </>
                 )}
@@ -487,11 +543,69 @@ function WishlistTab({ collection }) {
 }
 
 // ─── Trades ───────────────────────────────────────────────────────────────────
-function TradesTab() {
-    return (
+function TradesTab({ userId }) {
+    const [listings, setListings] = useState([]);
+    const [loading,  setLoading]  = useState(true);
+
+    useEffect(() => {
+        if (!userId) { setLoading(false); return; }
+        async function load() {
+            const { data, error } = await supabase
+                .from("trade_listings")
+                .select("*")
+                .eq("user_id", userId)
+                .order("created_at", { ascending: false });
+            if (!error) setListings(data ?? []);
+            setLoading(false);
+        }
+        load();
+    }, [userId]);
+
+    if (loading) return (
+        <div className="empty-state" style={{ fontStyle: "italic" }}>Loading trades…</div>
+    );
+
+    if (!listings.length) return (
         <div className="empty-state">
-            Trade history and active offers will appear here.<br />
+            No active trade listings yet.<br />
             <span style={{ fontSize: 15 }}>Post a listing from the Trade board.</span>
+        </div>
+    );
+
+    function timeAgo(iso) {
+        const diff = Date.now() - new Date(iso).getTime();
+        const m = Math.floor(diff / 60000);
+        if (m < 1)  return "just now";
+        if (m < 60) return `${m}m ago`;
+        const h = Math.floor(m / 60);
+        if (h < 24) return `${h}h ago`;
+        return `${Math.floor(h / 24)}d ago`;
+    }
+
+    return (
+        <div className="profile-v2__collection">
+            {listings.map((l) => (
+                <div key={l.id} className="profile-v2__activity-row"
+                     style={{ alignItems: "flex-start", gap: 12 }}>
+                    <div style={{
+                        width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+                        background: "rgba(127,119,221,0.18)",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 16,
+                    }}>⇄</div>
+                    <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13, color: "var(--text-secondary)", fontWeight: 600 }}>
+                            {l.have_card}
+                            <span style={{ color: "var(--text-faint)", fontWeight: 400, margin: "0 6px" }}>⇄</span>
+                            {l.want_card}
+                        </div>
+                        <div style={{ fontSize: 11, color: "var(--text-faint)", marginTop: 2 }}>
+                            {timeAgo(l.created_at)}
+                        </div>
+                    </div>
+                    <span className="badge badge-owned" style={{ fontSize: 10 }}>Active</span>
+                </div>
+            ))}
         </div>
     );
 }

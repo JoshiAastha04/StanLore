@@ -9,6 +9,7 @@ import LorePage     from "./pages/Lore/LorePage";
 import UpdatesPage  from "./pages/Updates/UpdatesPage";
 import StylePage    from "./pages/Fashion/StylePage";
 import CatalogPage  from "./pages/Catalog/CatalogPage";
+import TradesPage   from "./pages/Trades/TradesPage";
 import "./styles/globals.css";
 
 function Router() {
@@ -117,6 +118,21 @@ function Router() {
         );
     }
 
+    // Trades — logged-in only
+    if (page === "trades" && isLoggedIn) {
+        return (
+            <TradesPage
+                onBack={() => setPage("home")}
+                onHome={() => setPage("home")}
+                onCatalog={() => setPage("catalog")}
+                onUpdates={() => setPage("updates")}
+                onStyle={() => setPage("style")}
+                onLore={() => setPage("lore")}
+                onTrades={() => setPage("trades")}
+            />
+        );
+    }
+
     // Style / Fashion
     if (page === "style") {
         return (
@@ -144,6 +160,7 @@ function Router() {
                 onUpdates={() => setPage("updates")}
                 onStyle={() => setPage("style")}
                 onCatalog={() => setPage("catalog")}
+                onTrades={() => setPage("trades")}
                 onGroupSwitch={() => setPage("grpselect")}
                 onSignOut={async () => {
                     await signOut();

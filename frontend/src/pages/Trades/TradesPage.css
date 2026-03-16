@@ -1,0 +1,200 @@
+/* ─── Trades page shell ────────────────────────────────────── */
+.trades-page {
+    min-height: 100vh;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* ─── Nav ─────────────────────────────────────────────────── */
+.trades__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 48px;
+    border-bottom: 0.5px solid var(--border-subtle);
+    position: relative;
+    z-index: 10;
+    animation: fadeUp 0.5s ease forwards;
+}
+
+.trades__back {
+    background: none; border: none;
+    color: var(--text-faint); font-family: var(--font-sans);
+    font-size: 13px; cursor: pointer;
+    transition: color var(--transition-fast); padding: 0; min-width: 60px;
+}
+.trades__back:hover { color: var(--text-muted); }
+
+/* ─── Main ────────────────────────────────────────────────── */
+.trades__main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 36px 48px 100px;
+    position: relative;
+    z-index: 5;
+}
+
+/* ─── Header ──────────────────────────────────────────────── */
+.trades__header {
+    margin-bottom: 28px;
+    animation: fadeUp 0.5s ease forwards;
+}
+.trades__title {
+    font-family: var(--font-serif);
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 300;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 8px;
+}
+.trades__sub { font-size: 13px; color: var(--text-faint); }
+
+/* ─── Compose card ────────────────────────────────────────── */
+.trades__compose {
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    animation: fadeUp 0.5s ease forwards 0.1s;
+    opacity: 0;
+}
+.trades__compose-title {
+    font-size: 13px; font-weight: 500; color: var(--text-secondary);
+    margin-bottom: 14px; letter-spacing: 0.02em;
+}
+.trades__compose-msg {
+    font-size: 13px; border-radius: 8px;
+    padding: 8px 12px; margin-bottom: 12px;
+}
+.trades__compose-msg--error {
+    background: rgba(240,80,80,0.1); border: 0.5px solid rgba(240,80,80,0.3);
+    color: var(--coral);
+}
+.trades__compose-msg--ok {
+    background: rgba(80,200,120,0.1); border: 0.5px solid rgba(80,200,120,0.3);
+    color: var(--text-success);
+}
+.trades__compose-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.trades__compose-field { flex: 1; min-width: 140px; }
+.trades__compose-arrow {
+    font-size: 18px; color: var(--purple-main);
+    padding-bottom: 10px; flex-shrink: 0;
+}
+
+/* ─── No cards state ──────────────────────────────────────── */
+.trades__no-cards {
+    padding: 36px 28px;
+    text-align: center;
+    margin-bottom: 28px;
+    animation: fadeUp 0.5s ease forwards 0.1s;
+    opacity: 0;
+}
+.trades__no-cards-icon {
+    font-size: 36px; color: var(--purple-main);
+    margin-bottom: 16px; display: block;
+}
+.trades__no-cards-title {
+    font-family: var(--font-serif);
+    font-size: 22px; font-weight: 300;
+    color: var(--text-secondary); margin-bottom: 10px;
+}
+.trades__no-cards-sub {
+    font-size: 14px; color: var(--text-muted); line-height: 1.65;
+    max-width: 400px; margin: 0 auto 20px;
+}
+
+/* ─── Listings stack ──────────────────────────────────────── */
+.trades__stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: fadeUp 0.5s ease forwards 0.15s;
+    opacity: 0;
+}
+
+.trades__listing {
+    background: rgba(26, 24, 48, 0.65);
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color var(--transition-fast);
+}
+.trades__listing:hover { border-color: var(--border-soft); }
+
+.trades__listing--own {
+    border-color: rgba(127,119,221,0.25);
+    background: rgba(38, 33, 92, 0.4);
+}
+.trades__listing-own-line {
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--purple-main), var(--purple-light));
+}
+
+.trades__listing-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(127,119,221,0.12);
+    border: 0.5px solid var(--border-subtle);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+
+.trades__listing-body { flex: 1; min-width: 0; }
+
+.trades__listing-user {
+    font-size: 12px; font-weight: 500;
+    color: var(--purple-light); margin-bottom: 5px;
+    display: flex; align-items: center; gap: 6px;
+}
+.trades__listing-you {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em;
+    background: rgba(127,119,221,0.15);
+    border: 0.5px solid rgba(127,119,221,0.3);
+    color: var(--purple-light); padding: 1px 6px;
+    border-radius: var(--radius-pill);
+}
+
+.trades__listing-cards {
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap;
+}
+.trades__listing-have { font-size: 13px; color: var(--text-secondary); }
+.trades__listing-want { font-size: 13px; color: var(--text-muted); }
+.trades__listing-arrow { font-size: 14px; color: var(--purple-main); flex-shrink: 0; }
+
+.trades__listing-meta {
+    display: flex; flex-direction: column;
+    align-items: flex-end; gap: 6px; flex-shrink: 0;
+}
+.trades__listing-time { font-size: 11px; color: var(--text-faint); }
+
+/* ─── Mobile ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .trades__nav  { padding: 14px 16px; }
+    .trades__main { padding: 20px 16px 100px; }
+
+    .trades__compose-row { flex-direction: column; gap: 10px; }
+    .trades__compose-arrow { display: none; }
+    .trades__compose-field { width: 100%; }
+
+    .trades__listing {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .trades__listing-meta {
+        flex-direction: row;
+        align-items: center;
+        width: 100%;
+        justify-content: space-between;
+    }
+}

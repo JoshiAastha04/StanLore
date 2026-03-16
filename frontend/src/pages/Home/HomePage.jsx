@@ -4,7 +4,34 @@ import { supabase } from "../../lib/supabase";
 import "../Home/Home.css";
 import "../../styles/Components.css";
 import "../../styles/globals.css";
-import "../../styles/Mobile.css"
+import "../../styles/Mobile.css";
+
+// ─── User avatar — emoji if set, SVG silhouette otherwise ─────────────────────
+function UserAvatar({ avatar, size = 26 }) {
+    if (avatar) {
+        return (
+            <div style={{
+                width: size, height: size, borderRadius: "50%", flexShrink: 0,
+                background: "rgba(38,33,92,0.8)",
+                border: "1px solid rgba(175,169,236,0.25)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: size * 0.44,
+            }}>
+                {avatar}
+            </div>
+        );
+    }
+    return (
+        <svg width={size} height={size} viewBox="0 0 72 72" fill="none"
+             xmlns="http://www.w3.org/2000/svg">
+            <circle cx="36" cy="36" r="36" fill="rgba(38,33,92,0.8)" />
+            <circle cx="36" cy="36" r="35" stroke="rgba(175,169,236,0.3)" strokeWidth="1" />
+            <circle cx="36" cy="27" r="11" fill="rgba(175,169,236,0.65)" />
+            <path d="M14 62 C14 48 22 42 36 42 C50 42 58 48 58 62"
+                  fill="rgba(175,169,236,0.65)" />
+        </svg>
+    );
+}
 
 // ─── Nav config ───────────────────────────────────────────────────────────────
 const BINDER_TABS = [
@@ -113,7 +140,7 @@ function EraCard({ era, onCardClick }) {
 }
 
 // ─── Card status modal ────────────────────────────────────────────────────────
-function CardModal({ card, onClose }) {
+function CardModal({ card, onClose, onTrades }) {
     const [imgErr, setImgErr] = useState(false);
     if (!card) return null;
     return (
@@ -148,7 +175,8 @@ function CardModal({ card, onClose }) {
                 {/* Trade option — only show for owned cards */}
                 {card.status === "owned" && (
                     <button className="btn btn-ghost btn-sm"
-                            style={{ width: "100%", marginTop: 4, borderColor: "rgba(127,119,221,0.3)" }}>
+                            style={{ width: "100%", marginTop: 4, borderColor: "rgba(127,119,221,0.3)" }}
+                            onClick={() => { onClose(); onTrades?.(); }}>
                         ⇄ List for trade
                     </button>
                 )}
@@ -164,13 +192,18 @@ function CardModal({ card, onClose }) {
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 function Sidebar({ activeTab, onTabChange, onSignOut, onProfile, onLore,
-                     onUpdates, onStyle, onCatalog, onGroupSwitch, activeGroup, stars, username }) {
+                     onUpdates, onStyle, onCatalog, onTrades, onGroupSwitch, activeGroup, stars, username, avatar }) {
 
     function handleCommunity(id) {
         if (id === "lore")    { onLore?.();    return; }
         if (id === "updates") { onUpdates?.(); return; }
         if (id === "style")   { onStyle?.();   return; }
         if (id === "catalog") { onCatalog?.(); return; }
+        onTabChange(id);
+    }
+
+    function handleBinder(id) {
+        if (id === "trades") { onTrades?.(); return; }
         onTabChange(id);
     }
 
@@ -183,7 +216,7 @@ function Sidebar({ activeTab, onTabChange, onSignOut, onProfile, onLore,
                 </div>
                 <button className="sidebar__profile-btn"
                         onClick={() => onProfile?.(username)} title="My profile">
-                    <div className="sidebar__profile-avatar">✦</div>
+                    <UserAvatar avatar={avatar} size={30} />
                 </button>
             </div>
 
@@ -207,7 +240,7 @@ function Sidebar({ activeTab, onTabChange, onSignOut, onProfile, onLore,
                 {BINDER_TABS.map(item => (
                     <button key={item.id}
                             className={`sidebar__nav-item${activeTab === item.id ? " sidebar__nav-item--active" : ""}`}
-                            onClick={() => onTabChange(item.id)}>
+                            onClick={() => handleBinder(item.id)}>
                         <span className="sidebar__nav-icon">{item.icon}</span>
                         {item.label}
                     </button>
@@ -231,8 +264,7 @@ function Sidebar({ activeTab, onTabChange, onSignOut, onProfile, onLore,
 
             <div className="sidebar__user">
                 <div className="sidebar__user-row">
-                    <div className="avatar avatar--sm"
-                         style={{ background: "rgba(127,119,221,0.2)", fontSize: 14 }}>✦</div>
+                    <UserAvatar avatar={avatar} size={28} />
                     <div style={{ flex: 1 }}>
                         <div className="sidebar__user-name">@{username ?? "stan_collector"}</div>
                         <div className="sidebar__user-tag">Early access</div>
@@ -245,7 +277,7 @@ function Sidebar({ activeTab, onTabChange, onSignOut, onProfile, onLore,
 }
 
 // ─── Mobile top bar ───────────────────────────────────────────────────────────
-function MobileTopBar({ activeGroup, onGroupSwitch, onProfile, stars, username }) {
+function MobileTopBar({ activeGroup, onGroupSwitch, onProfile, stars, username, avatar }) {
     return (
         <div className="mobile-topbar">
             <button className="mobile-topbar__group" onClick={onGroupSwitch}>
@@ -260,15 +292,17 @@ function MobileTopBar({ activeGroup, onGroupSwitch, onProfile, stars, username }
                     {(stars ?? 0).toLocaleString()}
                 </span>
             </div>
-            <button className="mobile-topbar__profile" onClick={() => onProfile?.(username)}>
-                <div className="mobile-topbar__avatar">✦</div>
+            <button className="mobile-topbar__profile" onClick={() => onProfile?.(username)}
+                    style={{ background: "none", border: "none", padding: 0, cursor: "pointer",
+                        display: "flex", alignItems: "center" }}>
+                <UserAvatar avatar={avatar} size={30} />
             </button>
         </div>
     );
 }
 
 // ─── Mobile bottom nav ────────────────────────────────────────────────────────
-function MobileBottomNav({ activeTab, onTabChange, onLore, onUpdates, onStyle, onCatalog }) {
+function MobileBottomNav({ activeTab, onTabChange, onLore, onUpdates, onStyle, onCatalog, onTrades }) {
     const ALL_TABS = [...BINDER_TABS, ...COMMUNITY_TABS];
 
     function handleTab(id) {
@@ -276,6 +310,7 @@ function MobileBottomNav({ activeTab, onTabChange, onLore, onUpdates, onStyle, o
         if (id === "updates") { onUpdates?.(); return; }
         if (id === "style")   { onStyle?.();   return; }
         if (id === "catalog") { onCatalog?.(); return; }
+        if (id === "trades")  { onTrades?.();  return; }
         onTabChange(id);
     }
 
@@ -323,7 +358,7 @@ function EmptyBinderState({ onCatalog }) {
 }
 
 // ─── Collection tab ───────────────────────────────────────────────────────────
-function CollectionTab({ eras, loading, onCatalog }) {
+function CollectionTab({ eras, loading, onCatalog, onTrades }) {
     const [activeMember, setActiveMember] = useState("All");
     const [selectedCard, setSelectedCard] = useState(null);
 
@@ -375,7 +410,7 @@ function CollectionTab({ eras, loading, onCatalog }) {
                     <span style={{ fontSize: 15 }}>Browse the catalog to add some.</span>
                 </div>
             )}
-            <CardModal card={selectedCard} onClose={() => setSelectedCard(null)} />
+            <CardModal card={selectedCard} onClose={() => setSelectedCard(null)} onTrades={onTrades} />
         </>
     );
 }
@@ -441,77 +476,17 @@ function WishlistTab({ eras, loading }) {
     );
 }
 
-// ─── Trades tab ───────────────────────────────────────────────────────────────
-const EXAMPLE_TRADES = [
-    { user: "@purple_collector", have: "Jungkook · Butter · Ver. C", want: "Jimin · Butter · Ver. A", time: "2h ago" },
-    { user: "@binder_stan",      have: "V · Proof · Ver. B",         want: "V · Proof · Ver. A",      time: "5h ago" },
-    { user: "@sevenpc",          have: "RM · BE · Ver. A",           want: "Jin · BE · Ver. A",        time: "1d ago" },
-];
-
-function TradesTab({ hasCards }) {
-    // New users with no cards yet see an empty state, not fake listings
-    if (!hasCards) {
-        return (
-            <div className="empty-state">
-                No trades yet.<br />
-                <span style={{ fontSize: 15 }}>
-                    Once you have cards in your binder you can post trade listings here.
-                </span>
-            </div>
-        );
-    }
-
-    return (
-        <>
-            <div className="trades-compose">
-                <div className="trades-compose__title">Post a trade listing</div>
-                <div className="trades-compose__row">
-                    <div className="trades-compose__field">
-                        <div className="section-label">I have</div>
-                        <input className="input" placeholder="e.g. V · Proof · Ver. A" />
-                    </div>
-                    <div className="trades-compose__arrow">⇄</div>
-                    <div className="trades-compose__field">
-                        <div className="section-label">I want</div>
-                        <input className="input" placeholder="e.g. Jimin · Proof · Ver. B" />
-                    </div>
-                    <button className="btn btn-primary btn-sm" style={{ marginTop: 22 }}>
-                        Post listing
-                    </button>
-                </div>
-            </div>
-            {EXAMPLE_TRADES.map((l, i) => (
-                <div key={i} className="trade-listing">
-                    <div className="avatar avatar--sm"
-                         style={{ background: "rgba(127,119,221,0.2)", color: "var(--text-muted)" }}>✦</div>
-                    <div style={{ flex: 1 }}>
-                        <div className="trade-listing__user">{l.user}</div>
-                        <div className="trade-listing__cards">
-                            <span className="trade-listing__have">{l.have}</span>
-                            <span className="trade-listing__arrow">⇄</span>
-                            <span className="trade-listing__want">{l.want}</span>
-                        </div>
-                    </div>
-                    <div className="trade-listing__meta">
-                        <span className="trade-listing__time">{l.time}</span>
-                        <button className="btn btn-ghost btn-sm">DM to trade</button>
-                    </div>
-                </div>
-            ))}
-        </>
-    );
-}
+// TradesTab removed — trades now live on their own TradesPage.
 
 const PAGE_META = {
-    collection: { title: "My binder",   sub: "Your photocard collection, every era." },
-    wishlist:   { title: "Wishlist",    sub: "Cards you're hunting."                 },
-    trades:     { title: "Trade board", sub: "Have dupes? Find what you want."       },
+    collection: { title: "My binder", sub: "Your photocard collection, every era." },
+    wishlist:   { title: "Wishlist",  sub: "Cards you're hunting."                 },
 };
 
 // ─── Home page ────────────────────────────────────────────────────────────────
 export default function HomePage({
                                      onSignOut, onProfile, onLore, onUpdates, onStyle, onCatalog,
-                                     onGroupSwitch, activeGroup, initialTab = "collection",
+                                     onTrades, onGroupSwitch, activeGroup, initialTab = "collection",
                                  }) {
     const { user, profile } = useAuth();
     const [activeTab, setActiveTab] = useState(initialTab);
@@ -600,10 +575,12 @@ export default function HomePage({
                     onUpdates={onUpdates}
                     onStyle={onStyle}
                     onCatalog={onCatalog}
+                    onTrades={onTrades}
                     onGroupSwitch={onGroupSwitch}
                     activeGroup={activeGroup}
                     stars={stars}
                     username={username}
+                    avatar={profile?.avatar ?? null}
                 />
 
                 <main className="home__main">
@@ -613,6 +590,7 @@ export default function HomePage({
                         onProfile={onProfile}
                         stars={stars}
                         username={username}
+                        avatar={profile?.avatar ?? null}
                     />
                     <div className="home__group-bar">
                         <div className="home__group-pill">
@@ -632,10 +610,9 @@ export default function HomePage({
                     </div>
 
                     {activeTab === "collection" && (
-                        <CollectionTab eras={eras} loading={loading} onCatalog={onCatalog} />
+                        <CollectionTab eras={eras} loading={loading} onCatalog={onCatalog} onTrades={onTrades} />
                     )}
                     {activeTab === "wishlist" && <WishlistTab eras={eras} loading={loading} />}
-                    {activeTab === "trades"   && <TradesTab hasCards={eras.length > 0} />}
                 </main>
 
             </div>
@@ -646,6 +623,7 @@ export default function HomePage({
                 onUpdates={onUpdates}
                 onStyle={onStyle}
                 onCatalog={onCatalog}
+                onTrades={onTrades}
             />
         </>
     );
