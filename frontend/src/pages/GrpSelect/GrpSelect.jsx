@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-//import SuggestGroupModal from "./SuggestGrpModal";
+import SuggestGroupModal from "./SuggestGrpModal";
 import "../../styles/globals.css";
 import "../../styles/Components.css";
 import "./GrpSelect.css";
@@ -68,6 +68,7 @@ const GROUPS = [
 
 export default function GrpSelect({ onEnter, onLore, onUpdates, onCatalog, onSignIn, onSignOut, isGuest }) {
     const [hovered, setHovered]   = useState(null);
+    const [showSuggest, setShowSuggest] = useState(false);
     const [entering, setEntering] = useState(null);
     const [mounted, setMounted]   = useState(false);
 
@@ -77,7 +78,8 @@ export default function GrpSelect({ onEnter, onLore, onUpdates, onCatalog, onSig
     }, []);
 
     function handleSelect(group) {
-        if (!group.active || group.isAdd) return;
+        if (group.isAdd) { setShowSuggest(true); return; }
+        if (!group.active) return;
         setEntering(group);
         // onEnter handles guest redirect to auth
         setTimeout(() => onEnter?.(group), entering ? 0 : 700);
@@ -154,6 +156,13 @@ export default function GrpSelect({ onEnter, onLore, onUpdates, onCatalog, onSig
             <p className="grpselect__hint">More groups coming soon · Suggest yours →</p>
 
             {/* ── Entering overlay ── */}
+            {showSuggest && (
+                <SuggestGroupModal
+                    onClose={() => setShowSuggest(false)}
+                    userId={null}
+                />
+            )}
+
             {entering && (
                 <div className="grpselect__enter-overlay">
                     <div className="grpselect__enter-text">

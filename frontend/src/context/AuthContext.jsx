@@ -4,9 +4,10 @@ import { supabase } from "../lib/supabase.js";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-    const [user,    setUser]    = useState(null);
-    const [profile, setProfile] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [user,       setUser]       = useState(null);
+    const [profile,    setProfile]    = useState(null);
+    const [loading,    setLoading]    = useState(true);
+    const [isRecovery, setIsRecovery] = useState(false);
 
     // ── Fetch profile from Supabase (called on login + after updates) ──────────
     async function fetchProfile(userId) {
@@ -54,6 +55,11 @@ export function AuthProvider({ children }) {
             if (currentUser) fetchProfile(currentUser.id);
             else setProfile(null);
             setLoading(false);
+
+            // Supabase fires this event when user arrives via password reset link
+            if (event === "PASSWORD_RECOVERY") {
+                setIsRecovery(true);
+            }
         });
 
         return () => { mounted = false; subscription.unsubscribe(); };
@@ -64,10 +70,12 @@ export function AuthProvider({ children }) {
     // to grant 20 starter stars. The profiles row is created by a Supabase
     // trigger (handle_new_user) — we just patch stars onto it.
     async function signUp(email, password, username) {
+        const redirectUrl = window.location.origin + "/";
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
             options: {
+                emailRedirectTo: redirectUrl,
                 data: {
                     username,
                     display_name: username,
@@ -101,6 +109,16 @@ export function AuthProvider({ children }) {
     async function signOut() {
         const { error } = await supabase.auth.signOut();
         if (!error) { setUser(null); setProfile(null); }
+        return { error };
+    }
+
+
+    // ── Reset password (sends email with link pointing to deployed app) ─────────
+    async function resetPassword(email) {
+        const redirectUrl = window.location.origin + "/";
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: redirectUrl,
+        });
         return { error };
     }
 
@@ -205,7 +223,10 @@ export function AuthProvider({ children }) {
             spendStars,
             earnStars,
             refreshProfile,
+            resetPassword,
             isLoggedIn: !!user,
+            isRecovery,
+            clearRecovery: () => setIsRecovery(false),
         }}>
             {children}
         </AuthContext.Provider>

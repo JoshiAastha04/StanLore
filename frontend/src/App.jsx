@@ -12,7 +12,7 @@ import CatalogPage  from "./pages/Catalog/CatalogPage";
 import "./styles/globals.css";
 
 function Router() {
-    const { isLoggedIn, loading, signOut } = useAuth();
+    const { isLoggedIn, loading, signOut, isRecovery, clearRecovery } = useAuth();
     const [page, setPage]               = useState("landing");
     const [profileUser, setProfileUser] = useState(null);
     const [activeGroup, setActiveGroup] = useState(null);
@@ -37,6 +37,12 @@ function Router() {
                 Loading...
             </div>
         );
+    }
+
+    // Password recovery — show set new password form directly
+    // Triggered when user clicks reset link in email (Supabase fires PASSWORD_RECOVERY event)
+    if (isRecovery) {
+        return <AuthPage isRecovery={true} onRecoveryDone={clearRecovery} />;
     }
 
     // Auth
