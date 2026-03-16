@@ -30,7 +30,7 @@ function StarCost({ cost }) {
     return <span className="catalog__star-cost">⭐ {cost}</span>;
 }
 
-const MEMBERS = ["All", "RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "Jungkook"];
+const MEMBERS = ["All", "RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "Jungkook", "OT7"];
 
 const FILTER_TO_STAGE = {
     "RM":       ["RM"],
@@ -40,6 +40,7 @@ const FILTER_TO_STAGE = {
     "Jimin":    ["Jimin", "JM"],
     "V":        ["V", "THV", "Thv"],
     "Jungkook": ["Jungkook", "JK"],
+    "OT7":     ["BTS", "OT7"],
 };
 
 export default function CatalogPage({ onBack, isGuest = false, onSignIn, onHome, onCatalog, onUpdates, onStyle, onLore }) {
@@ -197,7 +198,7 @@ export default function CatalogPage({ onBack, isGuest = false, onSignIn, onHome,
 
                     <div className="catalog__header">
                         <div>
-                            <div className="eyebrow" style={{ marginBottom: 10 }}>BTS · Butter Era</div>
+                            <div className="eyebrow" style={{ marginBottom: 10 }}>BTS</div>
                             <h1 className="catalog__title">Catalog</h1>
                             <p className="catalog__sub">
                                 Spend ⭐ stars to collect photocards · common ⭐5 · mid ⭐10 · rare ⭐15
