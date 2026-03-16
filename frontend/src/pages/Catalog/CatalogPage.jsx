@@ -6,19 +6,23 @@ import "../../styles/globals.css";
 import "../../styles/Components.css";
 import "./CatalogPage.css";
 
-const STAR_COST = { common: 5, uncommon: 15, rare: 30 };
+const STAR_COST = { common: 5, mid: 10, rare: 15 };
 
 function getCardRarity(photo) {
-    if (photo.is_rare)     return "rare";
-    if (photo.is_uncommon) return "uncommon";
+    // Use rarity column from DB (common/mid/rare), fallback to is_rare bool
+    if (photo.rarity) return photo.rarity.toLowerCase();
+    if (photo.is_rare) return "rare";
     return "common";
 }
-function getStarCost(photo) { return STAR_COST[getCardRarity(photo)]; }
+function getStarCost(photo) {
+    if (photo.star_cost) return photo.star_cost;
+    return STAR_COST[getCardRarity(photo)];
+}
 
 function getRarityLabel(photo) {
     const r = getCardRarity(photo);
-    if (r === "rare")     return { label: "✦ Rare",     cls: "catalog__rare--rare"     };
-    if (r === "uncommon") return { label: "◈ Uncommon", cls: "catalog__rare--uncommon" };
+    if (r === "rare") return { label: "✦ Rare", cls: "catalog__rare--rare" };
+    if (r === "mid")  return { label: "◈ Mid",  cls: "catalog__rare--uncommon" };
     return null;
 }
 
@@ -196,7 +200,7 @@ export default function CatalogPage({ onBack, isGuest = false, onSignIn, onHome,
                             <div className="eyebrow" style={{ marginBottom: 10 }}>BTS · Butter Era</div>
                             <h1 className="catalog__title">Catalog</h1>
                             <p className="catalog__sub">
-                                Spend ⭐ stars to collect photocards · common ⭐5 · uncommon ⭐15 · rare ⭐30
+                                Spend ⭐ stars to collect photocards · common ⭐5 · mid ⭐10 · rare ⭐15
                             </p>
                         </div>
                         {!loading && (

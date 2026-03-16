@@ -12,7 +12,7 @@ export async function getButterPhotos() {
     const { data, error } = await supabase
         .from("photocards")
         .select(`
-            id, image_url, is_rare,
+            id, image_url, is_rare, star_cost, rarity,
             members   ( name, stage_name ),
             versions  ( name,
                 albums ( title,
