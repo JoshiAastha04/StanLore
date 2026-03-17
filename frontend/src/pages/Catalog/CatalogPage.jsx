@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { useGroupMembership } from "../../hooks/useGroupMembership";
+import { useGroupMembership } from "../../hooks/usegroupmembership.js";
 import { getGroupPhotos } from "../../lib/Photos";
 import { supabase } from "../../lib/supabase";
 import "../../styles/globals.css";
