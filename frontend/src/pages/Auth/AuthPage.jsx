@@ -248,7 +248,7 @@ function SignUpForm({ onSwitch }) {
                     <input
                         className="auth-input"
                         type="password"
-                        placeholder="Min 7 chars, e.g. Johndoe@7"
+                        placeholder="Min 7 chars, e.g. Bangtan@7"
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         required
