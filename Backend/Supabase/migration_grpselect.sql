@@ -1,8 +1,3 @@
--- ─────────────────────────────────────────────────────────────────────────────
--- Group suggestions table — run in Supabase SQL Editor
--- Tracks which groups users want most, sorted by request frequency
--- ─────────────────────────────────────────────────────────────────────────────
-
 CREATE TABLE IF NOT EXISTS group_suggestions (
                                                  id          bigserial primary key,
                                                  group_name  text not null,
@@ -17,7 +12,7 @@ CREATE TABLE IF NOT EXISTS group_suggestions (
     CONSTRAINT group_suggestions_name_unique UNIQUE (lower(group_name))
     );
 
--- Public read — anyone can see what's been requested
+-- Public read- anyone can see what's been requested
 alter table group_suggestions enable row level security;
 
 create policy "anyone_can_read_suggestions"

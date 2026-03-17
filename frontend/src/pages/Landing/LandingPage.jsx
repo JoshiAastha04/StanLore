@@ -115,14 +115,14 @@ export default function LandingPage({ onEnter, onBrowse, onCreateAccount }) {
                 <FloatCard animClass="landing__fc landing__fc--3 float-card float-card--c" style={{ borderRadius: 8  }} />
                 <FloatCard animClass="landing__fc landing__fc--4 float-card float-card--a" style={{ borderRadius: 9  }} />
 
-                {/* ── NAV ── */}
+                {/* NAV */}
                 <nav className="landing__nav">
                     <div className="landing__nav-logo">
                         <div className="logo-mark logo-mark--md">S</div>
                         <span className="logo-wordmark logo-wordmark--md">Stanlore</span>
                     </div>
 
-                    {/* Desktop nav — Fix #3: replaced dead links with real app sections */}
+                    {/* Desktop nav */}
                     <div className="landing__nav-links landing__nav-links--desktop">
                         <button className="landing__nav-link" onClick={() => {
                             document.getElementById("landing-features")?.scrollIntoView({ behavior: "smooth" });
@@ -153,7 +153,7 @@ export default function LandingPage({ onEnter, onBrowse, onCreateAccount }) {
                     </div>
                 )}
 
-                {/* ── HERO ── */}
+                {/* hero */}
                 <section className="landing__hero">
                     <div className="landing__hero-eyebrow">
                         <span className="eyebrow">For K-pop Collectors</span>
@@ -166,7 +166,7 @@ export default function LandingPage({ onEnter, onBrowse, onCreateAccount }) {
 
                     <p className="landing__hero-sub">
                         The digital binder built for the way Stannies actually collects.
-                        Track every photocard you own, want, and have to trade — all in one place.
+                        Track every photocard you own, want, and have to trade - all in one place.
                     </p>
 
                     <div className="landing__hero-actions">
@@ -200,7 +200,7 @@ export default function LandingPage({ onEnter, onBrowse, onCreateAccount }) {
                     </div>
                     <div className="landing__features-grid">
                         <FeatureCard icon="✦" title="Digital binder"
-                                     desc="Every card, every version, every era — organized exactly the way collectors think."
+                                     desc="Every card, every version, every era, organized exactly the way collectors think."
                                      delay="0.15s" />
                         <FeatureCard icon="◎" title="Era progress"
                                      desc="See how close you are to completing each era per member. The satisfaction is real."
@@ -212,10 +212,10 @@ export default function LandingPage({ onEnter, onBrowse, onCreateAccount }) {
                                      desc="Post what you have. Find what you want. Connect with ARMY who collect like you."
                                      delay="0.45s" />
                         <FeatureCard icon="◈" title="Updates feed"
-                                     desc="Teasers, comeback announcements, tour dates — all in one fandom radar feed."
+                                     desc="Teasers, comeback announcements, tour dates, all in one fandom radar feed."
                                      delay="0.55s" />
                         <FeatureCard icon="◉" title="Lore Space"
-                                     desc="Theory threads, fashion analysis, photocard breakdowns — the full community in one place."
+                                     desc="Theory threads, fashion analysis, photocard breakdowns, the full community in one place."
                                      delay="0.65s" />
                     </div>
                 </section>
@@ -243,7 +243,7 @@ export default function LandingPage({ onEnter, onBrowse, onCreateAccount }) {
                         <span className="logo-wordmark logo-wordmark--sm">Stanlore</span>
                     </div>
                     <span className="landing__footer-tagline">Collection, Lore & Combacks - All in One Place</span>
-                    <span className="landing__footer-copy">© {new Date().getFullYear()}</span>
+                    <span className="landing__footer-copy">© {new Date().getFullYear()} Aastha Joshi </span>
                 </footer>
 
             </div>

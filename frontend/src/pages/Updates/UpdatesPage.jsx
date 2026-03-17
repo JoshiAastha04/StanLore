@@ -3,11 +3,12 @@ import "../../styles/globals.css";
 import "../../styles/Components.css";
 import "./UpdatesPage.css";
 
-// ─── Real 2026 BTS data ───────────────────────────────────────────────────────
+// ───2026 BTS data for now
+//  next plan is to make admins post about the actual updates
 const UPDATES = [
     {
         id: 1, type: "comeback", typeLabel: "COMEBACK", group: "BTS",
-        title: "BTS — ARIRANG out now. First full-group album in 3+ years.",
+        title: "BTS - ARIRANG out now. First full-group album in 3+ years.",
         body: "14 tracks. Production from Diplo and Kevin Parker. Described as 'deeply reflective' — identity, roots, and gratitude to ARMY. Streaming everywhere now.",
         time: "Just now", isNew: true, isPinned: true,
         reactions: { fire: 98241, heart: 134502, star: 72819 },
@@ -16,7 +17,7 @@ const UPDATES = [
     },
     {
         id: 2, type: "photocard", typeLabel: "PC INFO", group: "BTS",
-        title: "ARIRANG PC guide — 4 versions, 7 members each. 28 cards total per set.",
+        title: "ARIRANG PC guide - 4 versions, 7 members each. 28 cards total per set.",
         body: "Versions: Hanok / River / Mountain / Seoul. Each has 1 random PC. Weverse album version includes a digital-only bonus lenticular card.",
         time: "2h ago", isNew: true, isPinned: false,
         reactions: { fire: 18420, heart: 9821, star: 24103 },
@@ -25,7 +26,7 @@ const UPDATES = [
     },
     {
         id: 3, type: "teaser", typeLabel: "CONCEPT FILM", group: "BTS",
-        title: "Official ARIRANG concept films — all 7 released. Jungkook's is breaking the internet.",
+        title: "Official ARIRANG concept films - all 7 released. Jungkook's is breaking the internet.",
         body: "Shot in Gyeongbokgung Palace. Black and white with selective color. Each member's film is a standalone short — total runtime 38 minutes.",
         time: "5h ago", isNew: true, isPinned: false,
         reactions: { fire: 54201, heart: 89034, star: 41820 },
@@ -34,7 +35,7 @@ const UPDATES = [
     },
     {
         id: 4, type: "tour", typeLabel: "WORLD TOUR", group: "BTS",
-        title: "BTS ARIRANG World Tour — Seoul, LA, London, Tokyo, Paris, São Paulo confirmed",
+        title: "BTS ARIRANG World Tour - Seoul, LA, London, Tokyo, Paris, São Paulo confirmed",
         body: "Dates: Seoul April 5–6, LA May 2–4, London May 17–18, Tokyo June 1–2, Paris June 14, São Paulo June 28. Tickets via Weverse Live.",
         time: "8h ago", isNew: false, isPinned: false,
         reactions: { fire: 72091, heart: 94021, star: 38201 },
@@ -52,7 +53,7 @@ const UPDATES = [
     },
     {
         id: 6, type: "teaser", typeLabel: "MV TEASE", group: "BTS",
-        title: "V teaser clip dropped — 'Han River' track MV coming March 22",
+        title: "V teaser clip dropped - 'Han River' track MV coming March 22",
         body: "15-second clip shows V in traditional hanbok on a modern Seoul rooftop at dawn. Full MV drops 48h after album release.",
         time: "1d ago", isNew: false, isPinned: false,
         reactions: { fire: 31029, heart: 72049, star: 22091 },
@@ -61,7 +62,7 @@ const UPDATES = [
     },
     {
         id: 7, type: "merch", typeLabel: "MERCH", group: "BTS",
-        title: "ARIRANG official merch — photocard binder sold out in 4 minutes",
+        title: "ARIRANG official merch - photocard binder sold out in 4 minutes",
         body: "Restocking confirmed for March 25. The Hanok version binder holds 112 cards. Seoul pop-up shop opens March 28–April 1 at Starfield COEX.",
         time: "2d ago", isNew: false, isPinned: false,
         reactions: { fire: 12049, heart: 8021, star: 31029 },
@@ -70,7 +71,7 @@ const UPDATES = [
     },
     {
         id: 8, type: "weverse", typeLabel: "WEVERSE", group: "BTS",
-        title: "Jimin went live for 2 hours — performed 'Roots' acoustic from ARIRANG",
+        title: "Jimin went live for 2 hours - performed 'Roots' acoustic from ARIRANG",
         body: "Surprise Weverse live. Played acoustic guitar, talked about recording in Seoul vs LA. Said 'Roots' was written in one sitting at 4am.",
         time: "3d ago", isNew: false, isPinned: false,
         reactions: { fire: 41029, heart: 189034, star: 28109 },
@@ -91,7 +92,7 @@ const TYPE_FILTERS = [
 
 const UPCOMING = [
     { date: "Mar 22", event: "'Han River' MV drops",       type: "teaser"    },
-    { date: "Mar 25", event: "Merch restock — binder",     type: "merch"     },
+    { date: "Mar 25", event: "Merch restock - binder",     type: "merch"     },
     { date: "Mar 28", event: "Seoul pop-up opens",          type: "merch"     },
     { date: "Apr 5",  event: "Seoul concert night 1",       type: "tour"      },
     { date: "May 2",  event: "LA concert night 1",          type: "tour"      },

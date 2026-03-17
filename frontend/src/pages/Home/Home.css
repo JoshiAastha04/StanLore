@@ -246,7 +246,7 @@
     opacity: 0;
 }
 
-/* Ghost card grid — pulsing placeholder cards */
+/* Ghost card grid pulsing placeholder cards */
 .binder-empty__ghost-grid {
     display: grid;
     grid-template-columns: repeat(3, 80px);

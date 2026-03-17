@@ -253,6 +253,7 @@ function Router() {
                 onUpdates={() => setPage("updates")}
                 onCatalog={() => setPage("catalog")}
                 onSignIn={goSignIn}
+                onCreateAccount={goCreateAccount}
                 onSignOut={isLoggedIn ? async () => {
                     await signOut();
                     localStorage.removeItem("stanlore_page");

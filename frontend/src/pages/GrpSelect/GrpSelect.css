@@ -185,7 +185,7 @@
 }
 .grpselect__card--live.grpselect__card--hovered .grpselect__dot { background: #E8C96A; }
 
-/* ─── Fix #1: Coming soon cards — use coral accent ───────── */
+/* ─── Coming soon cards  ───────── */
 .grpselect__card--soon {
     background: rgba(38, 28, 26, 0.5);
     border-color: rgba(240, 153, 123, 0.1);
@@ -235,7 +235,7 @@
     border: 0.5px solid rgba(127,119,221,0.4);
     color: var(--purple-light);
 }
-/* Fix #1: Coming soon — coral */
+/*  Coming soon — coral */
 .grpselect__badge--soon {
     background: rgba(240,153,123,0.12);
     border: 0.5px solid rgba(240,153,123,0.3);
@@ -358,9 +358,7 @@
     animation: floatA 1.2s ease-in-out infinite; display: inline-block;
 }
 
-/* ─────────────────────────────────────────────────────────────
-   MOBILE RESPONSIVE  Fix #6
-   ───────────────────────────────────────────────────────────── */
+/* MObile responsive */
 @media (max-width: 900px) {
     .grpselect__grid { grid-template-columns: repeat(2, 1fr); padding: 0 24px; }
     .grpselect__nav  { padding: 16px 24px; }

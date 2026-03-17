@@ -24,7 +24,7 @@ function cardLabel(pc) {
     return [member, album, ver].filter(Boolean).join(" - ");
 }
 
-// ─── MiniCard — tiny card image + label ──────────────────────────────────────
+// ─── MiniCard tiny card image + label ──────────────────────────────────────
 function MiniCard({ photocard, bucket, label, highlight }) {
     const imgUrl = photocard
         ? getStorageImageUrl(photocard.image_url, bucket)

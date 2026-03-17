@@ -34,12 +34,8 @@
     color: var(--purple-light) !important;
 }
 
-/* Fix: sidebar logo no longer has its own margin-bottom */
+/*  sidebar logo */
 .sidebar__logo { margin-bottom: 0 !important; }
-
-/* ─────────────────────────────────────────────────────────────
-   MOBILE  ≤768px
-   ───────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
 
     /* Hide desktop sidebar entirely */
@@ -91,7 +87,7 @@
         padding: 2px 6px; white-space: nowrap; flex-shrink: 0;
     }
 
-    /* Fix #1: profile avatar — always top-right, always tappable */
+    /*profile avatar always top-right*/
     .mobile-topbar__profile {
         background: none; border: none; cursor: pointer;
         padding: 4px; flex-shrink: 0;
@@ -107,7 +103,7 @@
     }
 
     /* ── Mobile bottom nav ── */
-    /* Fix #2: 7 evenly-spaced tabs — Style between Updates & Lore, no gap */
+    /* Style between Updates & Lore */
     .mobile-bottom-nav {
         display: flex !important; /* override the desktop display:none !important */
         position: fixed;
@@ -161,13 +157,13 @@
         width: 100%;
         box-sizing: border-box;
     }
-    /* Other pages — clear fixed bottom nav */
+    /* Other pagesv */
     .catalog__main { padding-bottom: 90px !important; }
     .lore__main    { padding-bottom: 90px !important; }
     .updates__main { padding-bottom: 90px !important; }
     .style__main   { padding-bottom: 90px !important; }
 
-    /* Fix white overflow — background only, never set overflow on body */
+
     body, #root {
         background: #1a1830 !important;
     }

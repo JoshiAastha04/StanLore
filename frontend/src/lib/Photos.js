@@ -46,7 +46,7 @@ export async function getGroupPhotos(groupId = "bts", bucketName = null) {
 }
 
 // ─── Backward-compatible alias ────────────────────────────────────────────────
-// Existing code that calls getButterPhotos() still works — it just fetches BTS.
+// Existing code that calls getButterPhotos() still works - it just fetches BTS.
 export async function getButterPhotos() {
     return getGroupPhotos("bts");
 }

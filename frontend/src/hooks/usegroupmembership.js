@@ -4,7 +4,7 @@ import { supabase } from "../lib/supabase.js";
 const STARTER_STARS = 20;
 
 // useGroupMembership
-// Manages a user's membership in a specific group — their star balance,
+// Manages a user's membership in a specific group - their star balance,
 // whether they've joined before, and helpers to join/spend/earn stars.
 // Usage:
 //   const { stars, isNew, joinGroup, spendStars, addStars } =
@@ -36,7 +36,7 @@ export function useGroupMembership(userId, groupId) {
     useEffect(() => { load(); }, [load]);
 
     // ── Join group for the first time (called from GrpSelect) ─────────────
-    // Creates a row with STARTER_STARS. Safe to call multiple times —
+    // Creates a row with STARTER_STARS. Safe to call multiple times
     // ignoreDuplicates means it won't overwrite an existing balance.
     async function joinGroup() {
         if (!userId || !groupId) return { error: "Not logged in" };
@@ -107,16 +107,10 @@ export function useGroupMembership(userId, groupId) {
 }
 
 
-// ─────────────────────────────────────────────────────────────────────────────
-// useAllGroupMemberships
-//
-// Fetches all groups the user has joined — used on the Profile page to
+
+// useAllGroupMembership
+// Fetches all groups the user has joined- used on the Profile page to
 // show the "My Fandoms" section with per-group star balances.
-//
-// Usage:
-//   const { memberships } = useAllGroupMemberships(user?.id);
-//   // memberships = [{ group_id: "bts", stars: 340 }, { group_id: "BlackPink", stars: 20 }]
-// ─────────────────────────────────────────────────────────────────────────────
 export function useAllGroupMemberships(userId) {
     const [memberships, setMemberships] = useState([]);
     const [loading,     setLoading]     = useState(true);

@@ -8,7 +8,7 @@ import "../../styles/Components.css";
 import "../../styles/globals.css";
 import "../../styles/Mobile.css";
 
-// ─── User avatar — emoji if set, SVG silhouette otherwise ─────────────────────
+// ─── User avatar- emoji if set, SVG silhouette otherwise ─────────────────────
 function UserAvatar({ avatar, size = 26 }) {
     if (avatar) {
         return (
@@ -74,7 +74,7 @@ function StatCard({ value, label, accentColor }) {
     );
 }
 
-// ─── Photocard tile — shows real image if available ──────────────────────────
+// ─── Photocard tile - shows real image if available ──────────────────────────
 function PcTile({ card, onClick }) {
     const [imgErr, setImgErr] = useState(false);
     return (
@@ -174,7 +174,7 @@ function CardModal({ card, onClose, onTrades }) {
                     ))}
                 </div>
 
-                {/* Trade option — only show for owned cards */}
+                {/* Trade option - only show for owned cards */}
                 {card.status === "owned" && (
                     <button className="btn btn-ghost btn-sm"
                             style={{ width: "100%", marginTop: 4, borderColor: "rgba(127,119,221,0.3)" }}
@@ -341,7 +341,7 @@ function EmptyBinderState({ onCatalog }) {
                     Start making your own collection ♡
                 </h2>
                 <p className="binder-empty__sub">
-                    Your binder is empty — and that's the best place to start.
+                    Your binder is empty and that's the best place to start.
                     Head to the catalog, spend your ⭐ stars, and claim your first photocard.
                 </p>
                 <button className="btn btn-primary" onClick={onCatalog}>
@@ -368,7 +368,7 @@ function CollectionTab({ eras, loading, onCatalog, onTrades }) {
         );
     }
 
-    // Real new user — no cards at all
+    // Real new user- no cards at all
     if (eras.length === 0) {
         return <EmptyBinderState onCatalog={onCatalog} />;
     }

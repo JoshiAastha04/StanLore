@@ -159,7 +159,7 @@ export async function updateProfile(userId, updates) {
     return !error;
 }
 
-//Submit Grp Suggestions — uses RPC to upsert (increments votes if group already exists)
+//Submit Grp Suggestions uses RPC to upsert (increments votes if group already exists)
 export async function submitGroupSuggestion({ groupName, note, userId = null, email = null }) {
     const { error } = await supabase.rpc("submit_group_suggestion", {
         p_group_name: groupName,

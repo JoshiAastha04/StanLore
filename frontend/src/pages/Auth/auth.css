@@ -8,7 +8,7 @@
     overflow: hidden;
 }
 
-/* ─── Left panel — decorative ─────────────────────────────── */
+/* ─── Left panel decorative ─────────────────────────────── */
 .auth-left {
     position: relative;
     display: flex;
@@ -182,7 +182,7 @@
     opacity: 0;
 }
 
-/* ─── Right panel — form ──────────────────────────────────── */
+/* ─── Right panel form ──────────────────────────────────── */
 .auth-right {
     display: flex;
     flex-direction: column;
@@ -346,7 +346,7 @@
     color: rgba(127,119,221,0.35);
 }
 
-/* ─── Responsive — collapse to single column ──────────────── */
+/* ─── Responsive collapse to single column ──────────────── */
 @media (max-width: 768px) {
     .auth-page { grid-template-columns: 1fr; }
     .auth-left { display: none; }
