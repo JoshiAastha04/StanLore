@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { useGroupMembership } from "../../hooks/useGroupMembership";
+import { useGroupMembership } from "../../hooks/usegroupmembership.js";
 import SuggestGroupModal from "./SuggestGrpModal";
 import "../../styles/globals.css";
 import "../../styles/Components.css";
