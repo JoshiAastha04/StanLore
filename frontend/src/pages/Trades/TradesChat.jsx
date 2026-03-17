@@ -19,8 +19,9 @@ function cardLabel(pc) {
     if (!pc) return "Unknown card";
     const member = pc.members?.stage_name || pc.members?.name || "Unknown";
     const album  = pc.versions?.albums?.title || "";
-    const ver    = pc.versions?.name || "";
-    return [member, album, ver].filter(Boolean).join(" · ");
+    // Normalise "Ver. A" → "Ver A" so it's easy to type/match
+    const ver    = (pc.versions?.name || "").replace(/Ver\.\s*/i, "Ver ").trim();
+    return [member, album, ver].filter(Boolean).join(" - ");
 }
 
 // ─── MiniCard — tiny card image + label ──────────────────────────────────────

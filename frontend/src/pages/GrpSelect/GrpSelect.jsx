@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { useGroupMembership } from "../../hooks/usegroupmembership.js";
+import { useGroupMembership } from "../../hooks/useGroupMembership";
 import SuggestGroupModal from "./SuggestGrpModal";
 import "../../styles/globals.css";
 import "../../styles/Components.css";
@@ -15,7 +15,6 @@ const GROUPS = [
         cards: 60,
         era: "ARIRANG",
         active: true,
-        accentClass: "grpselect__card--bts",
     },
     {
         id: "bp",
@@ -23,9 +22,8 @@ const GROUPS = [
         hangul: "블랙핑크",
         members: ["Kim Jisoo", "Kim Jennie", "Lalisa", "Park Chaeyong"],
         cards: 30,
-        era: "DeadLine",
+        era: "DEADLINE",
         active: true,
-        accentClass: "grpselect__card--soon",
     },
     {
         id: "seventeen",
@@ -35,7 +33,6 @@ const GROUPS = [
         cards: 312,
         era: "SPILL THE FEELS",
         active: false,
-        accentClass: "grpselect__card--soon",
     },
     {
         id: "newjeans",
@@ -43,9 +40,8 @@ const GROUPS = [
         hangul: "뉴진스",
         members: ["Minji", "Hanni", "Danielle", "Haerin", "Hyein"],
         cards: 156,
-        era: "How Sweet",
+        era: "HOW SWEET",
         active: false,
-        accentClass: "grpselect__card--soon",
     },
     {
         id: "aespa",
@@ -53,9 +49,8 @@ const GROUPS = [
         hangul: "에스파",
         members: ["Karina", "Giselle", "Winter", "Ningning"],
         cards: 134,
-        era: "Whiplash",
+        era: "WHIPLASH",
         active: false,
-        accentClass: "grpselect__card--soon",
     },
     {
         id: "add",
@@ -63,7 +58,6 @@ const GROUPS = [
         hangul: "",
         isAdd: true,
         active: false,
-        accentClass: "",
     },
 ];
 
@@ -249,7 +243,9 @@ export default function GrpSelect({ onEnter, onLore, onUpdates, onCatalog, onSig
 function GroupCard({ group, index, mounted, isHovered, isDimmed, isEntering, isGuest, onHover, onSelect }) {
     const classes = [
         "grpselect__card",
-        group.accentClass,
+        // live groups get golden accent; "soon" groups get the coral accent
+        group.active && !group.isAdd  ? "grpselect__card--live"     : "",
+        !group.active && !group.isAdd ? "grpselect__card--soon"     : "",
         mounted    ? "grpselect__card--visible"  : "",
         isHovered  ? "grpselect__card--hovered"  : "",
         isDimmed   ? "grpselect__card--dimmed"   : "",
