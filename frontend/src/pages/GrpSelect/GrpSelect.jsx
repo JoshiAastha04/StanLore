@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { useGroupMembership } from "../../hooks/usegroupmembership.js";
 import SuggestGroupModal from "./SuggestGrpModal";
 import "../../styles/globals.css";
 import "../../styles/Components.css";
@@ -13,11 +15,10 @@ const GROUPS = [
         cards: 60,
         era: "ARIRANG",
         active: true,
-        // BTS gets a warm golden accent — distinct from the purple base
         accentClass: "grpselect__card--bts",
     },
     {
-        id: "BlackPink",
+        id: "bp",
         name: "BlackPink",
         hangul: "블랙핑크",
         members: ["Kim Jisoo", "Kim Jennie", "Lalisa", "Park Chaeyong"],
@@ -66,23 +67,83 @@ const GROUPS = [
     },
 ];
 
+// ─── First-time welcome overlay ───────────────────────────────────────────────
+function WelcomeOverlay({ group, onContinue }) {
+    return (
+        <div className="grpselect__enter-overlay grpselect__enter-overlay--welcome">
+            <div className="grpselect__enter-text">
+                <span className="grpselect__enter-mark">✦</span>
+                <div style={{ marginTop: 16, fontSize: 22, fontWeight: 700 }}>
+                    Welcome to {group.name} World
+                </div>
+                <div style={{ marginTop: 8, fontSize: 14, opacity: 0.7, fontStyle: "italic" }}>
+                    You've been gifted <strong>20 ⭐ stars</strong> to start your collection
+                </div>
+                <button
+                    className="btn btn-primary"
+                    style={{ marginTop: 24 }}
+                    onClick={onContinue}
+                >
+                    Start collecting →
+                </button>
+            </div>
+        </div>
+    );
+}
+
+// ─── GrpSelect ────────────────────────────────────────────────────────────────
 export default function GrpSelect({ onEnter, onLore, onUpdates, onCatalog, onSignIn, onSignOut, isGuest }) {
-    const [hovered, setHovered]   = useState(null);
-    const [showSuggest, setShowSuggest] = useState(false);
-    const [entering, setEntering] = useState(null);
-    const [mounted, setMounted]   = useState(false);
+    const { user } = useAuth();
+
+    const [hovered,      setHovered]     = useState(null);
+    const [showSuggest,  setShowSuggest] = useState(false);
+    const [entering,     setEntering]    = useState(null);    // group being entered
+    const [pendingGroup, setPendingGroup] = useState(null);   // group waiting for membership check
+    const [showWelcome,  setShowWelcome] = useState(false);   // first-time welcome screen
+    const [mounted,      setMounted]     = useState(false);
+
+    // Check membership for whichever group the user clicked
+    const { isNewMember, loading: membershipLoading, joinGroup, checked } =
+        useGroupMembership(user?.id, pendingGroup?.id ?? null);
 
     useEffect(() => {
         const t = setTimeout(() => setMounted(true), 80);
         return () => clearTimeout(t);
     }, []);
 
+    // ── Once membership check completes, decide what to show ────────────────
+    useEffect(() => {
+        if (!pendingGroup || !checked || membershipLoading) return;
+
+        if (isNewMember) {
+            // First time! Create membership row (gives 20 stars) then show welcome
+            joinGroup().then(() => {
+                setEntering(null);
+                setShowWelcome(true);
+            });
+        } else {
+            // Returning user — just enter
+            setShowWelcome(false);
+            onEnter?.(pendingGroup);
+            setPendingGroup(null);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [checked, membershipLoading, isNewMember, pendingGroup]);
+
     function handleSelect(group) {
-        if (group.isAdd) { setShowSuggest(true); return; }
-        if (!group.active) return;
+        if (group.isAdd)    { setShowSuggest(true); return; }
+        if (!group.active)  return;
+        if (isGuest)        { onEnter?.(group); return; } // guest: let App handle redirect
+
         setEntering(group);
-        // onEnter handles guest redirect to auth
-        setTimeout(() => onEnter?.(group), entering ? 0 : 700);
+        setPendingGroup(group);   // triggers membership hook + useEffect above
+    }
+
+    function handleWelcomeContinue() {
+        setShowWelcome(false);
+        onEnter?.(pendingGroup);
+        setPendingGroup(null);
+        setEntering(null);
     }
 
     return (
@@ -96,8 +157,6 @@ export default function GrpSelect({ onEnter, onLore, onUpdates, onCatalog, onSig
                     <div className="logo-mark logo-mark--sm">S</div>
                     <span className="logo-wordmark logo-wordmark--sm">Stanlore</span>
                 </div>
-
-                {/* Right side nav actions */}
                 <div className="grpselect__nav-right">
                     <button className="grpselect__nav-link" onClick={onCatalog}>Catalog</button>
                     <button className="grpselect__nav-link" onClick={onUpdates}>Updates</button>
@@ -114,7 +173,7 @@ export default function GrpSelect({ onEnter, onLore, onUpdates, onCatalog, onSig
                 </div>
             </nav>
 
-            {/* ── Guest banner ── Fix #5 */}
+            {/* ── Guest banner ── */}
             {isGuest && (
                 <div className="grpselect__guest-banner">
                     <span>You're browsing as a guest.</span>
@@ -155,26 +214,38 @@ export default function GrpSelect({ onEnter, onLore, onUpdates, onCatalog, onSig
 
             <p className="grpselect__hint">More groups coming soon · Suggest yours →</p>
 
-            {/* ── Entering overlay ── */}
+            {/* ── Modals / overlays ── */}
             {showSuggest && (
                 <SuggestGroupModal
                     onClose={() => setShowSuggest(false)}
-                    userId={null}
+                    userId={user?.id ?? null}
                 />
             )}
 
-            {entering && (
+            {/* Entering animation (while membership check runs) */}
+            {entering && !showWelcome && (
                 <div className="grpselect__enter-overlay">
                     <div className="grpselect__enter-text">
                         <span className="grpselect__enter-mark">✦</span>
-                        {isGuest ? "Create an account to enter →" : `Entering ${entering.name} Universe`}
+                        {isGuest
+                            ? "Create an account to enter →"
+                            : `Entering ${entering.name} Universe`}
                     </div>
                 </div>
+            )}
+
+            {/* First-time welcome screen */}
+            {showWelcome && pendingGroup && (
+                <WelcomeOverlay
+                    group={pendingGroup}
+                    onContinue={handleWelcomeContinue}
+                />
             )}
         </div>
     );
 }
 
+// ─── GroupCard ────────────────────────────────────────────────────────────────
 function GroupCard({ group, index, mounted, isHovered, isDimmed, isEntering, isGuest, onHover, onSelect }) {
     const classes = [
         "grpselect__card",
@@ -183,7 +254,7 @@ function GroupCard({ group, index, mounted, isHovered, isDimmed, isEntering, isG
         isHovered  ? "grpselect__card--hovered"  : "",
         isDimmed   ? "grpselect__card--dimmed"   : "",
         isEntering ? "grpselect__card--entering" : "",
-        group.isAdd              ? "grpselect__card--add"      : "",
+        group.isAdd                   ? "grpselect__card--add"      : "",
         !group.active && !group.isAdd ? "grpselect__card--inactive" : "",
     ].filter(Boolean).join(" ");
 
@@ -203,7 +274,6 @@ function GroupCard({ group, index, mounted, isHovered, isDimmed, isEntering, isG
                 </div>
             ) : (
                 <>
-                    {/* Status badge — Fix #1: coral for coming soon */}
                     <div className={`grpselect__badge${group.active ? " grpselect__badge--live" : " grpselect__badge--soon"}`}>
                         {group.active ? "✦ Live" : "Coming soon"}
                     </div>

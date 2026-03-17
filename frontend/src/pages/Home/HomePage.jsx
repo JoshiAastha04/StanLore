@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { useCollection } from "../../hooks/usecollection";
+import { useGroupMembership } from "../../hooks/usegroupmembership.js";
 import { supabase } from "../../lib/supabase";
 import "../Home/Home.css";
 import "../../styles/Components.css";
@@ -493,13 +495,19 @@ export default function HomePage({
     const [eras,    setEras]    = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // ── Per-group stars (replaces global profile.stars) ──────────────────────
+    const groupId = activeGroup?.id ?? "bts";
+    const { stars: groupStars } = useGroupMembership(user?.id, groupId);
+
     const meta  = PAGE_META[activeTab] ?? PAGE_META.collection;
-    const stars = profile?.stars ?? 0;
+    const stars = groupStars;
     const username = profile?.username || user?.email?.split("@")[0] || "stan_collector";
 
     // ── Fetch real collection from Supabase ──────────────────────────────────
     useEffect(() => {
         if (!user) { setLoading(false); return; }
+        setEras([]);   // clear previous group's cards immediately on switch
+        setLoading(true);
 
         async function loadCollection() {
             try {
@@ -517,8 +525,8 @@ export default function HomePage({
                             )
                         )
                     `)
-                    .eq("user_id", user.id);
-                // No status filter — fetch owned AND wishlist together
+                    .eq("user_id", user.id)
+                    .eq("group_id", groupId);  // ← only this group's cards
 
                 if (error) throw error;
                 if (!data || data.length === 0) {
@@ -538,8 +546,9 @@ export default function HomePage({
                     const cleanPath = imagePath
                         ? (imagePath.includes(".") ? imagePath : imagePath + ".png")
                         : null;
+                    const bucket  = `${groupId}-media`;   // e.g. "bts-media", "BlackPink-media"
                     const fullUrl = cleanPath
-                        ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/bts-media/${cleanPath}`
+                        ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/${bucket}/${cleanPath}`
                         : null;
                     const key = `${member}__${era}`;
 
@@ -561,7 +570,7 @@ export default function HomePage({
         }
 
         loadCollection();
-    }, [user]);
+    }, [user, groupId]);  // ← re-fetch whenever the active group changes
 
     return (
         <>
