@@ -12,13 +12,51 @@ import CatalogPage  from "./pages/Catalog/CatalogPage";
 import TradesPage   from "./pages/Trades/TradesPage";
 import "./styles/globals.css";
 
+// Pages worth restoring on refresh (skip landing / auth / grpselect / profile)
+const PERSISTABLE = new Set(["home", "catalog", "trades", "lore", "updates", "style"]);
+
 function Router() {
     const { isLoggedIn, loading, signOut, isRecovery, clearRecovery } = useAuth();
-    const [page, setPage]               = useState("landing");
+
+    // ── Restore page + active group from localStorage on first render ────────
+    const [page, setPage] = useState(() => {
+        try {
+            const saved = localStorage.getItem("stanlore_page");
+            return PERSISTABLE.has(saved) ? saved : "landing";
+        } catch { return "landing"; }
+    });
+    const [activeGroup, setActiveGroup] = useState(() => {
+        try {
+            const saved = localStorage.getItem("stanlore_activeGroup");
+            return saved ? JSON.parse(saved) : null;
+        } catch { return null; }
+    });
+
     const [profileUser, setProfileUser] = useState(null);
-    const [activeGroup, setActiveGroup] = useState(null);
     const [guestMode, setGuestMode]     = useState(false);
     const [catalogOnLoad, setCatalogOnLoad] = useState(false);
+
+    // ── Persist page on every change ────────────────────────────────────────
+    useEffect(() => {
+        try {
+            if (PERSISTABLE.has(page)) {
+                localStorage.setItem("stanlore_page", page);
+            } else {
+                localStorage.removeItem("stanlore_page");
+            }
+        } catch {}
+    }, [page]);
+
+    // ── Persist active group on every change ────────────────────────────────
+    useEffect(() => {
+        try {
+            if (activeGroup) {
+                localStorage.setItem("stanlore_activeGroup", JSON.stringify(activeGroup));
+            } else {
+                localStorage.removeItem("stanlore_activeGroup");
+            }
+        } catch {}
+    }, [activeGroup]);
 
     // Auto-redirect after sign-in — no manual refresh needed
     useEffect(() => {
@@ -166,6 +204,8 @@ function Router() {
                 onGroupSwitch={() => setPage("grpselect")}
                 onSignOut={async () => {
                     await signOut();
+                    localStorage.removeItem("stanlore_page");
+                    localStorage.removeItem("stanlore_activeGroup");
                     setProfileUser(null);
                     setActiveGroup(null);
                     setGuestMode(false);
@@ -192,6 +232,8 @@ function Router() {
                 onSignIn={() => setPage("auth")}
                 onSignOut={isLoggedIn ? async () => {
                     await signOut();
+                    localStorage.removeItem("stanlore_page");
+                    localStorage.removeItem("stanlore_activeGroup");
                     setGuestMode(false);
                     setPage("landing");
                 } : null}

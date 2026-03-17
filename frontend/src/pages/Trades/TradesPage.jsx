@@ -64,9 +64,9 @@ function ComposeForm({ ownedCards, onPosted, username, userAvatar, groupId }) {
         const row    = ownedCards[idx];
         const pc     = row.photocards;
         const member = pc?.members?.stage_name || pc?.members?.name || "Unknown";
-        const ver    = pc?.versions?.name || "";
+        const ver    = (pc?.versions?.name || "").replace(/Ver\.\s*/i, "Ver ").trim();
         const album  = pc?.versions?.albums?.title || "";
-        setHave(`${member} · ${album} · ${ver}`);
+        setHave(`${member} - ${album} - ${ver}`);
         setHaveCardId(row.card_id);
     }
 
@@ -128,9 +128,10 @@ function ComposeForm({ ownedCards, onPosted, username, userAvatar, groupId }) {
                                 const member = pc?.members?.stage_name || pc?.members?.name || "Unknown";
                                 const ver    = pc?.versions?.name || "";
                                 const album  = pc?.versions?.albums?.title || "";
+                                const verClean = (pc?.versions?.name || "").replace(/Ver\.\s*/i, "Ver ").trim();
                                 return (
                                     <option key={row.card_id} value={idx}>
-                                        {`${member} · ${album} · ${ver}`}
+                                        {`${member} - ${album} - ${verClean}`}
                                     </option>
                                 );
                             })}
@@ -151,7 +152,7 @@ function ComposeForm({ ownedCards, onPosted, username, userAvatar, groupId }) {
                     <label className="section-label">I WANT</label>
                     <input
                         className="input"
-                        placeholder="e.g. Jimin · Butter · Ver. A"
+                        placeholder="e.g. Jimin - Butter - Ver A"
                         value={want}
                         onChange={e => setWant(e.target.value)}
                     />
