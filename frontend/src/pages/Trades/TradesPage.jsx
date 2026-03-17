@@ -1,10 +1,17 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/supabase";
+import TradeChat from "./TradesChat.jsx";
 import "../../styles/globals.css";
 import "../../styles/Components.css";
 import "./TradesPage.css";
 import "../../styles/Mobile.css";
+
+// ─── GROUP_CONFIG — keeps bucket names in sync with CatalogPage ──────────────
+const GROUP_CONFIG = {
+    bts: { label: "BTS",       bucket: "bts-media"       },
+    bp:  { label: "BLACKPINK", bucket: "BlackPink-media" },
+};
 
 function timeAgo(isoString) {
     if (!isoString) return "";
@@ -17,7 +24,7 @@ function timeAgo(isoString) {
     return `${Math.floor(h / 24)}d ago`;
 }
 
-// ─── User avatar — emoji if set, SVG silhouette otherwise ─────────────────────
+// ─── User avatar ──────────────────────────────────────────────────────────────
 function UserAvatar({ avatar, size = 32 }) {
     if (avatar) {
         return (
@@ -44,36 +51,42 @@ function UserAvatar({ avatar, size = 32 }) {
 
 // ─── Compose form ─────────────────────────────────────────────────────────────
 function ComposeForm({ ownedCards, onPosted, username, userAvatar, groupId }) {
-    const [have,    setHave]    = useState("");
-    const [want,    setWant]    = useState("");
-    const [posting, setPosting] = useState(false);
-    const [error,   setError]   = useState("");
-    const [success, setSuccess] = useState(false);
+    const [have,       setHave]       = useState("");
+    const [haveCardId, setHaveCardId] = useState(null); // integer photocard id
+    const [want,       setWant]       = useState("");
+    const [posting,    setPosting]    = useState(false);
+    const [error,      setError]      = useState("");
+    const [success,    setSuccess]    = useState(false);
 
-    const cardOptions = ownedCards.map(row => {
+    function handleCardSelect(e) {
+        const idx = Number(e.target.value);
+        if (idx === -1) { setHave(""); setHaveCardId(null); return; }
+        const row    = ownedCards[idx];
         const pc     = row.photocards;
         const member = pc?.members?.stage_name || pc?.members?.name || "Unknown";
         const ver    = pc?.versions?.name || "";
         const album  = pc?.versions?.albums?.title || "";
-        return `${member} · ${album} · ${ver}`;
-    });
+        setHave(`${member} · ${album} · ${ver}`);
+        setHaveCardId(row.card_id);
+    }
 
     async function handlePost(e) {
         e?.preventDefault();
-        if (!have.trim()) { setError("Tell us what card you have."); return; }
-        if (!want.trim()) { setError("Tell us what card you want."); return; }
+        if (!have.trim())    { setError("Tell us what card you have."); return; }
+        if (!want.trim())    { setError("Tell us what card you want."); return; }
         setPosting(true); setError(""); setSuccess(false);
 
         const { data: { user } } = await supabase.auth.getUser();
         const { error: err } = await supabase
             .from("trade_listings")
             .insert({
-                user_id:     user?.id,
-                username:    username,
-                user_avatar: userAvatar ?? null,
-                have_card:   have.trim(),
-                want_card:   want.trim(),
-                group_id:    groupId,
+                user_id:      user?.id,
+                username:     username,
+                user_avatar:  userAvatar ?? null,
+                have_card:    have.trim(),
+                want_card:    want.trim(),
+                have_card_id: haveCardId ?? null,
+                group_id:     groupId,
             });
 
         setPosting(false);
@@ -84,7 +97,7 @@ function ComposeForm({ ownedCards, onPosted, username, userAvatar, groupId }) {
             return;
         }
 
-        setHave(""); setWant(""); setSuccess(true);
+        setHave(""); setWant(""); setHaveCardId(null); setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
         onPosted?.();
     }
@@ -103,25 +116,53 @@ function ComposeForm({ ownedCards, onPosted, username, userAvatar, groupId }) {
             <div className="trades__compose-row">
                 <div className="trades__compose-field">
                     <label className="section-label">I HAVE</label>
-                    <input className="input" list="have-options"
-                           placeholder="e.g. V · Proof · Ver. A"
-                           value={have} onChange={e => setHave(e.target.value)} />
-                    <datalist id="have-options">
-                        {cardOptions.map((opt, i) => <option key={i} value={opt} />)}
-                    </datalist>
+                    {ownedCards.length > 0 ? (
+                        <select
+                            className="input"
+                            defaultValue={-1}
+                            onChange={handleCardSelect}
+                        >
+                            <option value={-1} disabled>Select a card…</option>
+                            {ownedCards.map((row, idx) => {
+                                const pc     = row.photocards;
+                                const member = pc?.members?.stage_name || pc?.members?.name || "Unknown";
+                                const ver    = pc?.versions?.name || "";
+                                const album  = pc?.versions?.albums?.title || "";
+                                return (
+                                    <option key={row.card_id} value={idx}>
+                                        {`${member} · ${album} · ${ver}`}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                    ) : (
+                        <input
+                            className="input"
+                            placeholder="e.g. V · Proof · Ver. A"
+                            value={have}
+                            onChange={e => setHave(e.target.value)}
+                        />
+                    )}
                 </div>
 
                 <span className="trades__compose-arrow">⇄</span>
 
                 <div className="trades__compose-field">
                     <label className="section-label">I WANT</label>
-                    <input className="input" placeholder="e.g. Jimin · Butter · Ver. A"
-                           value={want} onChange={e => setWant(e.target.value)} />
+                    <input
+                        className="input"
+                        placeholder="e.g. Jimin · Butter · Ver. A"
+                        value={want}
+                        onChange={e => setWant(e.target.value)}
+                    />
                 </div>
 
-                <button className="btn btn-primary btn-sm"
-                        style={{ marginTop: 20, flexShrink: 0 }}
-                        disabled={posting} onClick={handlePost}>
+                <button
+                    className="btn btn-primary btn-sm"
+                    style={{ marginTop: 20, flexShrink: 0 }}
+                    disabled={posting}
+                    onClick={handlePost}
+                >
                     {posting ? "Posting..." : "Post listing"}
                 </button>
             </div>
@@ -129,7 +170,7 @@ function ComposeForm({ ownedCards, onPosted, username, userAvatar, groupId }) {
     );
 }
 
-// ─── No cards empty state ─────────────────────────────────────────────────────
+// ─── No cards state ───────────────────────────────────────────────────────────
 function NoCardsState({ onCatalog }) {
     return (
         <div className="trades__no-cards card">
@@ -147,9 +188,9 @@ function NoCardsState({ onCatalog }) {
 }
 
 // ─── Trade listing row ────────────────────────────────────────────────────────
-function TradeListing({ listing, currentUsername }) {
-    const isOwn = (listing.username || listing.author) === currentUsername;
-    const displayName = listing.username || listing.author || "stan";
+function TradeListing({ listing, currentUser, onDm, onViewDms, dmCount }) {
+    const isOwn = listing.user_id === currentUser?.id;
+    const displayName = listing.username || "stan";
 
     return (
         <div className={`trades__listing${isOwn ? " trades__listing--own" : ""}`}>
@@ -168,14 +209,28 @@ function TradeListing({ listing, currentUsername }) {
             </div>
             <div className="trades__listing-meta">
                 <span className="trades__listing-time">{timeAgo(listing.created_at)}</span>
-                {!isOwn && <button className="btn btn-ghost btn-sm">DM to trade</button>}
+                {isOwn ? (
+                    <button
+                        className="btn btn-ghost btn-sm"
+                        onClick={() => onViewDms(listing)}
+                    >
+                        DMs {dmCount > 0 && <span className="trades__dm-badge">{dmCount}</span>}
+                    </button>
+                ) : (
+                    <button
+                        className="btn btn-ghost btn-sm"
+                        onClick={() => onDm(listing)}
+                    >
+                        DM to trade
+                    </button>
+                )}
             </div>
         </div>
     );
 }
 
 // ─── Mobile bottom nav ────────────────────────────────────────────────────────
-function MobileBottomNav({ onHome, onCatalog, onUpdates, onStyle, onLore, onTrades }) {
+function MobileBottomNav({ onHome, onCatalog, onUpdates, onStyle, onLore }) {
     const tabs = [
         { id: "home",    icon: "◫", label: "Binder",  action: onHome    },
         { id: "catalog", icon: "✦", label: "Catalog", action: onCatalog },
@@ -186,9 +241,11 @@ function MobileBottomNav({ onHome, onCatalog, onUpdates, onStyle, onLore, onTrad
     return (
         <nav className="mobile-bottom-nav">
             {tabs.map(tab => (
-                <button key={tab.id}
-                        className={`mobile-bottom-nav__item${tab.id === "trades" ? " mobile-bottom-nav__item--active" : ""}`}
-                        onClick={tab.action}>
+                <button
+                    key={tab.id}
+                    className={`mobile-bottom-nav__item${tab.id === "trades" ? " mobile-bottom-nav__item--active" : ""}`}
+                    onClick={tab.action}
+                >
                     <span className="mobile-bottom-nav__icon">{tab.icon}</span>
                     <span className="mobile-bottom-nav__label">{tab.label}</span>
                 </button>
@@ -204,16 +261,26 @@ export default function TradesPage({
                                    }) {
     const { user, profile } = useAuth();
     const groupId = activeGroup?.id ?? "bts";
+    const config  = GROUP_CONFIG[groupId] ?? GROUP_CONFIG.bts;
 
     const [listings,     setListings]     = useState([]);
     const [ownedCards,   setOwnedCards]   = useState([]);
     const [loading,      setLoading]      = useState(true);
     const [loadingOwned, setLoadingOwned] = useState(true);
+    const [dmCounts,     setDmCounts]     = useState({}); // listingId → count
+    const [chatListing,  setChatListing]  = useState(null); // listing being chatted
+    const [chatIsOwner,  setChatIsOwner]  = useState(false);
 
     const username = profile?.username || profile?.display_name
         || user?.email?.split("@")[0] || "stan";
 
-    // ── Load trade listings for this group ────────────────────────────────────
+    const currentUser = {
+        id:       user?.id,
+        username: username,
+        avatar:   profile?.avatar ?? null,
+    };
+
+    // ── Load trade listings ───────────────────────────────────────────────────
     async function loadListings() {
         setLoading(true);
         const { data, error } = await supabase
@@ -227,7 +294,7 @@ export default function TradesPage({
 
         const rows = data ?? [];
 
-        // Fetch live avatars for all listing authors from profiles
+        // Fetch live avatars
         const userIds = [...new Set(rows.map(l => l.user_id).filter(Boolean))];
         const { data: profileRows } = userIds.length > 0
             ? await supabase.from("profiles").select("id, avatar").in("id", userIds)
@@ -241,7 +308,29 @@ export default function TradesPage({
         setLoading(false);
     }
 
-    // ── Load user's owned cards in this group ─────────────────────────────────
+    // ── Load conversation counts for own listings ─────────────────────────────
+    async function loadDmCounts(rows) {
+        if (!user || !rows.length) return;
+        const ownListingIds = rows
+            .filter(l => l.user_id === user.id)
+            .map(l => l.id);
+        if (!ownListingIds.length) return;
+
+        const { data } = await supabase
+            .from("trade_conversations")
+            .select("listing_id")
+            .in("listing_id", ownListingIds)
+            .neq("status", "cancelled");
+
+        if (!data) return;
+        const counts = {};
+        data.forEach(row => {
+            counts[row.listing_id] = (counts[row.listing_id] ?? 0) + 1;
+        });
+        setDmCounts(counts);
+    }
+
+    // ── Load user's owned cards ───────────────────────────────────────────────
     async function loadOwnedCards() {
         if (!user) { setLoadingOwned(false); return; }
         const { data, error } = await supabase
@@ -249,7 +338,7 @@ export default function TradesPage({
             .select(`
                 card_id, status,
                 photocards (
-                    id,
+                    id, image_url,
                     members   ( name, stage_name ),
                     versions  ( name,
                         albums ( title )
@@ -266,9 +355,35 @@ export default function TradesPage({
     }
 
     useEffect(() => {
+        loadListings().then(() => {
+            // dmCounts need listings; grab them after state is set
+        });
+        loadOwnedCards();
+    }, [user, groupId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // dm counts depend on listings being loaded
+    useEffect(() => {
+        if (listings.length > 0) loadDmCounts(listings);
+    }, [listings]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // ── Open chat ─────────────────────────────────────────────────────────────
+    function handleDm(listing) {
+        setChatListing(listing);
+        setChatIsOwner(false);
+    }
+    function handleViewDms(listing) {
+        setChatListing(listing);
+        setChatIsOwner(true);
+    }
+    function closeChat() {
+        setChatListing(null);
+    }
+    function onTradeComplete() {
+        // Reload after successful trade
         loadListings();
         loadOwnedCards();
-    }, [user, groupId]);  // eslint-disable-line react-hooks/exhaustive-deps
+        closeChat();
+    }
 
     const hasOwnedCards = ownedCards.length > 0;
     const ready = !loading && !loadingOwned;
@@ -300,14 +415,16 @@ export default function TradesPage({
                     </div>
 
                     {!ready ? (
-                        <div style={{ padding: "40px 0", textAlign: "center",
+                        <div style={{
+                            padding: "40px 0", textAlign: "center",
                             fontFamily: "var(--font-serif)", fontSize: 18,
-                            color: "var(--text-faint)", fontStyle: "italic" }}>
+                            color: "var(--text-faint)", fontStyle: "italic",
+                        }}>
                             Loading...
                         </div>
                     ) : (
                         <>
-                            {/* Compose — gated behind owning at least 1 card in this group */}
+                            {/* Compose */}
                             {hasOwnedCards ? (
                                 <ComposeForm
                                     ownedCards={ownedCards}
@@ -320,7 +437,7 @@ export default function TradesPage({
                                 <NoCardsState onCatalog={onCatalog} />
                             )}
 
-                            {/* Listings stack */}
+                            {/* Listings */}
                             <div className="trades__stack">
                                 {listings.length === 0 ? (
                                     <div className="empty-state" style={{ marginTop: 32 }}>
@@ -334,7 +451,10 @@ export default function TradesPage({
                                         <TradeListing
                                             key={listing.id}
                                             listing={listing}
-                                            currentUsername={username}
+                                            currentUser={currentUser}
+                                            onDm={handleDm}
+                                            onViewDms={handleViewDms}
+                                            dmCount={dmCounts[listing.id] ?? 0}
                                         />
                                     ))
                                 )}
@@ -350,8 +470,21 @@ export default function TradesPage({
                 onUpdates={onUpdates}
                 onStyle={onStyle}
                 onLore={onLore}
-                onTrades={onTrades}
             />
+
+            {/* Trade Chat Drawer */}
+            {chatListing && (
+                <TradeChat
+                    listing={chatListing}
+                    currentUser={currentUser}
+                    isOwner={chatIsOwner}
+                    groupId={groupId}
+                    bucket={config.bucket}
+                    ownedCards={ownedCards}
+                    onClose={closeChat}
+                    onTradeComplete={onTradeComplete}
+                />
+            )}
         </>
     );
 }
