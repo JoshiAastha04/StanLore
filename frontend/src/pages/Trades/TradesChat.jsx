@@ -177,20 +177,34 @@ export default function TradeChat({
             // Owner sees all conversations for this listing
             const { data, error: err } = await supabase
                 .from("trade_conversations")
-                .select(`
-                    *,
-                    initiator:initiator_id (
-                        id,
-                        profiles ( username, display_name, avatar )
-                    )
-                `)
+                .select("*")
                 .eq("listing_id", listing.id)
                 .order("updated_at", { ascending: false });
 
-            if (err) { setError("Couldn't load conversations."); setLoading(false); return; }
-            setConversations(data ?? []);
-            if ((data ?? []).length > 0 && !activeConvoId) {
-                setActiveConvoId(data[0].id);
+            if (err) { setError("Couldn't load conversations: " + err.message); setLoading(false); return; }
+
+            const convos = data ?? [];
+
+            // Separately fetch profiles for each initiator
+            // (can't join through auth.users in PostgREST public schema)
+            const initiatorIds = [...new Set(convos.map(c => c.initiator_id).filter(Boolean))];
+            let profileMap = {};
+            if (initiatorIds.length > 0) {
+                const { data: profiles } = await supabase
+                    .from("profiles")
+                    .select("id, username, display_name, avatar")
+                    .in("id", initiatorIds);
+                profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]));
+            }
+
+            const convosWithProfiles = convos.map(c => ({
+                ...c,
+                initiator: { profiles: profileMap[c.initiator_id] ?? null },
+            }));
+
+            setConversations(convosWithProfiles);
+            if (convosWithProfiles.length > 0 && !activeConvoId) {
+                setActiveConvoId(convosWithProfiles[0].id);
             }
             setLoading(false);
         } else {
