@@ -3,7 +3,7 @@ import { supabase } from "../lib/supabase.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
 
-// NOW ACCEPTS a groupId param — all reads and writes are scoped to that group.
+// NOW ACCEPTS a groupId param, all reads and writes are scoped to that group.
 // Usage:
 //   const col = useCollection("bts");        // BTS binder
 //   const col = useCollection("BlackPink");  // Blackpink binder
@@ -175,7 +175,7 @@ export function usePublicCollection(username, groupId = null) {
 
             if (profileError) { setError(profileError); setLoading(false); return; }
 
-            // Build collection query — optionally group-scoped
+            // Build collection query- optionally group-scoped
             let query = supabase
                 .from("collection")
                 .select(`

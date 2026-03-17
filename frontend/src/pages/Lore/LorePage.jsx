@@ -23,7 +23,7 @@ const TAG_BADGE = {
 };
 const TAGS = ["Theory", "Fashion", "Photocard", "Question"];
 
-// ─── User avatar — emoji if set, SVG silhouette otherwise ─────────────────────
+// ─── User avatar - emoji if set, SVG silhouette otherwise ─────────────────────
 function UserAvatar({ avatar, size = 24 }) {
     if (avatar) {
         return (
@@ -90,7 +90,7 @@ function NewThreadModal({ onClose, onPosted, username, userAvatar }) {
         setPosting(false);
 
         if (err) {
-            setError("Couldn't post — try again.");
+            setError("Couldn't post, try again!");
             console.error(err);
             return;
         }
@@ -159,7 +159,7 @@ function NewThreadModal({ onClose, onPosted, username, userAvatar }) {
                     </div>
                 </div>
 
-                {/* Buttons ALWAYS pinned at bottom — never inside scroll */}
+                {/* Buttons ALWAYS pinned at bottom never inside scroll */}
                 <div className="lore__modal-actions">
                     <button type="button" className="btn btn-ghost btn-sm" onClick={onClose}>Cancel</button>
                     <button type="button" className="btn btn-primary btn-sm" disabled={posting}
@@ -184,7 +184,7 @@ export default function LorePage({ onBack, onSignIn, isGuest, onHome, onCatalog,
 
     const username = profile?.username || profile?.display_name || "stan";
 
-    // ── Load threads from Supabase — visible to ALL users ──────────────────────
+    // ── Load threads from Supabase visible to ALL users ──────────────────────
     useEffect(() => {
         async function loadThreads() {
             const { data, error } = await supabase

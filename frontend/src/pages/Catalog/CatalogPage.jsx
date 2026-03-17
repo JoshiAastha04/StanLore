@@ -423,7 +423,7 @@ function PhotoCard({ photo, owned, wishlisted, onAdd, onWishlist, onDetail }) {
                         <button
                             className="catalog__add-btn"
                             onClick={e => { e.stopPropagation(); onAdd(); }}
-                            title={`Add to collection — ⭐${cost}`}
+                            title={`Add to collection - ⭐${cost}`}
                         >+</button>
                     )}
                 </div>
@@ -473,7 +473,7 @@ function CardDetailModal({ photo, owned, stars, onAdd, onClose }) {
                     <div className="catalog__detail-balance">
                         Your balance: <strong>⭐ {stars.toLocaleString()}</strong>
                         {!canAfford && !owned && (
-                            <span className="catalog__detail-insufficient"> — not enough stars</span>
+                            <span className="catalog__detail-insufficient"> Not enough stars</span>
                         )}
                     </div>
 
@@ -498,7 +498,7 @@ function CardDetailModal({ photo, owned, stars, onAdd, onClose }) {
                             disabled={!canAfford}
                             onClick={onAdd}
                         >
-                            {canAfford ? `Add to binder — ⭐${cost}` : `Need ⭐${cost - stars} more stars`}
+                            {canAfford ? `Add to binder - ⭐${cost}` : `Need ⭐${cost - stars} more stars`}
                         </button>
                     )}
 

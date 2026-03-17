@@ -7,7 +7,7 @@ import "../../styles/Components.css";
 import "./TradesPage.css";
 import "../../styles/Mobile.css";
 
-// ─── GROUP_CONFIG — keeps bucket names in sync with CatalogPage ──────────────
+// ─── GROUP_CONFIG keeps bucket names in sync with CatalogPage ──────────────
 const GROUP_CONFIG = {
     bts: { label: "BTS",       bucket: "bts-media"       },
     bp:  { label: "BLACKPINK", bucket: "BlackPink-media" },
@@ -24,7 +24,7 @@ function timeAgo(isoString) {
     return `${Math.floor(h / 24)}d ago`;
 }
 
-// ─── User avatar ──────────────────────────────────────────────────────────────
+// ─── User avatar ─────────────────────────────
 function UserAvatar({ avatar, size = 32 }) {
     if (avatar) {
         return (
@@ -92,7 +92,7 @@ function ComposeForm({ ownedCards, onPosted, username, userAvatar, groupId }) {
         setPosting(false);
 
         if (err) {
-            setError("Couldn't post listing — try again.");
+            setError("Couldn't post listing - try again.");
             console.error(err);
             return;
         }
@@ -139,7 +139,7 @@ function ComposeForm({ ownedCards, onPosted, username, userAvatar, groupId }) {
                     ) : (
                         <input
                             className="input"
-                            placeholder="e.g. V · Proof · Ver. A"
+                            placeholder="e.g. V - Proof - Ver. A"
                             value={have}
                             onChange={e => setHave(e.target.value)}
                         />
@@ -230,7 +230,7 @@ function TradeListing({ listing, currentUser, onDm, onViewDms, dmCount }) {
     );
 }
 
-// ─── Mobile bottom nav ────────────────────────────────────────────────────────
+// ─── Mobile bottom nav ───────────────
 function MobileBottomNav({ onHome, onCatalog, onUpdates, onStyle, onLore }) {
     const tabs = [
         { id: "home",    icon: "◫", label: "Binder",  action: onHome    },
@@ -255,7 +255,7 @@ function MobileBottomNav({ onHome, onCatalog, onUpdates, onStyle, onLore }) {
     );
 }
 
-// ─── Trades page ──────────────────────────────────────────────────────────────
+// ─── Trades page ──────────────
 export default function TradesPage({
                                        activeGroup,
                                        onBack, onHome, onCatalog, onUpdates, onStyle, onLore, onTrades,

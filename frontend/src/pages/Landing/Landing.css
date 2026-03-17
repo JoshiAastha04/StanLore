@@ -408,9 +408,6 @@
 }
 .landing__mobile-link:hover { color: var(--text-primary); }
 
-/* ─────────────────────────────────────────────────────────────
-   MOBILE BREAKPOINTS — Fix #6
-   ───────────────────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
     /* Swap desktop nav for hamburger */

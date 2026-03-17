@@ -11,7 +11,7 @@ const LOOKS = [
         occasion: "Airport",
         date: "Mar 14, 2026",
         location: "Incheon → Paris",
-        headline: "V — Celine oversized blazer, Acne Studios turtleneck, custom trousers",
+        headline: "V - Celine oversized blazer, Acne Studios turtleneck, custom trousers",
         items: [
             {
                 name: "Celine Oversized Blazer",
@@ -39,7 +39,7 @@ const LOOKS = [
                 name: "Sunglasses",
                 brand: "Unknown",
                 category: "Accessories",
-                price: "—",
+                price: "-",
                 identified: false,
                 dupes: [],
             },
@@ -54,7 +54,7 @@ const LOOKS = [
         occasion: "Dior Campaign",
         date: "Mar 10, 2026",
         location: "Official Campaign",
-        headline: "Jimin — Dior SS26 black tuxedo, full look",
+        headline: "Jimin- Dior SS26 black tuxedo, full look",
         items: [
             {
                 name: "Dior SS26 Tuxedo",
@@ -78,7 +78,7 @@ const LOOKS = [
         occasion: "Weverse Live",
         date: "Mar 12, 2026",
         location: "Online",
-        headline: "Jungkook — vintage band tee, low-rise grey trousers, New Balance 9060",
+        headline: "Jungkook- vintage band tee, low-rise grey trousers, New Balance 9060",
         items: [
             {
                 name: "Vintage Iron Maiden Tee",
@@ -112,7 +112,7 @@ const LOOKS = [
         occasion: "Gallery Visit",
         date: "Mar 8, 2026",
         location: "Seoul, Leeum Museum",
-        headline: "RM — Bottega Veneta knit, wide-leg linen trousers, minimalist loafers",
+        headline: "RM- Bottega Veneta knit, wide-leg linen trousers, minimalist loafers",
         items: [
             {
                 name: "Bottega Veneta Ribbed Knit",
@@ -136,7 +136,7 @@ const LOOKS = [
         occasion: "Studio",
         date: "Mar 6, 2026",
         location: "Weverse post",
-        headline: "Suga — Saint Laurent leather jacket, black on black",
+        headline: "Suga- Saint Laurent leather jacket, black on black",
         items: [
             {
                 name: "Saint Laurent Classic Leather Jacket",

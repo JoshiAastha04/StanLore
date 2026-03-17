@@ -200,7 +200,7 @@ function SignUpForm({ onSwitch }) {
             <div className="auth-form-wrap">
                 <div className="auth-title">Almost there <em>💜</em></div>
                 <div className="auth-alert auth-alert--success" style={{ marginTop: 20 }}>
-                    Check your email to confirm your account — then come back and sign in.
+                    Check your email to confirm your account - then come back and sign in.
                 </div>
                 <button className="auth-submit" onClick={onSwitch} style={{ marginTop: 8 }}>
                     Back to sign in
@@ -229,7 +229,7 @@ function SignUpForm({ onSwitch }) {
                         autoFocus
                     />
                     <div className="auth-input-hint">
-                        Your public @handle — letters, numbers, underscores only.
+                        Your public @handle - letters, numbers, underscores only.
                     </div>
                 </div>
                 <div className="auth-field">
@@ -287,7 +287,7 @@ function SetNewPasswordForm({ onDone }) {
         if (password !== confirm) { setError("Passwords don't match."); return; }
         setSaving(true); setError("");
 
-        // supabase.auth.updateUser saves the new password — Supabase handles
+        // supabase.auth.updateUser saves the new password - Supabase handles
         // the session automatically when user arrives via the recovery link
         const { error } = await supabase.auth.updateUser({ password });
         setSaving(false);

@@ -15,6 +15,7 @@ const GROUPS = [
         cards: 60,
         era: "ARIRANG",
         active: true,
+        accentClass: "grpselect__card--bts",
     },
     {
         id: "bp",
@@ -22,8 +23,9 @@ const GROUPS = [
         hangul: "블랙핑크",
         members: ["Kim Jisoo", "Kim Jennie", "Lalisa", "Park Chaeyong"],
         cards: 30,
-        era: "DEADLINE",
+        era: "DeadLine",
         active: true,
+        accentClass: "grpselect__card--bts",
     },
     {
         id: "seventeen",
@@ -33,6 +35,7 @@ const GROUPS = [
         cards: 312,
         era: "SPILL THE FEELS",
         active: false,
+        accentClass: "grpselect__card--soon",
     },
     {
         id: "newjeans",
@@ -40,8 +43,9 @@ const GROUPS = [
         hangul: "뉴진스",
         members: ["Minji", "Hanni", "Danielle", "Haerin", "Hyein"],
         cards: 156,
-        era: "HOW SWEET",
+        era: "How Sweet",
         active: false,
+        accentClass: "grpselect__card--soon",
     },
     {
         id: "aespa",
@@ -49,8 +53,9 @@ const GROUPS = [
         hangul: "에스파",
         members: ["Karina", "Giselle", "Winter", "Ningning"],
         cards: 134,
-        era: "WHIPLASH",
+        era: "Whiplash",
         active: false,
+        accentClass: "grpselect__card--soon",
     },
     {
         id: "add",
@@ -58,6 +63,7 @@ const GROUPS = [
         hangul: "",
         isAdd: true,
         active: false,
+        accentClass: "",
     },
 ];
 
@@ -86,7 +92,7 @@ function WelcomeOverlay({ group, onContinue }) {
 }
 
 // ─── GrpSelect ────────────────────────────────────────────────────────────────
-export default function GrpSelect({ onEnter, onLore, onUpdates, onCatalog, onSignIn, onSignOut, isGuest }) {
+export default function GrpSelect({ onEnter, onLore, onUpdates, onCatalog, onSignIn, onSignOut, onCreateAccount, isGuest }) {
     const { user } = useAuth();
 
     const [hovered,      setHovered]     = useState(null);
@@ -156,9 +162,10 @@ export default function GrpSelect({ onEnter, onLore, onUpdates, onCatalog, onSig
                     <button className="grpselect__nav-link" onClick={onUpdates}>Updates</button>
                     <button className="grpselect__nav-link" onClick={onLore}>Lore</button>
                     {isGuest ? (
-                        <button className="btn btn-primary btn-sm" onClick={onSignIn}>
-                            Sign in / Sign up
-                        </button>
+                        <>
+                            <button className="btn btn-ghost btn-sm" onClick={onSignIn}>Sign in</button>
+                            <button className="btn btn-primary btn-sm" onClick={onCreateAccount}>Create account</button>
+                        </>
                     ) : (
                         <button className="btn btn-ghost btn-sm" onClick={onSignOut}>
                             Sign out
@@ -170,9 +177,9 @@ export default function GrpSelect({ onEnter, onLore, onUpdates, onCatalog, onSig
             {/* ── Guest banner ── */}
             {isGuest && (
                 <div className="grpselect__guest-banner">
-                    <span>You're browsing as a guest.</span>
-                    <button className="grpselect__guest-cta" onClick={onSignIn}>
-                        Sign up free to track your collection →
+                    <span>You're browsing as a guest — create an account to track your collection.</span>
+                    <button className="grpselect__guest-cta" onClick={onCreateAccount}>
+                        Create account free →
                     </button>
                 </div>
             )}
@@ -243,9 +250,7 @@ export default function GrpSelect({ onEnter, onLore, onUpdates, onCatalog, onSig
 function GroupCard({ group, index, mounted, isHovered, isDimmed, isEntering, isGuest, onHover, onSelect }) {
     const classes = [
         "grpselect__card",
-        // live groups get golden accent; "soon" groups get the coral accent
-        group.active && !group.isAdd  ? "grpselect__card--live"     : "",
-        !group.active && !group.isAdd ? "grpselect__card--soon"     : "",
+        group.accentClass,
         mounted    ? "grpselect__card--visible"  : "",
         isHovered  ? "grpselect__card--hovered"  : "",
         isDimmed   ? "grpselect__card--dimmed"   : "",
@@ -303,7 +308,7 @@ function GroupCard({ group, index, mounted, isHovered, isDimmed, isEntering, isG
 
                     {group.active && (
                         <div className="grpselect__cta">
-                            {isGuest ? "Sign up to enter →" : "Enter universe →"}
+                            Enter universe →
                         </div>
                     )}
                 </>
