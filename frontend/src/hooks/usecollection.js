@@ -2,61 +2,68 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../lib/supabase.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
-// ─── useCollection ────────────────────────────────────────────────────────────
-// Fetches and manages the current user's photocard collection
-export function useCollection() {
+
+// NOW ACCEPTS a groupId param — all reads and writes are scoped to that group.
+// Usage:
+//   const col = useCollection("bts");        // BTS binder
+//   const col = useCollection("BlackPink");  // Blackpink binder
+// When the user switches groups in the app, pass the new groupId and the hook
+// re-fetches automatically (groupId is in the dependency array
+export function useCollection(groupId) {
     const { user } = useAuth();
     const [collection, setCollection] = useState([]);
     const [loading,    setLoading]    = useState(true);
     const [error,      setError]      = useState(null);
 
     const fetchCollection = useCallback(async () => {
-        if (!user) { setCollection([]); setLoading(false); return; }
+        if (!user || !groupId) { setCollection([]); setLoading(false); return; }
 
         setLoading(true);
         const { data, error } = await supabase
             .from("collection")
             .select(`
-        id,
-        status,
-        quantity,
-        created_at,
-        photocards (
-          id,
-          image_url,
-          is_rare,
-          members ( id, name, stage_name ),
-          versions (
-            id,
-            name,
-            albums (
-              id,
-              title,
-              eras ( id, name, slug )
-            )
-          )
-        )
-      `)
+                id,
+                status,
+                quantity,
+                created_at,
+                group_id,
+                photocards (
+                    id,
+                    image_url,
+                    is_rare,
+                    members ( id, name, stage_name ),
+                    versions (
+                        id,
+                        name,
+                        albums (
+                            id,
+                            title,
+                            eras ( id, name, slug )
+                        )
+                    )
+                )
+            `)
             .eq("user_id", user.id)
+            .eq("group_id", groupId)           // ← group-scoped
             .order("created_at", { ascending: false });
 
         if (error) setError(error);
         else setCollection(data || []);
         setLoading(false);
-    }, [user]);
+    }, [user, groupId]);
 
     useEffect(() => { fetchCollection(); }, [fetchCollection]);
 
-    // ── Set card status (owned / wishlist / duplicate) ──────────
+    // ── Set card status (owned / wishlist / duplicate / for-trade) ──────────
     async function setCardStatus(cardId, status) {
-        if (!user) return;
+        if (!user || !groupId) return;
 
         // Optimistic update
         setCollection(prev => {
-            const exists = prev.find(c => c.photocards.id === cardId);
+            const exists = prev.find(c => c.photocards?.id === cardId);
             if (exists) {
                 return prev.map(c =>
-                    c.photocards.id === cardId ? { ...c, status } : c
+                    c.photocards?.id === cardId ? { ...c, status } : c
                 );
             }
             return prev;
@@ -65,29 +72,31 @@ export function useCollection() {
         const { error } = await supabase
             .from("collection")
             .upsert({
-                user_id: user.id,
-                card_id: cardId,
+                user_id:    user.id,
+                card_id:    cardId,
+                group_id:   groupId,           // ← group-scoped
                 status,
                 updated_at: new Date().toISOString(),
-            }, { onConflict: "user_id,card_id" });
+            }, { onConflict: "user_id,card_id,group_id" });  // ← updated constraint
 
         if (error) {
             console.error("setCardStatus error:", error);
-            fetchCollection(); // revert optimistic update on error
+            fetchCollection(); // revert on error
         }
     }
 
-    // ── Remove card from collection ──────────────────────────────
+    // ── Remove card from this group's collection ────────────────────────────
     async function removeCard(cardId) {
-        if (!user) return;
+        if (!user || !groupId) return;
 
-        setCollection(prev => prev.filter(c => c.photocards.id !== cardId));
+        setCollection(prev => prev.filter(c => c.photocards?.id !== cardId));
 
         const { error } = await supabase
             .from("collection")
             .delete()
             .eq("user_id", user.id)
-            .eq("card_id", cardId);
+            .eq("card_id", cardId)
+            .eq("group_id", groupId);          // ← group-scoped
 
         if (error) {
             console.error("removeCard error:", error);
@@ -95,7 +104,7 @@ export function useCollection() {
         }
     }
 
-    // ── Derived stats ────────────────────────────────────────────
+    // ── Derived stats ────────────────────────────────────────────────────────
     const stats = {
         totalOwned:     collection.filter(c => c.status === "owned").length,
         totalWishlist:  collection.filter(c => c.status === "wishlist").length,
@@ -103,17 +112,17 @@ export function useCollection() {
         total:          collection.length,
     };
 
-    // ── Group by era for the binder view ────────────────────────
+    // ── Group by era for the binder view ────────────────────────────────────
     const byEra = collection.reduce((acc, item) => {
-        const era    = item.photocards.versions.albums.eras?.name ?? "Unknown";
-        const member = item.photocards.members.name;
+        const era    = item.photocards?.versions?.albums?.eras?.name ?? "Unknown";
+        const member = item.photocards?.members?.name ?? "Unknown";
         const key    = `${member}__${era}`;
 
         if (!acc[key]) {
             acc[key] = {
                 member,
                 era,
-                slug: item.photocards.versions.albums.eras?.slug,
+                slug:  item.photocards?.versions?.albums?.eras?.slug,
                 cards: [],
             };
         }
@@ -121,7 +130,7 @@ export function useCollection() {
         return acc;
     }, {});
 
-    // ── Recent activity (last 10 added) ─────────────────────────
+    // ── Recent activity (last 10 added) ─────────────────────────────────────
     const recentActivity = [...collection]
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
         .slice(0, 10);
@@ -139,9 +148,15 @@ export function useCollection() {
     };
 }
 
-// ─── usePublicCollection ──────────────────────────────────────────────────────
-// Fetches another user's public collection by username
-export function usePublicCollection(username) {
+
+// ─────────────────────────────────────────────────────────────────────────────
+// usePublicCollection
+//
+// Fetches another user's public collection for a specific group.
+// Pass groupId to see only their Blackpink binder, etc.
+// Pass null to get everything across all groups (for the overview profile tab).
+// ─────────────────────────────────────────────────────────────────────────────
+export function usePublicCollection(username, groupId = null) {
     const [data,    setData]    = useState(null);
     const [loading, setLoading] = useState(true);
     const [error,   setError]   = useState(null);
@@ -160,25 +175,29 @@ export function usePublicCollection(username) {
 
             if (profileError) { setError(profileError); setLoading(false); return; }
 
-            // Get their collection
-            const { data: collection, error: collectionError } = await supabase
+            // Build collection query — optionally group-scoped
+            let query = supabase
                 .from("collection")
                 .select(`
-          id, status, quantity, created_at,
-          photocards (
-            id, image_url, is_rare,
-            members ( id, name, stage_name ),
-            versions (
-              id, name,
-              albums (
-                id, title,
-                eras ( id, name, slug )
-              )
-            )
-          )
-        `)
+                    id, status, quantity, created_at, group_id,
+                    photocards (
+                        id, image_url, is_rare,
+                        members ( id, name, stage_name ),
+                        versions (
+                            id, name,
+                            albums (
+                                id, title,
+                                eras ( id, name, slug )
+                            )
+                        )
+                    )
+                `)
                 .eq("user_id", profile.id)
                 .order("created_at", { ascending: false });
+
+            if (groupId) query = query.eq("group_id", groupId);
+
+            const { data: collection, error: collectionError } = await query;
 
             if (collectionError) setError(collectionError);
             else setData({ profile, collection: collection || [] });
@@ -186,7 +205,7 @@ export function usePublicCollection(username) {
         }
 
         fetch();
-    }, [username]);
+    }, [username, groupId]);
 
     return { data, loading, error };
 }

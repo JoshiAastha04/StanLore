@@ -43,14 +43,13 @@ function UserAvatar({ avatar, size = 32 }) {
 }
 
 // ─── Compose form ─────────────────────────────────────────────────────────────
-function ComposeForm({ ownedCards, onPosted, username, userAvatar }) {
+function ComposeForm({ ownedCards, onPosted, username, userAvatar, groupId }) {
     const [have,    setHave]    = useState("");
     const [want,    setWant]    = useState("");
     const [posting, setPosting] = useState(false);
     const [error,   setError]   = useState("");
     const [success, setSuccess] = useState(false);
 
-    // Build autocomplete options from owned cards
     const cardOptions = ownedCards.map(row => {
         const pc     = row.photocards;
         const member = pc?.members?.stage_name || pc?.members?.name || "Unknown";
@@ -74,6 +73,7 @@ function ComposeForm({ ownedCards, onPosted, username, userAvatar }) {
                 user_avatar: userAvatar ?? null,
                 have_card:   have.trim(),
                 want_card:   want.trim(),
+                group_id:    groupId,
             });
 
         setPosting(false);
@@ -129,7 +129,7 @@ function ComposeForm({ ownedCards, onPosted, username, userAvatar }) {
     );
 }
 
-// ─── No cards empty state ────────────────────────────────────────────────────
+// ─── No cards empty state ─────────────────────────────────────────────────────
 function NoCardsState({ onCatalog }) {
     return (
         <div className="trades__no-cards card">
@@ -199,22 +199,27 @@ function MobileBottomNav({ onHome, onCatalog, onUpdates, onStyle, onLore, onTrad
 
 // ─── Trades page ──────────────────────────────────────────────────────────────
 export default function TradesPage({
+                                       activeGroup,
                                        onBack, onHome, onCatalog, onUpdates, onStyle, onLore, onTrades,
                                    }) {
     const { user, profile } = useAuth();
-    const [listings,   setListings]   = useState([]);
-    const [ownedCards, setOwnedCards] = useState([]);
-    const [loading,    setLoading]    = useState(true);
+    const groupId = activeGroup?.id ?? "bts";
+
+    const [listings,     setListings]     = useState([]);
+    const [ownedCards,   setOwnedCards]   = useState([]);
+    const [loading,      setLoading]      = useState(true);
     const [loadingOwned, setLoadingOwned] = useState(true);
 
     const username = profile?.username || profile?.display_name
         || user?.email?.split("@")[0] || "stan";
 
-    // ── Load all trade listings ───────────────────────────────────────────────
+    // ── Load trade listings for this group ────────────────────────────────────
     async function loadListings() {
+        setLoading(true);
         const { data, error } = await supabase
             .from("trade_listings")
             .select("*")
+            .eq("group_id", groupId)
             .order("created_at", { ascending: false })
             .limit(100);
 
@@ -222,7 +227,7 @@ export default function TradesPage({
 
         const rows = data ?? [];
 
-        // Fetch current avatars for all listing authors from profiles
+        // Fetch live avatars for all listing authors from profiles
         const userIds = [...new Set(rows.map(l => l.user_id).filter(Boolean))];
         const { data: profileRows } = userIds.length > 0
             ? await supabase.from("profiles").select("id, avatar").in("id", userIds)
@@ -236,7 +241,7 @@ export default function TradesPage({
         setLoading(false);
     }
 
-    // ── Load user's owned cards (for autocomplete + gating) ───────────────────
+    // ── Load user's owned cards in this group ─────────────────────────────────
     async function loadOwnedCards() {
         if (!user) { setLoadingOwned(false); return; }
         const { data, error } = await supabase
@@ -251,8 +256,9 @@ export default function TradesPage({
                     )
                 )
             `)
-            .eq("user_id", user.id)
-            .eq("status", "owned");
+            .eq("user_id",  user.id)
+            .eq("group_id", groupId)
+            .eq("status",   "owned");
 
         if (error) { console.error(error); }
         setOwnedCards(data ?? []);
@@ -262,7 +268,7 @@ export default function TradesPage({
     useEffect(() => {
         loadListings();
         loadOwnedCards();
-    }, [user]);
+    }, [user, groupId]);  // eslint-disable-line react-hooks/exhaustive-deps
 
     const hasOwnedCards = ownedCards.length > 0;
     const ready = !loading && !loadingOwned;
@@ -286,7 +292,9 @@ export default function TradesPage({
                 <main className="trades__main">
                     {/* Header */}
                     <div className="trades__header">
-                        <div className="eyebrow" style={{ marginBottom: 10 }}>Binder</div>
+                        <div className="eyebrow" style={{ marginBottom: 10 }}>
+                            {activeGroup?.name ?? "BTS"}
+                        </div>
                         <h1 className="trades__title">Trade board</h1>
                         <p className="trades__sub">Have dupes? Find what you want.</p>
                     </div>
@@ -299,12 +307,13 @@ export default function TradesPage({
                         </div>
                     ) : (
                         <>
-                            {/* Compose — gated behind owning at least 1 card */}
+                            {/* Compose — gated behind owning at least 1 card in this group */}
                             {hasOwnedCards ? (
                                 <ComposeForm
                                     ownedCards={ownedCards}
                                     username={username}
                                     userAvatar={profile?.avatar ?? null}
+                                    groupId={groupId}
                                     onPosted={loadListings}
                                 />
                             ) : (

@@ -106,6 +106,7 @@ function Router() {
     if (page === "catalog") {
         return (
             <CatalogPage
+                activeGroup={activeGroup}
                 isGuest={!isLoggedIn}
                 onBack={() => setPage(isLoggedIn ? "home" : "grpselect")}
                 onSignIn={() => setPage("auth")}
@@ -122,6 +123,7 @@ function Router() {
     if (page === "trades" && isLoggedIn) {
         return (
             <TradesPage
+                activeGroup={activeGroup}
                 onBack={() => setPage("home")}
                 onHome={() => setPage("home")}
                 onCatalog={() => setPage("catalog")}
