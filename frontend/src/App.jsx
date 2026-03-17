@@ -32,9 +32,15 @@ function Router() {
         } catch { return null; }
     });
 
-    const [profileUser, setProfileUser] = useState(null);
-    const [guestMode, setGuestMode]     = useState(false);
+    const [profileUser, setProfileUser]     = useState(null);
+    const [guestMode, setGuestMode]         = useState(false);
     const [catalogOnLoad, setCatalogOnLoad] = useState(false);
+    const [authMode, setAuthMode]           = useState("signin"); // "signin" | "signup"
+
+    // Helper — navigate to auth in signup mode
+    function goCreateAccount() { setAuthMode("signup"); setPage("auth"); }
+    // Helper — navigate to auth in signin mode
+    function goSignIn()        { setAuthMode("signin"); setPage("auth"); }
 
     // ── Persist page on every change ────────────────────────────────────────
     useEffect(() => {
@@ -86,24 +92,37 @@ function Router() {
 
     // Auth
     if (page === "auth") {
-        return <AuthPage onBack={() => setPage(guestMode ? "grpselect" : "landing")} />;
+        return (
+            <AuthPage
+                initialMode={authMode}
+                onBack={() => setPage(guestMode || !isLoggedIn ? (activeGroup ? "home" : "grpselect") : "landing")}
+            />
+        );
     }
 
     // Profile
-    if (page === "profile" && profileUser) {
+    if (page === "profile") {
         return (
             <ProfilePage
-                username={profileUser}
                 onHome={() => {
                     setProfileUser(null);
                     setPage(isLoggedIn ? "home" : "grpselect");
                 }}
                 onCatalog={() => {
-                    // Go home first, then the catalog tab opens via state
                     setProfileUser(null);
                     setPage("home");
-                    setCatalogOnLoad(true);   // signal HomePage to open catalog tab
+                    setCatalogOnLoad(true);
                 }}
+                onSignOut={isLoggedIn ? async () => {
+                    await signOut();
+                    localStorage.removeItem("stanlore_page");
+                    localStorage.removeItem("stanlore_activeGroup");
+                    setProfileUser(null); setActiveGroup(null);
+                    setGuestMode(false); setCatalogOnLoad(false);
+                    setPage("landing");
+                } : null}
+                onSignIn={goSignIn}
+                onCreateAccount={goCreateAccount}
             />
         );
     }
@@ -113,9 +132,9 @@ function Router() {
         return (
             <LorePage
                 isGuest={!isLoggedIn}
-                onBack={() => setPage(isLoggedIn ? "home" : "grpselect")}
-                onSignIn={() => setPage("auth")}
-                onHome={() => setPage(isLoggedIn ? "home" : "grpselect")}
+                onBack={() => setPage(isLoggedIn || activeGroup ? "home" : "grpselect")}
+                onSignIn={goSignIn}
+                onHome={() => setPage(isLoggedIn || activeGroup ? "home" : "grpselect")}
                 onCatalog={() => setPage("catalog")}
                 onUpdates={() => setPage("updates")}
                 onStyle={() => setPage("style")}
@@ -129,9 +148,9 @@ function Router() {
         return (
             <UpdatesPage
                 isGuest={!isLoggedIn}
-                onBack={() => setPage(isLoggedIn ? "home" : "grpselect")}
-                onSignIn={() => setPage("auth")}
-                onHome={() => setPage(isLoggedIn ? "home" : "grpselect")}
+                onBack={() => setPage(isLoggedIn || activeGroup ? "home" : "grpselect")}
+                onSignIn={goSignIn}
+                onHome={() => setPage(isLoggedIn || activeGroup ? "home" : "grpselect")}
                 onCatalog={() => setPage("catalog")}
                 onUpdates={() => setPage("updates")}
                 onStyle={() => setPage("style")}
@@ -146,9 +165,9 @@ function Router() {
             <CatalogPage
                 activeGroup={activeGroup}
                 isGuest={!isLoggedIn}
-                onBack={() => setPage(isLoggedIn ? "home" : "grpselect")}
-                onSignIn={() => setPage("auth")}
-                onHome={() => setPage(isLoggedIn ? "home" : "grpselect")}
+                onBack={() => setPage(isLoggedIn || activeGroup ? "home" : "grpselect")}
+                onSignIn={goSignIn}
+                onHome={() => setPage(isLoggedIn || activeGroup ? "home" : "grpselect")}
                 onCatalog={() => setPage("catalog")}
                 onUpdates={() => setPage("updates")}
                 onStyle={() => setPage("style")}
@@ -178,9 +197,9 @@ function Router() {
         return (
             <StylePage
                 isGuest={!isLoggedIn}
-                onBack={() => setPage(isLoggedIn ? "home" : "grpselect")}
-                onSignIn={() => setPage("auth")}
-                onHome={() => setPage(isLoggedIn ? "home" : "grpselect")}
+                onBack={() => setPage(isLoggedIn || activeGroup ? "home" : "grpselect")}
+                onSignIn={goSignIn}
+                onHome={() => setPage(isLoggedIn || activeGroup ? "home" : "grpselect")}
                 onCatalog={() => setPage("catalog")}
                 onUpdates={() => setPage("updates")}
                 onStyle={() => setPage("style")}
@@ -189,29 +208,33 @@ function Router() {
         );
     }
 
-    // Home (logged-in)
-    if (page === "home" && isLoggedIn) {
+    // Home — logged-in users AND browsing guests
+    if (page === "home" && (isLoggedIn || activeGroup)) {
         return (
             <HomePage
                 activeGroup={activeGroup}
+                isGuest={!isLoggedIn}
                 initialTab={catalogOnLoad ? "catalog" : "collection"}
-                onProfile={(username) => { setProfileUser(username); setPage("profile"); setCatalogOnLoad(false); }}
+                onProfile={(username) => {
+                    if (!isLoggedIn) { goCreateAccount(); return; }
+                    setProfileUser(username); setPage("profile"); setCatalogOnLoad(false);
+                }}
                 onLore={() => setPage("lore")}
                 onUpdates={() => setPage("updates")}
                 onStyle={() => setPage("style")}
                 onCatalog={() => setPage("catalog")}
-                onTrades={() => setPage("trades")}
+                onTrades={() => isLoggedIn ? setPage("trades") : goSignIn()}
                 onGroupSwitch={() => setPage("grpselect")}
-                onSignOut={async () => {
+                onSignIn={goSignIn}
+                onCreateAccount={goCreateAccount}
+                onSignOut={isLoggedIn ? async () => {
                     await signOut();
                     localStorage.removeItem("stanlore_page");
                     localStorage.removeItem("stanlore_activeGroup");
-                    setProfileUser(null);
-                    setActiveGroup(null);
-                    setGuestMode(false);
-                    setCatalogOnLoad(false);
+                    setProfileUser(null); setActiveGroup(null);
+                    setGuestMode(false); setCatalogOnLoad(false);
                     setPage("landing");
-                }}
+                } : null}
             />
         );
     }
@@ -222,14 +245,14 @@ function Router() {
             <GrpSelect
                 isGuest={!isLoggedIn}
                 onEnter={(group) => {
-                    if (!isLoggedIn) { setPage("auth"); return; }
+                    // Guests can browse — they enter home in read-only mode
                     setActiveGroup(group);
                     setPage("home");
                 }}
                 onLore={() => setPage("lore")}
                 onUpdates={() => setPage("updates")}
                 onCatalog={() => setPage("catalog")}
-                onSignIn={() => setPage("auth")}
+                onSignIn={goSignIn}
                 onSignOut={isLoggedIn ? async () => {
                     await signOut();
                     localStorage.removeItem("stanlore_page");
@@ -244,11 +267,9 @@ function Router() {
     // Landing
     return (
         <LandingPage
-            onEnter={() => setPage("auth")}
-            onBrowse={() => {
-                setGuestMode(true);
-                setPage("grpselect");
-            }}
+            onEnter={goSignIn}
+            onBrowse={() => { setGuestMode(true); setPage("grpselect"); }}
+            onCreateAccount={goCreateAccount}
         />
     );
 }
