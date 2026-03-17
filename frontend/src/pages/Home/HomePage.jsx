@@ -8,7 +8,7 @@ import "../../styles/Components.css";
 import "../../styles/globals.css";
 import "../../styles/Mobile.css";
 
-// ─── User avatar ──────────────────────────────────────────────────────────────
+// ─── User avatar — emoji if set, SVG silhouette otherwise ─────────────────────
 function UserAvatar({ avatar, size = 26 }) {
     if (avatar) {
         return (
@@ -24,11 +24,13 @@ function UserAvatar({ avatar, size = 26 }) {
         );
     }
     return (
-        <svg width={size} height={size} viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width={size} height={size} viewBox="0 0 72 72" fill="none"
+             xmlns="http://www.w3.org/2000/svg">
             <circle cx="36" cy="36" r="36" fill="rgba(38,33,92,0.8)" />
             <circle cx="36" cy="36" r="35" stroke="rgba(175,169,236,0.3)" strokeWidth="1" />
             <circle cx="36" cy="27" r="11" fill="rgba(175,169,236,0.65)" />
-            <path d="M14 62 C14 48 22 42 36 42 C50 42 58 48 58 62" fill="rgba(175,169,236,0.65)" />
+            <path d="M14 62 C14 48 22 42 36 42 C50 42 58 48 58 62"
+                  fill="rgba(175,169,236,0.65)" />
         </svg>
     );
 }
@@ -72,15 +74,9 @@ function StatCard({ value, label, accentColor }) {
     );
 }
 
-// ─── Photocard tile — shows real image + small era tag in corner ──────────────
+// ─── Photocard tile — shows real image if available ──────────────────────────
 function PcTile({ card, onClick }) {
     const [imgErr, setImgErr] = useState(false);
-
-    // Short era label: "HYYH pt 1" → "HYYH", "Butter" → "Butter", "BE" → "BE"
-    const eraTag = card.era
-        ? card.era.replace(/\s+pt\s+\d+/i, "").replace(/\s+Era$/i, "").trim()
-        : "";
-
     return (
         <div className={`pc-tile pc-tile--${card.status}`}
              style={{ position: "relative", overflow: "hidden" }}
@@ -96,23 +92,6 @@ function PcTile({ card, onClick }) {
                         onError={() => setImgErr(true)}
                         loading="lazy"
                     />
-                    {/* Era tag — top-right corner */}
-                    {eraTag && (
-                        <span style={{
-                            position: "absolute", top: 5, right: 5, zIndex: 3,
-                            fontSize: 8, padding: "2px 5px",
-                            background: "rgba(10,8,28,0.72)",
-                            color: "rgba(237,233,255,0.9)",
-                            borderRadius: 4,
-                            letterSpacing: "0.04em",
-                            backdropFilter: "blur(4px)",
-                            border: "0.5px solid rgba(175,169,236,0.2)",
-                            lineHeight: 1.4,
-                            fontFamily: "var(--font-sans)",
-                        }}>
-                            {eraTag}
-                        </span>
-                    )}
                     <span className={`badge ${BADGE_CLASS[card.status]}`}
                           style={{ position: "absolute", bottom: 6, left: 6, zIndex: 2 }}>
                         {card.status}
@@ -121,11 +100,6 @@ function PcTile({ card, onClick }) {
             ) : (
                 <>
                     <div className="pc-tile__ver">{card.ver}</div>
-                    {eraTag && (
-                        <div style={{ fontSize: 9, color: "var(--text-faint)", marginTop: 2, letterSpacing: "0.04em" }}>
-                            {eraTag}
-                        </div>
-                    )}
                     <span className={`badge ${BADGE_CLASS[card.status]}`}>{card.status}</span>
                 </>
             )}
@@ -133,18 +107,12 @@ function PcTile({ card, onClick }) {
     );
 }
 
-// ─── Era card (one per member, shows all eras together) ───────────────────────
+// ─── Era card ─────────────────────────────────────────────────────────────────
 function EraCard({ era, onCardClick }) {
     const completion = pct(era.owned, era.total);
     const isComplete = completion === 100;
     const initials   = MEMBER_INITIALS[era.member] || era.member.slice(0, 2).toUpperCase();
     const cols       = Math.min(era.cards.length, 4);
-
-    // era.eras = distinct era names array e.g. ["Butter","HYYH pt 1","BE"]
-    const erasList    = era.eras ?? [era.era];
-    const erasDisplay = erasList.length === 1
-        ? `${erasList[0]} Era`
-        : erasList.join(" · ");
 
     return (
         <div className="era-card">
@@ -152,7 +120,7 @@ function EraCard({ era, onCardClick }) {
                 <div className="avatar avatar--sm">{initials}</div>
                 <div>
                     <div className="era-card__member-name">{era.member}</div>
-                    <div className="era-card__era-name">{erasDisplay}</div>
+                    <div className="era-card__era-name">{era.era} Era</div>
                 </div>
                 <div className={`era-card__count${isComplete ? " era-card__count--complete" : ""}`}>
                     {isComplete ? "✦ complete" : `${era.owned} / ${era.total}`}
@@ -162,7 +130,7 @@ function EraCard({ era, onCardClick }) {
                 {era.cards.map((card, i) => <PcTile key={i} card={card} onClick={onCardClick} />)}
             </div>
             <div className="era-card__footer">
-                <span className="era-card__footer-label">{erasDisplay}</span>
+                <span className="era-card__footer-label">{era.era} Era</span>
                 <div className="progress-track">
                     <div className={`progress-fill${isComplete ? " progress-fill--complete" : ""}`}
                          style={{ width: `${completion}%` }} />
@@ -180,8 +148,10 @@ function CardModal({ card, onClose, onTrades }) {
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="card-modal" onClick={e => e.stopPropagation()}>
+                {/* Real image or colour fallback */}
                 {card.publicUrl && !imgErr ? (
-                    <img src={card.publicUrl} alt={card.ver}
+                    <img src={card.publicUrl}
+                         alt={card.ver}
                          className="card-modal__preview"
                          style={{ objectFit: "cover", borderRadius: "var(--radius-md)" }}
                          onError={() => setImgErr(true)} />
@@ -193,11 +163,6 @@ function CardModal({ card, onClose, onTrades }) {
                 )}
 
                 <div className="card-modal__title">{card.ver}</div>
-                {card.era && (
-                    <div style={{ fontSize: 12, color: "var(--text-faint)", marginTop: -6, marginBottom: 8 }}>
-                        {card.era}
-                    </div>
-                )}
 
                 <div className="card-modal__statuses">
                     {["owned","wishlist","duplicate","missing"].map(st => (
@@ -209,6 +174,7 @@ function CardModal({ card, onClose, onTrades }) {
                     ))}
                 </div>
 
+                {/* Trade option — only show for owned cards */}
                 {card.status === "owned" && (
                     <button className="btn btn-ghost btn-sm"
                             style={{ width: "100%", marginTop: 4, borderColor: "rgba(127,119,221,0.3)" }}
@@ -228,8 +194,7 @@ function CardModal({ card, onClose, onTrades }) {
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 function Sidebar({ activeTab, onTabChange, onSignOut, onProfile, onLore,
-                     onUpdates, onStyle, onCatalog, onTrades, onGroupSwitch,
-                     activeGroup, stars, username, avatar }) {
+                     onUpdates, onStyle, onCatalog, onTrades, onGroupSwitch, activeGroup, stars, username, avatar }) {
 
     function handleCommunity(id) {
         if (id === "lore")    { onLore?.();    return; }
@@ -238,6 +203,7 @@ function Sidebar({ activeTab, onTabChange, onSignOut, onProfile, onLore,
         if (id === "catalog") { onCatalog?.(); return; }
         onTabChange(id);
     }
+
     function handleBinder(id) {
         if (id === "trades") { onTrades?.(); return; }
         onTabChange(id);
@@ -250,7 +216,8 @@ function Sidebar({ activeTab, onTabChange, onSignOut, onProfile, onLore,
                     <div className="logo-mark logo-mark--sm">S</div>
                     <span className="logo-wordmark logo-wordmark--sm">Stanlore</span>
                 </div>
-                <button className="sidebar__profile-btn" onClick={() => onProfile?.(username)} title="My profile">
+                <button className="sidebar__profile-btn"
+                        onClick={() => onProfile?.(username)} title="My profile">
                     <UserAvatar avatar={avatar} size={30} />
                 </button>
             </div>
@@ -296,14 +263,8 @@ function Sidebar({ activeTab, onTabChange, onSignOut, onProfile, onLore,
             </nav>
 
             <div className="sidebar__spacer" />
+
             <div className="sidebar__user">
-                <div className="sidebar__user-row">
-                    <UserAvatar avatar={avatar} size={28} />
-                    <div style={{ flex: 1 }}>
-                        <div className="sidebar__user-name">@{username ?? "stan_collector"}</div>
-                        <div className="sidebar__user-tag">Early access</div>
-                    </div>
-                </div>
                 <button className="sidebar__signout" onClick={onSignOut}>Sign out</button>
             </div>
         </aside>
@@ -327,7 +288,8 @@ function MobileTopBar({ activeGroup, onGroupSwitch, onProfile, stars, username, 
                 </span>
             </div>
             <button className="mobile-topbar__profile" onClick={() => onProfile?.(username)}
-                    style={{ background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center" }}>
+                    style={{ background: "none", border: "none", padding: 0, cursor: "pointer",
+                        display: "flex", alignItems: "center" }}>
                 <UserAvatar avatar={avatar} size={30} />
             </button>
         </div>
@@ -366,18 +328,25 @@ function MobileBottomNav({ activeTab, onTabChange, onLore, onUpdates, onStyle, o
 function EmptyBinderState({ onCatalog }) {
     return (
         <div className="binder-empty">
+            {/* Ghost card grid */}
             <div className="binder-empty__ghost-grid">
                 {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="binder-empty__ghost-card" style={{ animationDelay: `${i * 0.12}s` }} />
+                    <div key={i} className="binder-empty__ghost-card"
+                         style={{ animationDelay: `${i * 0.12}s` }} />
                 ))}
             </div>
+
             <div className="binder-empty__text">
-                <h2 className="binder-empty__title">Start making your own collection ♡</h2>
+                <h2 className="binder-empty__title">
+                    Start making your own collection ♡
+                </h2>
                 <p className="binder-empty__sub">
                     Your binder is empty — and that's the best place to start.
                     Head to the catalog, spend your ⭐ stars, and claim your first photocard.
                 </p>
-                <button className="btn btn-primary" onClick={onCatalog}>Browse the catalog →</button>
+                <button className="btn btn-primary" onClick={onCatalog}>
+                    Browse the catalog →
+                </button>
             </div>
         </div>
     );
@@ -392,13 +361,17 @@ function CollectionTab({ eras, loading, onCatalog, onTrades }) {
         return (
             <div className="binder-loading">
                 {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="binder-loading__card" style={{ animationDelay: `${i * 0.1}s` }} />
+                    <div key={i} className="binder-loading__card"
+                         style={{ animationDelay: `${i * 0.1}s` }} />
                 ))}
             </div>
         );
     }
 
-    if (eras.length === 0) return <EmptyBinderState onCatalog={onCatalog} />;
+    // Real new user — no cards at all
+    if (eras.length === 0) {
+        return <EmptyBinderState onCatalog={onCatalog} />;
+    }
 
     const filtered   = activeMember === "All" ? eras : eras.filter(e => e.member === activeMember);
     const totalOwned = eras.reduce((s, e) => s + e.owned, 0);
@@ -444,14 +417,16 @@ function WishlistTab({ eras, loading }) {
     const items = eras.flatMap(era =>
         era.cards
             .filter(c => c.status === "wishlist")
-            .map(c => ({ ...c, member: era.member, era: c.era || era.era }))
+            .map(c => ({ ...c, member: era.member, era: era.era }))
     );
 
     if (!items.length) {
         return (
             <div className="empty-state">
                 Your wishlist is empty.<br />
-                <span style={{ fontSize: 15 }}>Go to the catalog and tap ♡ on any card to add it here.</span>
+                <span style={{ fontSize: 15 }}>
+                    Go to the catalog and tap ♡ on any card to add it here.
+                </span>
             </div>
         );
     }
@@ -464,21 +439,30 @@ function WishlistTab({ eras, loading }) {
                     <div key={i} className="wishlist-real-card">
                         <div className="wishlist-real-card__img">
                             {item.publicUrl && !imgErr ? (
-                                <img src={item.publicUrl} alt={item.ver}
-                                     style={{ width:"100%", height:"100%", objectFit:"cover", borderRadius:"inherit" }}
-                                     onError={() => setImgErr(true)} loading="lazy" />
+                                <img src={item.publicUrl}
+                                     alt={item.ver}
+                                     style={{ width:"100%", height:"100%",
+                                         objectFit:"cover", borderRadius:"inherit" }}
+                                     onError={() => setImgErr(true)}
+                                     loading="lazy" />
                             ) : (
-                                <div style={{ display:"flex", alignItems:"center", justifyContent:"center",
-                                    height:"100%", fontFamily:"var(--font-serif)", fontSize:18,
+                                <div style={{ display:"flex", alignItems:"center",
+                                    justifyContent:"center", height:"100%",
+                                    fontFamily:"var(--font-serif)", fontSize:18,
                                     color:"var(--purple-pale)", fontStyle:"italic" }}>
                                     {item.member}
                                 </div>
                             )}
                         </div>
                         <div className="wishlist-real-card__info">
-                            <div style={{ fontSize:13, fontWeight:500, color:"var(--text-secondary)" }}>{item.member}</div>
-                            <div style={{ fontSize:11, color:"var(--text-faint)" }}>{item.ver} · {item.era}</div>
-                            <span className="badge badge-wishlist" style={{ marginTop:6, display:"inline-block" }}>♡ wishlist</span>
+                            <div style={{ fontSize:13, fontWeight:500,
+                                color:"var(--text-secondary)" }}>{item.member}</div>
+                            <div style={{ fontSize:11, color:"var(--text-faint)" }}>
+                                {item.ver} · {item.era}
+                            </div>
+                            <span className="badge badge-wishlist" style={{ marginTop:6, display:"inline-block" }}>
+                                ♡ wishlist
+                            </span>
                         </div>
                     </div>
                 );
@@ -504,17 +488,18 @@ export default function HomePage({
     const [eras,    setEras]    = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // ── Per-group stars (replaces global profile.stars) ──────────────────────
     const groupId = activeGroup?.id ?? "bts";
     const { stars: groupStars } = useGroupMembership(user?.id, groupId);
 
-    const meta     = PAGE_META[activeTab] ?? PAGE_META.collection;
-    const stars    = groupStars;
+    const meta  = PAGE_META[activeTab] ?? PAGE_META.collection;
+    const stars = groupStars;
     const username = profile?.username || user?.email?.split("@")[0] || "stan_collector";
 
-    // ── Fetch real collection ─────────────────────────────────────────────────
+    // ── Fetch real collection from Supabase ──────────────────────────────────
     useEffect(() => {
         if (!user) { setLoading(false); return; }
-        setEras([]);
+        setEras([]);   // clear previous group's cards immediately on switch
         setLoading(true);
 
         async function loadCollection() {
@@ -525,23 +510,25 @@ export default function HomePage({
                         card_id, status,
                         photocards (
                             id, image_url,
-                            members  ( name, stage_name ),
-                            versions ( name,
+                            members   ( name, stage_name ),
+                            versions  ( name,
                                 albums ( title,
                                     eras ( name, slug )
                                 )
                             )
                         )
                     `)
-                    .eq("user_id",  user.id)
-                    .eq("group_id", groupId);
+                    .eq("user_id", user.id)
+                    .eq("group_id", groupId);  // ← only this group's cards
 
                 if (error) throw error;
-                if (!data || data.length === 0) { setEras([]); setLoading(false); return; }
+                if (!data || data.length === 0) {
+                    setEras([]);
+                    setLoading(false);
+                    return;
+                }
 
-                // ── Group by MEMBER only ──────────────────────────────────────
-                // All of a member's cards (across all eras) go into one EraCard.
-                // Each individual tile carries its own era tag for identification.
+                // Group by member + era — include all statuses
                 const grouped = {};
                 data.forEach(row => {
                     const pc        = row.photocards;
@@ -552,25 +539,16 @@ export default function HomePage({
                     const cleanPath = imagePath
                         ? (imagePath.includes(".") ? imagePath : imagePath + ".png")
                         : null;
-                    const bucket  = `${groupId}-media`;
+                    const bucket  = `${groupId}-media`;   // e.g. "bts-media", "BlackPink-media"
                     const fullUrl = cleanPath
                         ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/${bucket}/${cleanPath}`
                         : null;
-
-                    // KEY = member only → one card per member, all eras together
-                    const key = member;
+                    const key = `${member}__${era}`;
 
                     if (!grouped[key]) {
-                        grouped[key] = { id: key, member, era, eras: [], owned: 0, total: 0, cards: [] };
+                        grouped[key] = { id: key, member, era, owned: 0, total: 0, cards: [] };
                     }
-
-                    // Track distinct eras for the header display
-                    if (!grouped[key].eras.includes(era)) {
-                        grouped[key].eras.push(era);
-                    }
-
-                    // Each card carries its own era so the tile can show a corner tag
-                    grouped[key].cards.push({ ver: version, era, status: row.status, publicUrl: fullUrl, cardId: row.card_id });
+                    grouped[key].cards.push({ ver: version, status: row.status, publicUrl: fullUrl, cardId: row.card_id });
                     if (row.status === "owned") grouped[key].owned += 1;
                     grouped[key].total += 1;
                 });
@@ -585,24 +563,35 @@ export default function HomePage({
         }
 
         loadCollection();
-    }, [user, groupId]);
+    }, [user, groupId]);  // ← re-fetch whenever the active group changes
 
     return (
         <>
             <div className="home">
                 <Sidebar
-                    activeTab={activeTab} onTabChange={setActiveTab}
-                    onSignOut={onSignOut} onProfile={onProfile}
-                    onLore={onLore} onUpdates={onUpdates} onStyle={onStyle}
-                    onCatalog={onCatalog} onTrades={onTrades}
-                    onGroupSwitch={onGroupSwitch} activeGroup={activeGroup}
-                    stars={stars} username={username} avatar={profile?.avatar ?? null}
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                    onSignOut={onSignOut}
+                    onProfile={onProfile}
+                    onLore={onLore}
+                    onUpdates={onUpdates}
+                    onStyle={onStyle}
+                    onCatalog={onCatalog}
+                    onTrades={onTrades}
+                    onGroupSwitch={onGroupSwitch}
+                    activeGroup={activeGroup}
+                    stars={stars}
+                    username={username}
+                    avatar={profile?.avatar ?? null}
                 />
 
                 <main className="home__main">
                     <MobileTopBar
-                        activeGroup={activeGroup} onGroupSwitch={onGroupSwitch}
-                        onProfile={onProfile} stars={stars} username={username}
+                        activeGroup={activeGroup}
+                        onGroupSwitch={onGroupSwitch}
+                        onProfile={onProfile}
+                        stars={stars}
+                        username={username}
                         avatar={profile?.avatar ?? null}
                     />
                     <div className="home__group-bar">
@@ -627,12 +616,16 @@ export default function HomePage({
                     )}
                     {activeTab === "wishlist" && <WishlistTab eras={eras} loading={loading} />}
                 </main>
-            </div>
 
+            </div>
             <MobileBottomNav
-                activeTab={activeTab} onTabChange={setActiveTab}
-                onLore={onLore} onUpdates={onUpdates} onStyle={onStyle}
-                onCatalog={onCatalog} onTrades={onTrades}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                onLore={onLore}
+                onUpdates={onUpdates}
+                onStyle={onStyle}
+                onCatalog={onCatalog}
+                onTrades={onTrades}
             />
         </>
     );
