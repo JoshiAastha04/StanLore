@@ -79,22 +79,15 @@ function BinderPreview() {
 }
 
 // ─── Landing page ─────────────────────────────────────────────────────────────
-export default function LandingPage({ onEnter, onBrowse }) {
+export default function LandingPage({ onEnter, onBrowse, onCreateAccount }) {
     const [introPhase, setIntroPhase] = useState("blooming");
-    const [email, setEmail]           = useState("");
-    const [submitted, setSubmitted]   = useState(false);
-    const [menuOpen, setMenuOpen]     = useState(false);
+    const [menuOpen,   setMenuOpen]   = useState(false);
 
     useEffect(() => {
         const t1 = setTimeout(() => setIntroPhase("fading"), 2600);
         const t2 = setTimeout(() => setIntroPhase("done"),   3500);
         return () => { clearTimeout(t1); clearTimeout(t2); };
     }, []);
-
-    const handleWaitlist = (e) => {
-        e.preventDefault();
-        if (email) setSubmitted(true);
-    };
 
     return (
         <div className="landing">
@@ -135,10 +128,8 @@ export default function LandingPage({ onEnter, onBrowse }) {
                             document.getElementById("landing-features")?.scrollIntoView({ behavior: "smooth" });
                         }}>Features</button>
                         <button className="landing__nav-link" onClick={onBrowse}>Browse app</button>
-                        <button className="landing__nav-link" onClick={() => {
-                            document.getElementById("landing-cta")?.scrollIntoView({ behavior: "smooth" });
-                        }}>Join waitlist</button>
-                        <button className="btn btn-primary" onClick={onEnter}>Sign in</button>
+                        <button className="btn btn-ghost btn-sm" onClick={onEnter}>Sign in</button>
+                        <button className="btn btn-primary btn-sm" onClick={onCreateAccount}>Create account</button>
                     </div>
 
                     {/* Mobile hamburger */}
@@ -156,7 +147,7 @@ export default function LandingPage({ onEnter, onBrowse }) {
                     <div className="landing__mobile-menu">
                         <button className="landing__mobile-link" onClick={() => { onBrowse(); setMenuOpen(false); }}>Browse app</button>
                         <button className="landing__mobile-link" onClick={() => { onEnter(); setMenuOpen(false); }}>Sign in</button>
-                        <button className="btn btn-primary" style={{ width: "100%", marginTop: 4 }} onClick={() => { onEnter(); setMenuOpen(false); }}>
+                        <button className="btn btn-primary" style={{ width: "100%", marginTop: 4 }} onClick={() => { onCreateAccount(); setMenuOpen(false); }}>
                             Create account
                         </button>
                     </div>
@@ -179,28 +170,12 @@ export default function LandingPage({ onEnter, onBrowse }) {
                     </p>
 
                     <div className="landing__hero-actions">
-                        {!submitted ? (
-                            <form className="landing__waitlist-form" onSubmit={handleWaitlist}>
-                                <input
-                                    className="landing__waitlist-input"
-                                    type="email"
-                                    placeholder="your@email.com"
-                                    value={email}
-                                    onChange={e => setEmail(e.target.value)}
-                                    required
-                                />
-                                <button className="btn btn-primary" type="submit">
-                                    Join the waitlist
-                                </button>
-                            </form>
-                        ) : (
-                            <div className="landing__success">
-                                You're on the list. We purple you ✦
-                            </div>
-                        )}
-
-                        {/* Browse the app goes to GrpSelect without auth */}
-                        <button className="btn btn-ghost" onClick={onBrowse}>
+                        <button className="btn btn-primary" onClick={onCreateAccount}
+                                style={{ padding: "13px 32px", fontSize: 15 }}>
+                            Create account →
+                        </button>
+                        <button className="btn btn-ghost" onClick={onBrowse}
+                                style={{ padding: "13px 32px", fontSize: 15 }}>
                             Browse the app →
                         </button>
                     </div>
@@ -250,7 +225,7 @@ export default function LandingPage({ onEnter, onBrowse }) {
                     <p className="landing__cta-headline">I purple your collection.</p>
                     <p className="landing__cta-sub">Join collectors building their Digital Binder.</p>
                     <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-                        <button className="btn btn-primary" onClick={onEnter}
+                        <button className="btn btn-primary" onClick={onCreateAccount}
                                 style={{ padding: "13px 32px", fontSize: 15 }}>
                             Start your collection →
                         </button>

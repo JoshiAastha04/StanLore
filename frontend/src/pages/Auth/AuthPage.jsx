@@ -134,6 +134,39 @@ function SignInForm({ onSwitch, onForgot }) {
     );
 }
 
+// ─── Password strength validation
+function validatePassword(pw) {
+    if (pw.length < 7)             return "Password must be at least 7 characters.";
+    if (!/[A-Z]/.test(pw))         return "Include at least 1 uppercase letter (A–Z).";
+    if (!/[a-z]/.test(pw))         return "Include at least 1 lowercase letter (a–z).";
+    if (!/[0-9]/.test(pw))         return "Include at least 1 number (0–9).";
+    if (!/[^A-Za-z0-9]/.test(pw))  return "Include at least 1 special character (e.g. !@#$%).";
+    return null;
+}
+
+function PasswordHints({ password }) {
+    const rules = [
+        { label: "7+ chars",            ok: password.length >= 7 },
+        { label: "Uppercase (A–Z)",     ok: /[A-Z]/.test(password) },
+        { label: "Lowercase (a–z)",     ok: /[a-z]/.test(password) },
+        { label: "Number (0–9)",        ok: /[0-9]/.test(password) },
+        { label: "Special (!@#$)",      ok: /[^A-Za-z0-9]/.test(password) },
+    ];
+    if (!password) return null;
+    return (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 10px", marginTop: 6 }}>
+            {rules.map(r => (
+                <span key={r.label} style={{
+                    fontSize: 10, display: "flex", alignItems: "center", gap: 3,
+                    color: r.ok ? "#6ee7b7" : "var(--text-faint)",
+                }}>
+                    {r.ok ? "✓" : "○"} {r.label}
+                </span>
+            ))}
+        </div>
+    );
+}
+
 // ─── Sign Up form ─────────────────────────────────────────────────────────────
 function SignUpForm({ onSwitch }) {
     const { signUp } = useAuth();
@@ -152,10 +185,8 @@ function SignUpForm({ onSwitch }) {
             setError("Username must be 3–20 characters: lowercase letters, numbers, underscores only");
             return;
         }
-        if (password.length < 6) {
-            setError("Password must be at least 6 characters");
-            return;
-        }
+        const pwError = validatePassword(password);
+        if (pwError) { setError(pwError); return; }
 
         setLoading(true);
         const { error } = await signUp(email, password, username);
@@ -217,11 +248,12 @@ function SignUpForm({ onSwitch }) {
                     <input
                         className="auth-input"
                         type="password"
-                        placeholder="at least 6 characters"
+                        placeholder="Min 7 chars, e.g. Johndoe@7"
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         required
                     />
+                    <PasswordHints password={password} />
                 </div>
                 <button className="auth-submit" type="submit" disabled={loading}>
                     {loading
@@ -250,8 +282,9 @@ function SetNewPasswordForm({ onDone }) {
 
     async function handleSubmit(e) {
         e.preventDefault();
-        if (password.length < 6) { setError("Password must be at least 6 characters."); return; }
-        if (password !== confirm)  { setError("Passwords don't match."); return; }
+        const pwError = validatePassword(password);
+        if (pwError) { setError(pwError); return; }
+        if (password !== confirm) { setError("Passwords don't match."); return; }
         setSaving(true); setError("");
 
         // supabase.auth.updateUser saves the new password — Supabase handles
@@ -363,8 +396,8 @@ function ForgotPasswordForm({ onSwitch }) {
 }
 
 // ─── Auth page ────────────────────────────────────────────────────────────────
-export default function AuthPage({ onBack, isRecovery = false, onRecoveryDone }) {
-    const [mode, setMode] = useState("signin");
+export default function AuthPage({ onBack, isRecovery = false, onRecoveryDone, initialMode = "signin" }) {
+    const [mode, setMode] = useState(initialMode);
 
     return (
         <div className="auth-page">

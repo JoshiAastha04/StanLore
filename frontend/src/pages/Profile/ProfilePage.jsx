@@ -166,6 +166,33 @@ function EditProfileModal({ profile, onClose, onSave }) {
     );
 }
 
+// ─── Guest prompt — shown when visitor is not logged in ───────────────────────
+function GuestProfile({ onSignIn, onCreateAccount }) {
+    return (
+        <div style={{
+            minHeight: "100vh", display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+            gap: 20, padding: "40px 24px", textAlign: "center",
+            fontFamily: "var(--font-sans)",
+        }}>
+            <div style={{ fontSize: 48, marginBottom: 8 }}>✦</div>
+            <h2 style={{
+                fontFamily: "var(--font-serif)", fontSize: 28,
+                fontWeight: 300, color: "var(--text-primary)",
+            }}>
+                Create an account &amp; start your collection journey
+            </h2>
+            <p style={{ fontSize: 14, color: "var(--text-faint)", maxWidth: 340 }}>
+                Track every photocard you own, want, and have to trade — all in one place.
+            </p>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center", marginTop: 8 }}>
+                <button className="btn btn-primary" onClick={onCreateAccount}>Create account →</button>
+                <button className="btn btn-ghost"    onClick={onSignIn}>Sign in</button>
+            </div>
+        </div>
+    );
+}
+
 // ─── Empty state for new users ────────────────────────────────────────────────
 function NewUserState({ displayName, onCatalog, onEdit }) {
     return (
@@ -175,7 +202,7 @@ function NewUserState({ displayName, onCatalog, onEdit }) {
                 Start making your own collection ♡
             </h2>
             <p className="profile-v2__new-user-sub">
-                Your binder is empty right now — every great collection starts here.
+                Your binder is empty right now - every great collection starts here.
                 Head to the catalog, spend your ⭐ stars, and claim your first photocard.
             </p>
             <div className="profile-v2__new-user-actions">
@@ -200,7 +227,7 @@ function NewUserState({ displayName, onCatalog, onEdit }) {
 }
 
 // ─── Profile page ─────────────────────────────────────────────────────────────
-export default function ProfilePage({ onHome, onCatalog }) {
+export default function ProfilePage({ onHome, onCatalog, onSignOut, onSignIn, onCreateAccount }) {
     const { user, profile, updateProfile } = useAuth();
 
     const [activeTab,  setActiveTab]  = useState("overview");
@@ -250,6 +277,11 @@ export default function ProfilePage({ onHome, onCatalog }) {
         loadCollection();
     }, [user]);
 
+    // Guest — no account yet
+    if (!user) {
+        return <GuestProfile onSignIn={onSignIn} onCreateAccount={onCreateAccount} />;
+    }
+
     const isNewUser   = !loading && collection.length === 0;
     const totalCards  = collection.length;
     const totalOwned  = collection.filter(c => c.status === "owned").length;
@@ -280,7 +312,11 @@ export default function ProfilePage({ onHome, onCatalog }) {
                     <div className="logo-mark logo-mark--sm">S</div>
                     <span className="logo-wordmark logo-wordmark--sm">Stanlore</span>
                 </div>
-                <div />
+                {onSignOut && (
+                    <button className="btn btn-ghost btn-sm" onClick={onSignOut}>
+                        Sign out
+                    </button>
+                )}
             </nav>
 
             <main className="profile-v2__main">
