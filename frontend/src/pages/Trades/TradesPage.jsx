@@ -10,7 +10,7 @@ import "../../styles/Mobile.css";
 // ─── GROUP_CONFIG keeps bucket names in sync with CatalogPage ──────────────
 const GROUP_CONFIG = {
     bts: { label: "BTS",       bucket: "bts-media"       },
-    bp:  { label: "BLACKPINK", bucket: "BlackPink-media" },
+    bp:  { label: "BLACKPINK", bucket: "bp-media" },
 };
 
 function timeAgo(isoString) {
