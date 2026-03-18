@@ -49,12 +49,13 @@ The long-term vision is to expand into a broader fandom collection platform that
 - [x] Supabase integration
 - [x] Collection binder UI
 - [x] Public profile page
-- [ ] Real photocard catalog with images and metadata
-- [ ] Card status toggles connected to Supabase
-- [ ] Trade listings board
+- [x] Real photocard catalog with images and metadata
+- [x] Card status toggles connected to Supabase
+- [x] Trade listings board
+- [x] Multi-fandom support
 - [ ] Comeback tracker
 - [ ] Photocard scanner for card recognition
-- [ ] Multi-fandom support
+
 
 ## Tech Stack
 
