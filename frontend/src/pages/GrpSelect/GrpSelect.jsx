@@ -15,7 +15,7 @@ const GROUPS = [
         cards: 60,
         era: "ARIRANG",
         active: true,
-        accentClass: "grpselect__card--bts",
+        accentClass: "grpselect__card--live",
     },
     {
         id: "bp",
@@ -25,7 +25,7 @@ const GROUPS = [
         cards: 30,
         era: "DeadLine",
         active: true,
-        accentClass: "grpselect__card--bts",
+        accentClass: "grpselect__card--live",
     },
     {
         id: "seventeen",
